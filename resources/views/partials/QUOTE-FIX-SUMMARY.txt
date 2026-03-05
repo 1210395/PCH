@@ -1,0 +1,28 @@
+ALL NESTED QUOTE ISSUES FIXED IN PROFILE-EDIT FILES
+====================================================
+
+TOTAL CHANGES MADE: 13 lines fixed
+
+FILE: profile-edit-alpine-data.blade.php (11 fixes)
+- Line 95: fetch() changed to double quotes
+- Line 119: window.location changed to double quotes  
+- Line 171-172: project URLs changed to double quotes
+- Line 212: project image_paths using str_replace with double quotes
+- Line 243: delete project fetch changed to double quotes
+- Line 306-307: product URLs changed to double quotes
+- Line 347: product image_paths using str_replace with double quotes
+- Line 378: delete product fetch changed to double quotes
+- Line 424-425: service URLs changed to double quotes
+- Line 473: delete service fetch changed to double quotes
+- Line 561: upload image route using double quotes inside
+
+FILE: profile-edit-tabs.blade.php (2 fixes)
+- Line 46: cover image asset() using str_replace with double quotes
+- Line 72: avatar image asset() using str_replace with double quotes
+
+PATTERN FIXED:
+Before: '{{ url('...') }}' or '{{ asset('...') }}'
+After:  "{{ url('...') }}" or '{{ str_replace("'", "\'", asset("...")) }}'
+
+All JavaScript strings containing Blade expressions now use consistent quoting
+to avoid parse errors from nested quotes.

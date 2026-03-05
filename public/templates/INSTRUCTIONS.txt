@@ -1,0 +1,102 @@
+================================================
+DATABASE IMPORT TEMPLATES - INSTRUCTIONS
+Palestine Creative Hub Portal
+================================================
+
+OVERVIEW:
+These CSV files can be opened in Microsoft Excel, Google Sheets, or any spreadsheet software.
+Fill in the data following the examples provided in row 2 of each file.
+Delete the example row before importing.
+
+================================================
+1. USERS_TEMPLATE.CSV - Designer/User Profiles
+================================================
+
+COLUMNS:
+- name: Full name of the user (e.g., "Sarah Johnson")
+- email: Unique email address (e.g., "sarah@example.com") - MUST BE UNIQUE
+- password: Password for the user (will be encrypted when imported)
+- title: Job title/role (e.g., "Brand Designer & Strategist")
+- bio: Short biography (1-2 sentences about the designer)
+- location: City/Country (e.g., "Palestine")
+- website: Personal website URL (e.g., "https://sarahjohnson.com") - Optional
+- avatar: Image Name in the avatar folder.
+- cover_image: Image name in the Cover folder.
+
+NOTES:
+- Email must be unique for each user
+- Password will be encrypted automatically when imported
+- For verified column, use TRUE or FALSE (all caps)
+
+================================================
+2. PROJECTS_TEMPLATE.CSV - Creative Projects
+================================================
+
+COLUMNS:
+- user_email: Email of the user who created this project (must match email from users_template.csv)
+- category_name: Category name - MUST BE ONE OF:
+  * Branding
+  * UI/UX
+  * Photography
+  * Illustration
+  * Architecture
+  * Fashion
+  * Digital Art
+  * Graphic Design
+- title: Project title (e.g., "Modern Brand Identity System")
+- image:Image name in projects folder
+
+NOTES:
+- user_email MUST match an email from users_template.csv
+- category_name MUST exactly match one of the 8 categories listed above
+
+================================================
+3. USER_SKILLS_TEMPLATE.CSV - User Skills/Tags
+================================================
+
+COLUMNS:
+- user_email: Email of the user (must match email from users_template.csv)
+- skill_name: Skill name - MUST BE ONE OF:
+  * Branding
+  * Logo Design
+  * Visual Identity
+  * UI Design
+  * UX Research
+  * Prototyping
+  * Wireframing
+  * Product Photography
+  * Retouching
+  * Lighting
+  * Portrait Photography
+  * Illustration
+  * Digital Art
+  * Character Design
+  * 3D Modeling
+  * Web Design
+  * Mobile App Design
+  * Responsive Design
+  * Motion Graphics
+  * Animation
+  * Video Editing
+
+NOTES:
+- One row per skill per user
+- Each user can have multiple skills (add multiple rows with same user_email)
+- Typically 3-5 skills per user is good
+- skill_name MUST exactly match one from the list above
+
+EXAMPLE:
+sarah@example.com,Branding
+sarah@example.com,Logo Design
+sarah@example.com,Visual Identity
+
+================================================
+COMMON MISTAKES TO AVOID:
+================================================
+
+❌ Using emails in projects_template.csv that don't exist in users_template.csv
+❌ Misspelling category names (must match exactly)
+❌ Not using TRUE/FALSE for boolean fields (use all caps)
+❌ Duplicate email addresses in users_template.csv
+❌ Using invalid image URLs (must start with http:// or https://)
+
