@@ -106,17 +106,25 @@ class AdminDashboardController extends AdminBaseController
             ];
         }
 
-        // Top contributors (designers with most approved content)
-        $topContributors = Designer::where('is_admin', false)
-            ->where('is_active', true)
-            ->selectRaw('designers.*,
-                (SELECT COUNT(*) FROM projects WHERE projects.designer_id = designers.id AND projects.approval_status = "approved") +
-                (SELECT COUNT(*) FROM products WHERE products.designer_id = designers.id AND products.approval_status = "approved") +
-                (SELECT COUNT(*) FROM services WHERE services.designer_id = designers.id AND services.approval_status = "approved") as total_content')
-            ->orderByDesc('total_content')
-            ->having('total_content', '>', 0)
-            ->limit(5)
-            ->get();
+        // Top contributors (designers with most approved content) - cached for 5 min
+        $topContributors = cache()->remember('admin_top_contributors', 300, function () {
+            return Designer::where('is_admin', false)
+                ->where('is_active', true)
+                ->withCount([
+                    'projects as approved_projects_count' => fn($q) => $q->where('approval_status', 'approved'),
+                    'products as approved_products_count' => fn($q) => $q->where('approval_status', 'approved'),
+                    'services as approved_services_count' => fn($q) => $q->where('approval_status', 'approved'),
+                ])
+                ->get()
+                ->map(function ($d) {
+                    $d->total_content = $d->approved_projects_count + $d->approved_products_count + $d->approved_services_count;
+                    return $d;
+                })
+                ->where('total_content', '>', 0)
+                ->sortByDesc('total_content')
+                ->take(5)
+                ->values();
+        });
 
         // Approval rate
         $totalContent = $counts['products'] + $counts['projects'] + $counts['services'] + $counts['marketplace_posts'];

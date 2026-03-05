@@ -22,3 +22,21 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Prevent bloat from being committed
+**/node_modules/
+*.zip
+*.tar.gz
+*.rar
+public/assets/datatable*/
+public/assets/KAdmin/ckeditor5/new/
+public/assets/KAdmin/ckeditor5/*-master/
+public/assets/KAdmin/ckeditor5/*-master.zip
+public/assets/FontAwesome.Pro.*/less/
+public/assets/FontAwesome.Pro.*/scss/
+public/assets/FontAwesome.Pro.*/metadata/
+public/assets/FontAwesome.Pro.*/sprites/
+public/assets/FontAwesome.Pro.*/svgs/
+public/assets/FontAwesome.Pro.*/js/
+public/assets/css/backup/
+public/templates.zip

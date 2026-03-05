@@ -1,4 +1,4 @@
-@extends('layouts.chat')
+@extends('layout.chat')
 
 @section('title', __('Chat with') . ' ' . $otherDesigner->name . ' | ' . config('app.name'))
 

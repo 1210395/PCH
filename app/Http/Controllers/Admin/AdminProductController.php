@@ -185,14 +185,7 @@ class AdminProductController extends AdminBaseController
      */
     public function approve(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid product ID', 400);
-        }
-
-        $product = Product::findOrFail($id);
-        $product->approve($this->getAdminId());
-
-        return $this->successResponse('Product approved successfully', $product->fresh());
+        return $this->approveContent(Product::class, $id, 'Product');
     }
 
     /**
@@ -200,18 +193,7 @@ class AdminProductController extends AdminBaseController
      */
     public function reject(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid product ID', 400);
-        }
-
-        $validated = $request->validate([
-            'reason' => 'nullable|string|max:500',
-        ]);
-
-        $product = Product::findOrFail($id);
-        $product->reject($this->getAdminId(), $validated['reason'] ?? null);
-
-        return $this->successResponse('Product rejected', $product->fresh());
+        return $this->rejectContent(Product::class, $id, 'Product', $request);
     }
 
     /**

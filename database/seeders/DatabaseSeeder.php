@@ -15,16 +15,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Reference data seeders (safe for all environments)
         $this->call([
             CategorySeeder::class,
             SkillSeeder::class,
-            UserSeeder::class,
-            ProjectSeeder::class,
-            UserSkillSeeder::class,
-            FollowSeeder::class,
-            ProductSeeder::class,
-            MarketplacePostSeeder::class,
-            FabLabSeeder::class,
         ]);
+
+        // Test data seeders (development/testing only)
+        if (app()->environment('local', 'testing', 'development')) {
+            $this->call([
+                UserSeeder::class,
+                ProjectSeeder::class,
+                UserSkillSeeder::class,
+                FollowSeeder::class,
+                ProductSeeder::class,
+                MarketplacePostSeeder::class,
+                FabLabSeeder::class,
+            ]);
+        }
     }
 }

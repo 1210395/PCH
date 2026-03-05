@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DesignerController;
+use App\Http\Controllers\DesignerProfileController;
+use App\Http\Controllers\DesignerFollowController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\FabLabController;
 use App\Http\Controllers\MessagesController;
+use App\Http\Controllers\MessageRequestController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ValidationController;
 
@@ -44,7 +47,7 @@ Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
     return response()->file($path, [
         'Cache-Control' => 'public, max-age=31536000',
     ]);
-})->where('folder', '[a-zA-Z0-9_/-]+')->where('filename', '[a-zA-Z0-9._-]+');
+})->where('folder', '[a-zA-Z0-9_/-]+')->where('filename', '[a-zA-Z0-9._-]+')->middleware('throttle:200,1');
 
 // Redirect root based on browser language preference
 Route::get('/', function () {
@@ -146,7 +149,7 @@ Route::group(['prefix' => '{locale}'], function () {
     Route::post('/designer/{id}/track-view', [DesignerController::class, 'trackView'])
         ->middleware('throttle:30,1')
         ->name('designer.track-view');
-    Route::get('/designer/{id}/check-following', [DesignerController::class, 'checkFollowing'])
+    Route::get('/designer/{id}/check-following', [DesignerFollowController::class, 'checkFollowing'])
         ->middleware('throttle:30,1')
         ->name('designer.check-following');
 
@@ -155,31 +158,33 @@ Route::group(['prefix' => '{locale}'], function () {
         ->middleware('throttle:60,1')
         ->name('designer.ratings');
 
-    // Subscription routes (no guard middleware - controller handles both designer/academic auth)
-    Route::post('/subscriptions/profile/toggle', [SubscriptionController::class, 'toggleProfileSubscription'])
-        ->middleware('throttle:30,1')
-        ->name('subscriptions.profile.toggle');
-    Route::get('/subscriptions/profile/check', [SubscriptionController::class, 'checkProfileSubscription'])
-        ->middleware('throttle:60,1')
-        ->name('subscriptions.profile.check');
-    Route::get('/subscriptions/category/{contentType}', [SubscriptionController::class, 'getCategorySubscription'])
-        ->middleware('throttle:60,1')
-        ->name('subscriptions.category.get');
-    Route::post('/subscriptions/category/{contentType}', [SubscriptionController::class, 'saveCategorySubscription'])
-        ->middleware('throttle:30,1')
-        ->name('subscriptions.category.save');
-    Route::delete('/subscriptions/category/{contentType}', [SubscriptionController::class, 'deleteCategorySubscription'])
-        ->middleware('throttle:30,1')
-        ->name('subscriptions.category.delete');
+    // Subscription routes (auth required - controller handles multi-guard logic)
+    Route::middleware('auth:designer')->group(function () {
+        Route::post('/subscriptions/profile/toggle', [SubscriptionController::class, 'toggleProfileSubscription'])
+            ->middleware('throttle:30,1')
+            ->name('subscriptions.profile.toggle');
+        Route::get('/subscriptions/profile/check', [SubscriptionController::class, 'checkProfileSubscription'])
+            ->middleware('throttle:60,1')
+            ->name('subscriptions.profile.check');
+        Route::get('/subscriptions/category/{contentType}', [SubscriptionController::class, 'getCategorySubscription'])
+            ->middleware('throttle:60,1')
+            ->name('subscriptions.category.get');
+        Route::post('/subscriptions/category/{contentType}', [SubscriptionController::class, 'saveCategorySubscription'])
+            ->middleware('throttle:30,1')
+            ->name('subscriptions.category.save');
+        Route::delete('/subscriptions/category/{contentType}', [SubscriptionController::class, 'deleteCategorySubscription'])
+            ->middleware('throttle:30,1')
+            ->name('subscriptions.category.delete');
+    });
 
     // Logout route
     Route::middleware('auth:designer')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-        Route::get('/profile', [DesignerController::class, 'showProfile'])->name('profile');
-        Route::get('/account/settings', [DesignerController::class, 'accountSettings'])->name('account.settings');
-        Route::post('/account/password/update', [DesignerController::class, 'updatePassword'])->name('account.password.update');
-        Route::post('/account/privacy/update', [DesignerController::class, 'updatePrivacySettings'])->name('account.privacy.update');
-        Route::post('/account/email/update', [DesignerController::class, 'updateEmailPreferences'])->name('account.email.update');
+        Route::get('/profile', [DesignerProfileController::class, 'showProfile'])->name('profile');
+        Route::get('/account/settings', [DesignerProfileController::class, 'accountSettings'])->name('account.settings');
+        Route::post('/account/password/update', [DesignerProfileController::class, 'updatePassword'])->name('account.password.update');
+        Route::post('/account/privacy/update', [DesignerProfileController::class, 'updatePrivacySettings'])->name('account.privacy.update');
+        Route::post('/account/email/update', [DesignerProfileController::class, 'updateEmailPreferences'])->name('account.email.update');
 
         // Notification routes (authenticated only, rate limited)
         Route::get('/notifications', [NotificationController::class, 'index'])
@@ -202,16 +207,16 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::get('/messages/unread-count', [MessagesController::class, 'getUnreadCount'])
             ->middleware('throttle:120,1')
             ->name('messages.unreadCount');
-        Route::get('/messages/pending-requests-count', [MessagesController::class, 'getPendingRequestsCount'])
+        Route::get('/messages/pending-requests-count', [MessageRequestController::class, 'pendingCount'])
             ->middleware('throttle:120,1')
             ->name('messages.pendingRequestsCount');
-        Route::get('/messages/requests', [MessagesController::class, 'requests'])
+        Route::get('/messages/requests', [MessageRequestController::class, 'index'])
             ->middleware('throttle:60,1')
             ->name('messages.requests');
-        Route::post('/messages/send-request/{designerId}', [MessagesController::class, 'sendRequest'])
+        Route::post('/messages/send-request/{designerId}', [MessageRequestController::class, 'send'])
             ->middleware('throttle:30,1')
             ->name('messages.sendRequest');
-        Route::get('/messages/check-pending-request/{designerId}', [MessagesController::class, 'checkPendingRequest'])
+        Route::get('/messages/check-pending-request/{designerId}', [MessageRequestController::class, 'checkPending'])
             ->middleware('throttle:60,1')
             ->name('messages.checkPendingRequest');
         Route::get('/messages/compose/{designerId}', [MessagesController::class, 'compose'])
@@ -229,10 +234,10 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::get('/messages/chat/{conversationId}/messages', [MessagesController::class, 'getMessages'])
             ->middleware('throttle:60,1')
             ->name('messages.getMessages');
-        Route::post('/messages/requests/{requestId}/accept', [MessagesController::class, 'acceptRequest'])
+        Route::post('/messages/requests/{requestId}/accept', [MessageRequestController::class, 'accept'])
             ->middleware('throttle:10,1')
             ->name('messages.acceptRequest');
-        Route::post('/messages/requests/{requestId}/decline', [MessagesController::class, 'declineRequest'])
+        Route::post('/messages/requests/{requestId}/decline', [MessageRequestController::class, 'decline'])
             ->middleware('throttle:10,1')
             ->name('messages.declineRequest');
 
@@ -240,7 +245,7 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::get('/messages/{conversationId}/fetch', [MessagesController::class, 'fetchMessages'])
             ->middleware('throttle:120,1')
             ->name('messages.fetch');
-        Route::post('/messages/{conversationId}/send', [MessagesController::class, 'sendMessageInConversation'])
+        Route::post('/messages/{conversationId}/send', [MessagesController::class, 'sendInChat'])
             ->middleware('throttle:60,1')
             ->name('messages.sendInConversation');
         Route::post('/messages/{conversationId}/mark-read', [MessagesController::class, 'markAsRead'])
@@ -284,7 +289,7 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::post('/marketplace-posts/{id}/share', [\App\Http\Controllers\MarketplacePostController::class, 'shareToUsers'])->middleware('throttle:10,1')->name('marketplace-posts.share');
 
         // User search (for sharing)
-        Route::get('/designers/search-users', [\App\Http\Controllers\DesignerController::class, 'searchUsers'])->name('designers.search-users');
+        Route::get('/designers/search-users', [DesignerFollowController::class, 'searchUsers'])->name('designers.search-users');
 
         // Marketplace comments routes (authenticated only, rate limited)
         Route::post('/marketplace/{postId}/comments', [\App\Http\Controllers\MarketplaceCommentController::class, 'store'])
@@ -298,17 +303,17 @@ Route::group(['prefix' => '{locale}'], function () {
             ->name('marketplace.comments.destroy');
 
         // Designer profile management routes
-        Route::get('/profile/edit', [DesignerController::class, 'editProfile'])->name('profile.edit');
-        Route::post('/profile/update', [DesignerController::class, 'updateProfile'])->name('profile.update');
-        Route::post('/profile/update-certifications', [DesignerController::class, 'updateCertifications'])->name('profile.update-certifications');
-        Route::post('/designer/update-bio', [DesignerController::class, 'updateBio'])->name('designer.update-bio');
-        Route::post('/designer/update-skills', [DesignerController::class, 'updateSkills'])->name('designer.update-skills');
+        Route::get('/profile/edit', [DesignerProfileController::class, 'editProfile'])->name('profile.edit');
+        Route::post('/profile/update', [DesignerProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::post('/profile/update-certifications', [DesignerProfileController::class, 'updateCertifications'])->name('profile.update-certifications');
+        Route::post('/designer/update-bio', [DesignerProfileController::class, 'updateBio'])->name('designer.update-bio');
+        Route::post('/designer/update-skills', [DesignerProfileController::class, 'updateSkills'])->name('designer.update-skills');
 
         // Follow/Unfollow routes (authenticated only, rate limited)
-        Route::post('/designer/{id}/follow', [DesignerController::class, 'follow'])
+        Route::post('/designer/{id}/follow', [DesignerFollowController::class, 'follow'])
             ->middleware('throttle:30,1')
             ->name('designer.follow');
-        Route::post('/designer/{id}/unfollow', [DesignerController::class, 'unfollow'])
+        Route::post('/designer/{id}/unfollow', [DesignerFollowController::class, 'unfollow'])
             ->middleware('throttle:30,1')
             ->name('designer.unfollow');
 
@@ -319,7 +324,7 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::post('/projects/{id}/like', [ProjectController::class, 'toggleLike'])
             ->middleware('throttle:60,1')
             ->name('project.like');
-        Route::post('/designer/{id}/like', [DesignerController::class, 'toggleLike'])
+        Route::post('/designer/{id}/like', [DesignerFollowController::class, 'toggleLike'])
             ->middleware('throttle:60,1')
             ->name('designer.like');
         Route::post('/marketplace/{id}/like', [MarketplaceController::class, 'toggleLike'])
@@ -427,50 +432,6 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Note: Removed fallback to avoid catching asset files (js, css, images)
     // Assets are served directly by the web server
-
-    /* ============================================================
-    // ORIGINAL ROUTES - Uncomment when ready to launch full site
-    // ============================================================
-
-    // Home page
-    // Route::get('/', [HomeController::class, 'index'])->name('home');
-
-    // Projects
-    // Route::get('/projects', [ProjectController::class, 'index'])->name('projects');
-    // Route::get('/project/{id}', [ProjectController::class, 'show'])->name('project.detail');
-    // Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create')->middleware('auth');
-    // Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store')->middleware('auth');
-
-    // Designers
-    // Route::get('/designers', [DesignerController::class, 'index'])->name('designers');
-    // Route::get('/designer/{id}', [DesignerController::class, 'show'])->name('designer.portfolio');
-
-    // Products
-    // Route::get('/products', [ProductController::class, 'index'])->name('products');
-    // Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.detail');
-
-    // Fab Labs
-    // Route::get('/fab-labs', [FabLabController::class, 'index'])->name('fab-labs');
-    // Route::get('/fab-lab/{id}', [FabLabController::class, 'show'])->name('fab-lab.detail');
-
-    // Marketplace
-    // Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace');
-    // Route::get('/post/{id}', [MarketplaceController::class, 'show'])->name('post.detail');
-
-    // Authentication Routes
-    // Route::middleware('guest')->group(function () {
-    //     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    //     Route::post('/login', [AuthController::class, 'login']);
-    //     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-    //     Route::post('/register', [AuthController::class, 'register']);
-    //     Route::get('/register/success', [AuthController::class, 'showRegistrationSuccess'])->name('register.success');
-    //     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
-    // });
-
-    // Route::middleware('auth')->group(function () {
-    //     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    // });
-    */
 });
 
 // ============================================================

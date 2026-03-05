@@ -52,15 +52,40 @@ class NotificationSubscriptionService
             'url' => $contentUrl,
         ];
 
+        // Batch notifications by recipient type
+        $designerNotifications = [];
+        $academicNotifications = [];
+
         foreach ($subscriptions as $subscription) {
-            self::createNotification(
-                $subscription->subscriber_type,
-                $subscription->subscriber_id,
-                'profile_subscription_' . $contentType,
-                $title,
-                $message,
-                $data
-            );
+            $notificationData = [
+                'type' => 'profile_subscription_' . $contentType,
+                'title' => $title,
+                'message' => $message,
+                'data' => json_encode($data),
+                'read' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            if ($subscription->subscriber_type === 'designer') {
+                $notificationData['designer_id'] = $subscription->subscriber_id;
+                $designerNotifications[] = $notificationData;
+            } else {
+                $notificationData['academic_account_id'] = $subscription->subscriber_id;
+                $academicNotifications[] = $notificationData;
+            }
+        }
+
+        // Bulk insert in chunks of 100
+        if (!empty($designerNotifications)) {
+            foreach (array_chunk($designerNotifications, 100) as $chunk) {
+                Notification::insert($chunk);
+            }
+        }
+        if (!empty($academicNotifications)) {
+            foreach (array_chunk($academicNotifications, 100) as $chunk) {
+                AcademicNotification::insert($chunk);
+            }
         }
     }
 
@@ -111,15 +136,40 @@ class NotificationSubscriptionService
             'url' => $contentUrl,
         ];
 
+        // Batch notifications by recipient type
+        $designerNotifications = [];
+        $academicNotifications = [];
+
         foreach ($matchingSubscriptions as $subscription) {
-            self::createNotification(
-                $subscription->subscriber_type,
-                $subscription->subscriber_id,
-                'category_subscription_' . $contentType,
-                $title,
-                $message,
-                $data
-            );
+            $notificationData = [
+                'type' => 'category_subscription_' . $contentType,
+                'title' => $title,
+                'message' => $message,
+                'data' => json_encode($data),
+                'read' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            if ($subscription->subscriber_type === 'designer') {
+                $notificationData['designer_id'] = $subscription->subscriber_id;
+                $designerNotifications[] = $notificationData;
+            } else {
+                $notificationData['academic_account_id'] = $subscription->subscriber_id;
+                $academicNotifications[] = $notificationData;
+            }
+        }
+
+        // Bulk insert in chunks of 100
+        if (!empty($designerNotifications)) {
+            foreach (array_chunk($designerNotifications, 100) as $chunk) {
+                Notification::insert($chunk);
+            }
+        }
+        if (!empty($academicNotifications)) {
+            foreach (array_chunk($academicNotifications, 100) as $chunk) {
+                AcademicNotification::insert($chunk);
+            }
         }
     }
 

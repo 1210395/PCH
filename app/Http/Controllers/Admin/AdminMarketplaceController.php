@@ -136,14 +136,7 @@ class AdminMarketplaceController extends AdminBaseController
      */
     public function approve(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid post ID', 400);
-        }
-
-        $post = MarketplacePost::findOrFail($id);
-        $post->approve($this->getAdminId());
-
-        return $this->successResponse('Marketplace post approved successfully', $post->fresh());
+        return $this->approveContent(MarketplacePost::class, $id, 'Marketplace post');
     }
 
     /**
@@ -151,18 +144,7 @@ class AdminMarketplaceController extends AdminBaseController
      */
     public function reject(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid post ID', 400);
-        }
-
-        $validated = $request->validate([
-            'reason' => 'nullable|string|max:500',
-        ]);
-
-        $post = MarketplacePost::findOrFail($id);
-        $post->reject($this->getAdminId(), $validated['reason'] ?? null);
-
-        return $this->successResponse('Marketplace post rejected', $post->fresh());
+        return $this->rejectContent(MarketplacePost::class, $id, 'Marketplace post', $request);
     }
 
     /**

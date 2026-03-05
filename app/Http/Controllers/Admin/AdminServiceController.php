@@ -133,14 +133,7 @@ class AdminServiceController extends AdminBaseController
      */
     public function approve(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid service ID', 400);
-        }
-
-        $service = Service::findOrFail($id);
-        $service->approve($this->getAdminId());
-
-        return $this->successResponse('Service approved successfully', $service->fresh());
+        return $this->approveContent(Service::class, $id, 'Service');
     }
 
     /**
@@ -148,18 +141,7 @@ class AdminServiceController extends AdminBaseController
      */
     public function reject(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid service ID', 400);
-        }
-
-        $validated = $request->validate([
-            'reason' => 'nullable|string|max:500',
-        ]);
-
-        $service = Service::findOrFail($id);
-        $service->reject($this->getAdminId(), $validated['reason'] ?? null);
-
-        return $this->successResponse('Service rejected', $service->fresh());
+        return $this->rejectContent(Service::class, $id, 'Service', $request);
     }
 
     /**

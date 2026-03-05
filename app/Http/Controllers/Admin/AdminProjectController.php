@@ -188,14 +188,7 @@ class AdminProjectController extends AdminBaseController
      */
     public function approve(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid project ID', 400);
-        }
-
-        $project = Project::findOrFail($id);
-        $project->approve($this->getAdminId());
-
-        return $this->successResponse('Project approved successfully', $project->fresh());
+        return $this->approveContent(Project::class, $id, 'Project');
     }
 
     /**
@@ -203,18 +196,7 @@ class AdminProjectController extends AdminBaseController
      */
     public function reject(Request $request, $locale, $id)
     {
-        if (!$this->validateId($id)) {
-            return $this->errorResponse('Invalid project ID', 400);
-        }
-
-        $validated = $request->validate([
-            'reason' => 'nullable|string|max:500',
-        ]);
-
-        $project = Project::findOrFail($id);
-        $project->reject($this->getAdminId(), $validated['reason'] ?? null);
-
-        return $this->successResponse('Project rejected', $project->fresh());
+        return $this->rejectContent(Project::class, $id, 'Project', $request);
     }
 
     /**
