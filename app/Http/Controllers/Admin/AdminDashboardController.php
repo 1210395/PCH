@@ -115,15 +115,16 @@ class AdminDashboardController extends AdminBaseController
                     'products as approved_products_count' => fn($q) => $q->where('approval_status', 'approved'),
                     'services as approved_services_count' => fn($q) => $q->where('approval_status', 'approved'),
                 ])
+                ->having('approved_projects_count', '>', 0)
+                ->orHaving('approved_products_count', '>', 0)
+                ->orHaving('approved_services_count', '>', 0)
+                ->orderByRaw('approved_projects_count + approved_products_count + approved_services_count DESC')
+                ->limit(5)
                 ->get()
                 ->map(function ($d) {
                     $d->total_content = $d->approved_projects_count + $d->approved_products_count + $d->approved_services_count;
                     return $d;
-                })
-                ->where('total_content', '>', 0)
-                ->sortByDesc('total_content')
-                ->take(5)
-                ->values();
+                });
         });
 
         // Approval rate

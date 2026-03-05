@@ -243,6 +243,7 @@ class MessagesController extends Controller
             ->with('sender')
             ->where('id', '>', $lastMessageId)
             ->orderBy('created_at', 'asc')
+            ->limit(100)
             ->get();
 
         $conversation->markAsRead($currentDesigner->id);

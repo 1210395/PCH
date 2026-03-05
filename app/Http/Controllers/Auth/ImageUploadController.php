@@ -161,7 +161,7 @@ class ImageUploadController extends Controller
             }
 
             // Step 4: Check for duplicate upload using hash
-            // BUG-054 Fix: Only reuse if same type (don't reuse profile images for products!)
+            // Only reuse if same type (don't reuse profile images for products!)
             if ($request->has('file_hash') && !empty($request->file_hash)) {
                 $existingPath = $this->findImageByHash($request->file_hash, $request->session_id, $request->type);
                 if ($existingPath) {
@@ -279,7 +279,7 @@ class ImageUploadController extends Controller
             }
 
             // Step 9: Store metadata for duplicate detection
-            // BUG-054 Fix: Include type in metadata to prevent cross-type reuse
+            // Include type in metadata to prevent cross-type reuse
             try {
                 $this->storeUploadMetadata($path, $request->file_hash, $sessionId, $type);
                 Log::info('Metadata stored successfully', ['type' => $type]);
@@ -400,7 +400,7 @@ class ImageUploadController extends Controller
      */
     public function moveToPermStorage($tempPath, $type, $userId, $entityId = null, $imageNumber = null)
     {
-        // BUG-055 Fix: Check if file doesn't exist in temp (already moved as duplicate)
+        // Check if file doesn't exist in temp (already moved as duplicate)
         if (empty($tempPath)) {
             Log::warning('Cannot move image - path is empty', ['type' => $type]);
             return '';
@@ -445,7 +445,7 @@ class ImageUploadController extends Controller
         // Get extension from temp file
         $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
 
-        // BUG-056: Generate structured filename
+        // Generate structured filename
         $typeForName = $type === 'cover' ? 'hero' : ($type === 'avatar' ? 'profile' : ($type === 'certification' ? 'cert' : $type));
         if ($entityId !== null) {
             if ($imageNumber !== null) {
@@ -476,7 +476,7 @@ class ImageUploadController extends Controller
         $folderName = $folderMap[$type] ?? $type . 's';
         $permanentPath = "{$folderName}/{$structuredFilename}";
 
-        // BUG-055 Fix: If file doesn't exist in temp, check if it was already moved to permanent storage
+        // If file doesn't exist in temp, check if it was already moved to permanent storage
         if (!$tempExists) {
             // If file exists in permanent storage, copy it with structured name
             $oldFilename = basename($tempPath);
@@ -519,7 +519,7 @@ class ImageUploadController extends Controller
             return '';
         }
 
-        // BUG-015 Fix: Path traversal validation
+        // Path traversal validation
         $realTempPath = realpath(storage_path('app/public/' . $tempPath));
         $basePath = realpath(storage_path('app/public'));
 
@@ -580,7 +580,7 @@ class ImageUploadController extends Controller
             $metadata = json_decode(Storage::disk('public')->get($metadataPath), true);
 
             if (isset($metadata[$hash])) {
-                // BUG-054 Fix: Only return if type matches (or no type check for backward compatibility)
+                // Only return if type matches (or no type check for backward compatibility)
                 $storedType = $metadata[$hash]['type'] ?? null;
                 $path = $metadata[$hash]['path'];
 
@@ -662,7 +662,7 @@ class ImageUploadController extends Controller
                     ->toArray();
             }
 
-            // BUG-054 Fix: Add type to metadata to prevent cross-type reuse
+            // Add type to metadata to prevent cross-type reuse
             $metadata[$hash] = [
                 'path' => $path,
                 'type' => $type,

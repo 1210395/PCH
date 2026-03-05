@@ -202,7 +202,7 @@ class ProjectController extends Controller
         // Create project
         $project = Project::create([
             'designer_id' => auth('designer')->id(),
-            'category_id' => 9,  // Default category ID - required field
+            'category_id' => $validated['category_id'] ?? \App\Models\Category::first()?->id ?? 1,
             'title' => $validated['title'],
             'description' => $validated['description'],
             'role' => $validated['role'],

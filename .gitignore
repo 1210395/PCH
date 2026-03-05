@@ -39,4 +39,16 @@ public/assets/FontAwesome.Pro.*/sprites/
 public/assets/FontAwesome.Pro.*/svgs/
 public/assets/FontAwesome.Pro.*/js/
 public/assets/css/backup/
+public/assets/fancybox*/
+public/assets/chartjs/
+public/assets/bootstrap/
 public/templates.zip
+
+# Generated/debug files
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+clear-cache.php
+debug-assets.php
+*.sql
+database/database.sqlite

@@ -17,7 +17,7 @@ function signupWizard() {
         heroImagePreview: null,
         errors: {},
         isValidating: false,
-        isNavigating: false, // BUG-017 Fix: Lock navigation during validation
+        isNavigating: false, Lock navigation during validation
         autoSaveTimer: null,
         showPassword: false,
         showConfirmPassword: false,
@@ -33,7 +33,7 @@ function signupWizard() {
         // Progressive upload tracking
         uploadSession: null, // Unique session ID for this registration
         uploading: false, // Global upload state
-        uploadMutex: false, // BUG-008 Fix: Prevent concurrent uploads
+        uploadMutex: false, Prevent concurrent uploads
         uploadProgress: {}, // Track upload progress per image
         uploadedPaths: {
             profile: null,
@@ -221,7 +221,7 @@ function signupWizard() {
                 };
             }
 
-            // BUG-049 Fix: Match uploadImage validation exactly (no webp)
+            Match uploadImage validation exactly (no webp)
             // Check file type - must be an image
             const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
             if (!validTypes.includes(file.type)) {
@@ -259,23 +259,23 @@ function signupWizard() {
         },
 
         async uploadImage(file, type, itemId = null) {
-            // BUG-052 Fix: Allow multiple simultaneous uploads for products/projects with multiple images
+            Allow multiple simultaneous uploads for products/projects with multiple images
             // Only use mutex for profile images to prevent duplicate uploads of the same profile picture
             const useMutex = (type === 'profile');
 
             if (useMutex) {
-                // BUG-008 Fix: Check upload mutex to prevent concurrent uploads (profile only)
+                Check upload mutex to prevent concurrent uploads (profile only)
                 if (this.uploadMutex) {
                     showToast('{{ __("Please wait for the current upload to complete before uploading another image.") }}', 'warning');
                     return;
                 }
 
-                // BUG-008 Fix: Acquire mutex lock
+                Acquire mutex lock
                 this.uploadMutex = true;
             } else {
             }
 
-            // BUG-028 Fix: Create AbortController for timeout
+            Create AbortController for timeout
             const abortController = new AbortController();
             const timeoutId = setTimeout(() => abortController.abort(), 30000); // 30 seconds timeout
 
@@ -317,7 +317,7 @@ function signupWizard() {
 
                 const uploadUrl = '{{ route("upload.registration.image", ["locale" => app()->getLocale()]) }}';
 
-                // BUG-028 Fix: Upload with timeout support
+                Upload with timeout support
                 const response = await fetch(uploadUrl, {
                     method: 'POST',
                     headers: {
@@ -417,7 +417,7 @@ function signupWizard() {
                 console.error('❌ Upload error:', error);
                 console.error('Error stack:', error.stack);
 
-                // BUG-046 Fix: Clear preview on error
+                Clear preview on error
                 if (type === 'profile') {
                     this.profileImagePreview = null;
                 }
@@ -425,7 +425,7 @@ function signupWizard() {
                 // More user-friendly error message
                 let errorMessage = '{{ __("Image upload failed.") }}\n\n';
 
-                // BUG-028 Fix: Handle timeout error
+                Handle timeout error
                 if (error.name === 'AbortError') {
                     errorMessage += '{{ __("Upload timed out after 30 seconds. Please check your internet connection and try again.") }}';
                 } else if (error.message.includes('status')) {
@@ -441,10 +441,10 @@ function signupWizard() {
                 showToast(errorMessage, 'error');
                 return null;
             } finally {
-                // BUG-028 Fix: Clear timeout
+                Clear timeout
                 clearTimeout(timeoutId);
 
-                // BUG-052 Fix: Only release mutex if we acquired it (profile images only)
+                Only release mutex if we acquired it (profile images only)
                 if (useMutex) {
                     this.uploadMutex = false;
                 }
@@ -688,7 +688,7 @@ function signupWizard() {
             if (this.selectedSkill) {
                 skillToAdd = this.selectedSkill;
             } else if (this.customSkill && this.customSkill.trim().length > 0) {
-                // BUG-036 Fix: Validate max length
+                Validate max length
                 const trimmed = this.customSkill.trim();
                 if (trimmed.length > 50) {
                     showToast('{{ __("Skill name is too long. Maximum 50 characters allowed.") }}', 'error');
@@ -700,7 +700,7 @@ function signupWizard() {
                 skillToAdd = skillToAdd.charAt(0).toUpperCase() + skillToAdd.slice(1);
             }
 
-            // BUG-021 Fix: Case-insensitive duplicate check
+            Case-insensitive duplicate check
             const skillLowerCase = skillToAdd.toLowerCase();
             const isDuplicate = this.formData.skills.some(s => s.toLowerCase() === skillLowerCase);
 
@@ -818,7 +818,7 @@ function signupWizard() {
                 return;
             }
 
-            // BUG-049 Fix: Upload FIRST, then show preview only if upload succeeds
+            Upload FIRST, then show preview only if upload succeeds
             const uploadedPath = await this.uploadImage(file, 'profile');
 
             // Only add preview if upload succeeded
@@ -973,7 +973,7 @@ function signupWizard() {
                     continue; // Skip this file but continue with others
                 }
 
-                // BUG-049 Fix: Generate imageId and upload FIRST, then add preview only if upload succeeds
+                Generate imageId and upload FIRST, then add preview only if upload succeeds
                 const imageId = Date.now().toString() + '_' + i;
 
                 // Upload image to server progressively
@@ -1094,7 +1094,7 @@ function signupWizard() {
                     continue; // Skip this file but continue with others
                 }
 
-                // BUG-049 Fix: Generate imageId and upload FIRST, then add preview only if upload succeeds
+                Generate imageId and upload FIRST, then add preview only if upload succeeds
                 const imageId = Date.now().toString() + '_' + i;
 
                 // Upload image to server progressively
@@ -1594,7 +1594,7 @@ function signupWizard() {
         },
 
         async nextStep() {
-            // BUG-017 Fix: Prevent concurrent navigation
+            Prevent concurrent navigation
             if (this.isNavigating) return;
 
             this.isNavigating = true;
@@ -1613,7 +1613,7 @@ function signupWizard() {
 
                     this.currentStep++;
 
-                    // BUG-042 Fix: Focus management after step change
+                    Focus management after step change
                     setTimeout(() => {
                         const firstInput = document.querySelector('input:not([type="hidden"]), textarea, select');
                         if (firstInput) firstInput.focus();
@@ -1629,7 +1629,7 @@ function signupWizard() {
 
         prevStep() {
             if (this.currentStep > 1) {
-                // BUG-048 Fix: Guest users go back from Review (step 7) to Profile Type (step 2)
+                Guest users go back from Review (step 7) to Profile Type (step 2)
                 if (this.formData.sector === 'guest' && this.currentStep === 7) {
                     // Guest users skip steps 4-6 (Products, Projects, Services)
                     // Jump directly from Review (7) to Profile Type (2)
@@ -1755,7 +1755,7 @@ function signupWizard() {
                 form.appendChild(input);
             }
 
-            // BUG-052 Fix: Add product image paths (multiple images support)
+            Add product image paths (multiple images support)
             this.formData.products.forEach((product, index) => {
                 // Legacy single image path (deprecated but kept for backward compatibility)
                 if (this.uploadedPaths.products[product.id]) {
@@ -1766,7 +1766,7 @@ function signupWizard() {
                     form.appendChild(input);
                 }
 
-                // BUG-052 Fix: Submit multiple image paths array
+                Submit multiple image paths array
                 if (product.imagePaths && Array.isArray(product.imagePaths) && product.imagePaths.length > 0) {
                     product.imagePaths.forEach((imagePath, imgIndex) => {
                         const input = document.createElement('input');
@@ -1778,7 +1778,7 @@ function signupWizard() {
                 }
             });
 
-            // BUG-052 Fix: Add project image paths (multiple images support)
+            Add project image paths (multiple images support)
             this.formData.projects.forEach((project, index) => {
                 // Legacy single image path (deprecated but kept for backward compatibility)
                 if (this.uploadedPaths.projects[project.id]) {
@@ -1789,7 +1789,7 @@ function signupWizard() {
                     form.appendChild(input);
                 }
 
-                // BUG-052 Fix: Submit multiple image paths array
+                Submit multiple image paths array
                 if (project.imagePaths && Array.isArray(project.imagePaths) && project.imagePaths.length > 0) {
                     project.imagePaths.forEach((imagePath, imgIndex) => {
                         const input = document.createElement('input');
@@ -1878,7 +1878,7 @@ function signupWizard() {
         // ============================================================
 
         scheduleAutoSave() {
-            // BUG-039 Fix: Optimize debouncing (wait 2 seconds to reduce saves)
+            Optimize debouncing (wait 2 seconds to reduce saves)
             if (this.autoSaveTimer) {
                 clearTimeout(this.autoSaveTimer);
             }
@@ -1933,7 +1933,7 @@ function signupWizard() {
                 };
                 localStorage.setItem('signupWizardData', JSON.stringify(dataToSave));
             } catch (e) {
-                // BUG-013 Fix: Handle localStorage quota exceeded
+                Handle localStorage quota exceeded
                 if (e.name === 'QuotaExceededError' || e.code === 22) {
 
                     // Try to clear old cached data and retry

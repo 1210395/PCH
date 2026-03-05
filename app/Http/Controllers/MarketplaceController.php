@@ -13,11 +13,6 @@ class MarketplaceController extends Controller
 		$designer = auth('designer')->user();
 		if (!$designer) {
 			return redirect(route('login', ['locale' => app()->getLocale()]));
-			
-			/*return response()->json([
-				'success' => false,
-				'message' => 'User not authenticated'
-			], 401);*/
 		}
 		
         // Validate and sanitize input

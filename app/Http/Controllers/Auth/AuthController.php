@@ -214,7 +214,7 @@ class AuthController extends Controller
                 'products.*.category' => ['nullable', 'string', 'max:255'],
                 'products.*.image' => ['nullable', 'image', 'max:5120'],
                 'products.*.image_path' => ['nullable', 'string'], // Deprecated - single image
-                'products.*.image_paths' => ['nullable', 'array', 'max:6'], // BUG-051 Fix: Multiple images
+                'products.*.image_paths' => ['nullable', 'array', 'max:6'], // Multiple images support
                 'products.*.image_paths.*' => ['nullable', 'string'],
 
                 'projects' => ['nullable', 'array'],
@@ -224,7 +224,7 @@ class AuthController extends Controller
                 'projects.*.category' => ['nullable', 'string', 'max:255'],
                 'projects.*.image' => ['nullable', 'image', 'max:5120'],
                 'projects.*.image_path' => ['nullable', 'string'], // Deprecated - single image
-                'projects.*.image_paths' => ['nullable', 'array', 'max:6'], // BUG-051 Fix: Multiple images
+                'projects.*.image_paths' => ['nullable', 'array', 'max:6'], // Multiple images support
                 'projects.*.image_paths.*' => ['nullable', 'string'],
 
                 'services' => ['nullable', 'array'],
@@ -280,7 +280,7 @@ class AuthController extends Controller
             }
         }
 
-        // Wrap entire registration in a database transaction (BUG-018 Fix)
+        // Wrap entire registration in a database transaction
         try {
             DB::beginTransaction();
 
@@ -344,12 +344,12 @@ class AuthController extends Controller
                 ]);
             }
 
-            // BUG-056: Move profile image to permanent storage with structured naming
+            // Move profile image to permanent storage with structured naming
             $avatarPath = null;
             if ($request->has('profile_image_path')) {
                 // Use pre-uploaded image and move from temp to permanent storage
                 $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
-                // BUG-056: Use structured naming: profile_123.jpg
+                // Structured naming: profile_123.jpg
                 $avatarPath = $imageUploader->moveToPermStorage(
                     $request->profile_image_path,
                     'profile',
@@ -395,7 +395,7 @@ class AuthController extends Controller
                 $designer->update(['cover_image' => $coverPath]);
             }
 
-            // BUG-019 Fix: Attach skills efficiently using bulk operations
+            // Attach skills efficiently using bulk operations
             if (!empty($skills)) {
                 // First, get all existing skills in one query
                 $skillSlugs = array_map(fn($name) => Str::slug($name), $skills);
@@ -472,11 +472,11 @@ class AuthController extends Controller
             if (!empty($validated['products'])) {
                 foreach ($validated['products'] as $index => $product) {
                     if (!empty($product['name']) && !empty($product['description']) && !empty($product['category'])) {
-                        // BUG-052 Fix: Wrap each product creation in a nested try-catch to prevent AUTO_INCREMENT gaps
+                        // Wrap each product creation in try-catch to prevent AUTO_INCREMENT gaps
                         try {
                             $productImage = '';
 
-                            // BUG-051 Fix: Handle backward compatibility for single image
+                            // Handle backward compatibility for single image
                             if (!empty($product['image_path'])) {
                                 $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
                                 $productImage = $imageUploader->moveToPermStorage(
@@ -498,27 +498,25 @@ class AuthController extends Controller
                                 'featured' => false,
                             ]);
 
-                            // BUG-052 Fix: Save multiple images to product_images table
+                            // Save multiple images to product_images table
                             // Only proceed if product was created successfully
                             if (!empty($product['image_paths']) && is_array($product['image_paths'])) {
                                 $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
 
-                                // BUG-053 Fix: Reindex array to ensure sequential 0-based keys
-                                // This handles cases where frontend might send gaps in indices
+                                // Reindex array to ensure sequential 0-based keys
                                 $imagePaths = array_values(array_filter($product['image_paths'], function ($path) {
                                     return !empty($path);
                                 }));
 
-                                // BUG-053 Fix: Debug logging - what are we actually receiving?
-
-                                $displayOrder = 0; // BUG-052: Use sequential counter instead of array index
+                                
+                                $displayOrder = 0;
 
                                 foreach ($imagePaths as $imgIndex => $imagePath) {
-                                    // BUG-056: Image number starts from 1 (not 0) for user-friendly naming
+                                    // Image number starts from 1 for user-friendly naming
                                     $imageNumber = $displayOrder + 1;
 
 
-                                    // BUG-056: Move image with structured naming: product_123_1.jpg
+                                    // Move image with structured naming
                                     $permanentPath = $imageUploader->moveToPermStorage(
                                         $imagePath,
                                         'product',
@@ -552,7 +550,7 @@ class AuthController extends Controller
                             $productsCount++;
 
                         } catch (\Exception $e) {
-                            // BUG-052 Fix: Log product creation failure but continue with other products
+                            // Log failure but continue with other products
                             Log::error('Failed to create product during registration', [
                                 'product_index' => $index,
                                 'product_name' => $product['name'] ?? 'unknown',
@@ -576,11 +574,11 @@ class AuthController extends Controller
 
                 foreach ($validated['projects'] as $index => $project) {
                     if (!empty($project['title']) && !empty($project['description']) && !empty($project['role'])) {
-                        // BUG-052 Fix: Wrap each project creation in a nested try-catch to prevent AUTO_INCREMENT gaps
+                        // Wrap each project creation in try-catch to prevent AUTO_INCREMENT gaps
                         try {
                             $projectImage = '';
 
-                            // BUG-051 Fix: Handle backward compatibility for single image
+                            // Handle backward compatibility for single image
                             if (!empty($project['image_path'])) {
                                 $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
                                 $projectImage = $imageUploader->moveToPermStorage(
@@ -614,27 +612,25 @@ class AuthController extends Controller
                                 'featured' => false,
                             ]);
 
-                            // BUG-052 Fix: Save multiple images to project_images table
+                            // Save multiple images to project_images table
                             // Only proceed if project was created successfully
                             if (!empty($project['image_paths']) && is_array($project['image_paths'])) {
                                 $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
 
-                                // BUG-053 Fix: Reindex array to ensure sequential 0-based keys
-                                // This handles cases where frontend might send gaps in indices
+                                // Reindex array to ensure sequential 0-based keys
                                 $imagePaths = array_values(array_filter($project['image_paths'], function ($path) {
                                     return !empty($path);
                                 }));
 
-                                // BUG-053 Fix: Debug logging - what are we actually receiving?
-
-                                $displayOrder = 0; // BUG-052: Use sequential counter instead of array index
+                                
+                                $displayOrder = 0;
 
                                 foreach ($imagePaths as $imgIndex => $imagePath) {
-                                    // BUG-056: Image number starts from 1 (not 0) for user-friendly naming
+                                    // Image number starts from 1 for user-friendly naming
                                     $imageNumber = $displayOrder + 1;
 
 
-                                    // BUG-056: Move image with structured naming: project_123_1.jpg
+                                    // Move image with structured naming
                                     $permanentPath = $imageUploader->moveToPermStorage(
                                         $imagePath,
                                         'project',
@@ -668,7 +664,7 @@ class AuthController extends Controller
                             $projectsCount++;
 
                         } catch (\Exception $e) {
-                            // BUG-052 Fix: Log project creation failure but continue with other projects
+                            // Log failure but continue with other projects
                             Log::error('Failed to create project during registration', [
                                 'project_index' => $index,
                                 'project_title' => $project['title'] ?? 'unknown',
@@ -697,10 +693,10 @@ class AuthController extends Controller
 
                         $serviceImage = '';
 
-                        // BUG-056: Use pre-uploaded path or upload now with structured naming
+                        // Use pre-uploaded path or upload now with structured naming
                         if (!empty($service['image_path'])) {
                             $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
-                            // BUG-056: Structured naming: service_123.jpg
+                            // Structured naming: service_123.jpg
                             $serviceImage = $imageUploader->moveToPermStorage(
                                 $service['image_path'],
                                 'service',
@@ -732,7 +728,7 @@ class AuthController extends Controller
             // Commit the transaction - all data saved successfully
             DB::commit();
 
-            // BUG-009 Fix: Cleanup temp files on success
+            // Cleanup temp files on success
             if ($request->has('upload_session_id')) {
                 $this->cleanupTempFiles($request->upload_session_id);
             }
@@ -764,7 +760,7 @@ class AuthController extends Controller
             // Rollback the transaction on any error
             DB::rollBack();
 
-            // BUG-009 Fix: Cleanup temp files on failure
+            // Cleanup temp files on failure
             if ($request->has('upload_session_id')) {
                 $this->cleanupTempFiles($request->upload_session_id);
             }
@@ -788,7 +784,7 @@ class AuthController extends Controller
     }
 
     /**
-     * BUG-009 Fix: Cleanup temporary uploaded files after registration
+     * Cleanup temporary uploaded files after registration
      */
     private function cleanupTempFiles($sessionId)
     {

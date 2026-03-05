@@ -263,20 +263,17 @@ Route::group(['prefix' => '{locale}'], function () {
             ->middleware('throttle:10,1')
             ->name('messages.rating.update');
 
-        // Product management routes
-        Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+        // Product management routes (auth required for create/update/delete)
         Route::post('/products', [ProductController::class, 'store'])->middleware('throttle:10,1')->name('products.store');
         Route::match(['PUT', 'POST'], '/products/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::match(['DELETE', 'POST'], '/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-        // Project management routes
-        Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('projects.show');
+        // Project management routes (auth required for create/update/delete)
         Route::post('/projects', [ProjectController::class, 'store'])->middleware('throttle:10,1')->name('projects.store');
         Route::match(['PUT', 'POST'], '/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
         Route::match(['DELETE', 'POST'], '/projects/{id}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
-        // Service management routes
-        Route::get('/services/{id}', [\App\Http\Controllers\ServiceController::class, 'show'])->name('services.manage');
+        // Service management routes (auth required for create/update/delete)
         Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store'])->middleware('throttle:10,1')->name('services.store');
         Route::match(['PUT', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'update'])->name('services.update');
         Route::match(['DELETE', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'destroy'])->name('services.destroy');
