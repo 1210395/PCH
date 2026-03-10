@@ -6,23 +6,23 @@
 <meta name="keywords" content="{{ __('designers, creative professionals, portfolio, Palestine, MSMEs, creative industries') }}">
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
+    "@@context": "https://schema.org",
+    "@@type": "WebSite",
     "name": "Palestine Creative Hub",
     "alternateName": "مركز فلسطين الإبداعي",
     "url": "{{ url('/') }}",
     "description": "A digital hub and marketplace supporting designers, MSMEs, and creative industries in Palestine. Connecting talent with opportunities.",
     "inLanguage": ["en", "ar"],
     "potentialAction": {
-        "@type": "SearchAction",
+        "@@type": "SearchAction",
         "target": "{{ url(app()->getLocale() . '/search') }}?q={search_term_string}",
         "query-input": "required name=search_term_string"
     },
     "publisher": {
-        "@type": "Organization",
+        "@@type": "Organization",
         "name": "Palestine Creative Hub",
         "logo": {
-            "@type": "ImageObject",
+            "@@type": "ImageObject",
             "url": "{{ asset('images/logo.png') }}"
         }
     }
