@@ -1,16 +1,11 @@
 <?php
-$settings = App\Http\Models\General::getGlobalSettings();
-if($settings->favicon!="") $favicon=check_http_thumb_replace($settings->favicon);
-$site_title=$settings->ar_site_title;
-$site_keywords=$settings->ar_site_keywords;
-$site_desc=$settings->ar_site_description;
 return [
     /* DEFAULT MESSAGES*/
     "web_path"=>env('APP_URL', 'http://demo.intertech.ps/'),
     "header_image"=>'http://demo.intertech.ps/',
-    "title"=>$site_title,
-    "website_description"=>$site_desc,
-    "website_keywords"=>$site_keywords,
+    "title"=>config('app.name', 'مركز فلسطين الإبداعي'),
+    "website_description"=>config('app.description', 'مركز فلسطين الإبداعي'),
+    "website_keywords"=>config('app.keywords', 'فلسطين, مركز إبداعي, تصميم, تكنولوجيا, ابتكار'),
     "align"=>"right",
     "rev_align"=>"left",
     "other_lang"=>"English", 

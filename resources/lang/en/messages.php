@@ -2,18 +2,13 @@
 
 use Illuminate\Support\Facades\Config;
 
-$settings = App\Http\Models\General::getGlobalSettings();
-// if($settings->favicon!="") $favicon=check_http_thumb_replace($settings->favicon);
-$site_title=$settings->site_title;
-$site_keywords=$settings->site_keywords;
-$site_desc=$settings->site_description;
 return [
     /* DEFAULT MESSAGES*/
     "web_path"=>env('APP_URL', 'http://demo.intertech.ps/'),
     "header_image"=>'http://demo.intertech.ps/',
-    "title"=>$site_title,
-    "website_description"=>$site_desc,
-    "website_keywords"=>$site_keywords,
+    "title"=>config('app.name', 'Palestine Creative Hub'),
+    "website_description"=>config('app.description', 'Palestine Creative Hub'),
+    "website_keywords"=>config('app.keywords', 'Palestine, Creative Hub, Design, Technology, Innovation'),
     "align"=>"left",
     "rev_align"=>"right",
     "other_lang"=>"عربي",
