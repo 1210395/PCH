@@ -142,7 +142,7 @@ class AdminProductController extends AdminBaseController
             foreach ($files as $file) {
                 if ($uploaded >= $availableSlots) break;
 
-                $filename = 'product_' . $product->id . '_' . time() . '_' . $uploaded . '.' . $file->getClientOriginalExtension();
+                $filename = 'product_' . $product->id . '_' . time() . '_' . $uploaded . '.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
                 $path = $file->storeAs('products', $filename, 'public');
 
                 \App\Models\ProductImage::create([

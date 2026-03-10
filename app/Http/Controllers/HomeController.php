@@ -111,46 +111,32 @@ class HomeController extends Controller
             return redirect()->route('home', ['locale' => app()->getLocale()]);
         }
 
-        // Search designers (excluding admin and inactive accounts)
+        // Search designers using FULLTEXT index (excluding admin and inactive accounts)
         $designers = Designer::where('is_admin', false)
             ->where('is_active', true)
-            ->where(function($q) use ($query) {
-                $q->where('name', 'like', '%' . $query . '%')
-                  ->orWhere('bio', 'like', '%' . $query . '%')
-                  ->orWhere('sector', 'like', '%' . $query . '%')
-                  ->orWhere('sub_sector', 'like', '%' . $query . '%')
-                  ->orWhere('city', 'like', '%' . $query . '%');
-            })
-            ->with('skills')
+            ->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
+            ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
+            ->with('skills:id,name')
             ->limit(20)
             ->get();
 
-        // Search projects (only approved)
+        // Search projects using FULLTEXT index (only approved)
         $projects = Project::where('approval_status', 'approved')
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->where(function($q) use ($query) {
-                $q->where('title', 'like', '%' . $query . '%')
-                  ->orWhere('description', 'like', '%' . $query . '%')
-                  ->orWhere('category', 'like', '%' . $query . '%')
-                  ->orWhere('role', 'like', '%' . $query . '%');
-            })
-            ->with(['designer', 'images'])
+            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
+            ->with(['designer:id,name,avatar', 'images'])
             ->limit(20)
             ->get();
 
-        // Search products (only approved, uses 'title' column, not 'name')
+        // Search products using FULLTEXT index (only approved)
         $products = \App\Models\Product::where('approval_status', 'approved')
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->where(function($q) use ($query) {
-                $q->where('title', 'like', '%' . $query . '%')
-                  ->orWhere('description', 'like', '%' . $query . '%')
-                  ->orWhere('category', 'like', '%' . $query . '%');
-            })
-            ->with(['designer', 'images'])
+            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
+            ->with(['designer:id,name,avatar', 'images'])
             ->limit(20)
             ->get();
 
@@ -177,14 +163,10 @@ class HomeController extends Controller
             ]);
         }
 
-        // Search designers (limit to 4, excluding admin and inactive accounts)
+        // Search designers using FULLTEXT (limit to 4, excluding admin and inactive accounts)
         $designers = Designer::where('is_admin', false)
             ->where('is_active', true)
-            ->where(function($q) use ($query) {
-                $q->where('name', 'like', '%' . $query . '%')
-                  ->orWhere('sector', 'like', '%' . $query . '%')
-                  ->orWhere('sub_sector', 'like', '%' . $query . '%');
-            })
+            ->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
             ->select('id', 'name', 'sector', 'sub_sector', 'avatar')
             ->limit(4)
             ->get();
@@ -194,10 +176,7 @@ class HomeController extends Controller
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->where(function($q) use ($query) {
-                $q->where('title', 'like', '%' . $query . '%')
-                  ->orWhere('category', 'like', '%' . $query . '%');
-            })
+            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
             ->with(['designer:id,name', 'images' => function($q) {
                 $q->select('project_id', 'image_path')->limit(1);
             }])
@@ -214,15 +193,12 @@ class HomeController extends Controller
                 ];
             });
 
-        // Search products (limit to 4, only approved)
+        // Search products using FULLTEXT (limit to 4, only approved)
         $products = \App\Models\Product::where('approval_status', 'approved')
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->where(function($q) use ($query) {
-                $q->where('title', 'like', '%' . $query . '%')
-                  ->orWhere('category', 'like', '%' . $query . '%');
-            })
+            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
             ->with(['designer:id,name', 'images' => function($q) {
                 $q->select('product_id', 'image_path')->limit(1);
             }])

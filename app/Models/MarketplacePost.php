@@ -96,8 +96,7 @@ class MarketplacePost extends Model
     public function scopeSearch($query, $searchTerm)
     {
         return $query->where(function ($q) use ($searchTerm) {
-            $q->where('title', 'like', '%' . $searchTerm . '%')
-              ->orWhere('description', 'like', '%' . $searchTerm . '%')
+            $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerm . '*'])
               ->orWhereRaw("JSON_SEARCH(tags, 'one', ?) IS NOT NULL", ["%{$searchTerm}%"]);
         });
     }

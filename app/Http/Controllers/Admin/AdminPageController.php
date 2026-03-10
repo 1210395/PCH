@@ -319,7 +319,7 @@ class AdminPageController extends AdminBaseController
         ]);
 
         $file = $request->file('image');
-        $filename = 'page_' . $slug . '_' . ($request->input('section', 'hero')) . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $filename = 'page_' . $slug . '_' . ($request->input('section', 'hero')) . '_' . time() . '.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
         $path = $file->storeAs('pages', $filename, 'public');
 
         return $this->successResponse(__('Image uploaded successfully'), [
@@ -339,8 +339,11 @@ class AdminPageController extends AdminBaseController
 
         $path = $request->input('path');
 
-        // Security: ensure path is within pages directory
-        if (!str_starts_with($path, 'pages/')) {
+        // Security: ensure path is within pages directory using realpath validation
+        $basePath = realpath(storage_path('app/public/pages'));
+        $realPath = realpath(storage_path('app/public/' . $path));
+
+        if (!$realPath || !$basePath || !str_starts_with($realPath, $basePath . DIRECTORY_SEPARATOR)) {
             return $this->errorResponse(__('Invalid image path'));
         }
 

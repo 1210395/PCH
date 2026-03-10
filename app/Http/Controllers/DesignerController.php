@@ -149,7 +149,9 @@ class DesignerController extends Controller
 
     public function index(Request $request, $locale)
     {
-        $query = Designer::query()->with('skills');
+        $query = Designer::query()
+            ->select('id', 'name', 'email', 'avatar', 'cover_image', 'sector', 'sub_sector', 'city', 'bio', 'title', 'company_name', 'followers_count', 'views_count', 'created_at', 'is_active', 'is_admin')
+            ->with('skills:id,name');
 
         // Exclude admin and inactive accounts from public listings
         $query->where('is_admin', false)->where('is_active', true);
@@ -195,15 +197,10 @@ class DesignerController extends Controller
             });
         }
 
-        // Search
+        // Search using FULLTEXT index for better performance
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = strip_tags($request->search);
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('sector', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('sub_sector', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('city', 'like', '%' . $searchTerm . '%');
-            });
+            $query->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerm . '*']);
         }
 
         // Add counts for sorting
@@ -225,7 +222,7 @@ class DesignerController extends Controller
                 $query->orderBy('followers_count', 'desc');
         }
 
-        $designers = $query->paginate(12)->appends($request->query());
+        $designers = $query->simplePaginate(12)->appends($request->query());
 
         // Get counts for each type (excluding admin and inactive accounts)
         $stats = CacheService::getHomepageStats();

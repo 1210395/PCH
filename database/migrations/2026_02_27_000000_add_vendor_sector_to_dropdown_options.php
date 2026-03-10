@@ -63,18 +63,26 @@ return new class extends Migration
         ];
 
         foreach ($subsectors as $index => $subsector) {
-            DB::table('dropdown_options')->insert([
-                'type' => 'subsector',
-                'value' => strtolower(str_replace(' ', '_', $subsector['label'])),
-                'label' => $subsector['label'],
-                'label_ar' => $subsector['label_ar'],
-                'parent_id' => $vendorId,
-                'sort_order' => $index,
-                'is_active' => true,
-                'is_system' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $value = strtolower(str_replace(' ', '_', $subsector['label']));
+            $subExists = DB::table('dropdown_options')
+                ->where('type', 'subsector')
+                ->where('value', $value)
+                ->exists();
+
+            if (!$subExists) {
+                DB::table('dropdown_options')->insert([
+                    'type' => 'subsector',
+                    'value' => $value,
+                    'label' => $subsector['label'],
+                    'label_ar' => $subsector['label_ar'],
+                    'parent_id' => $vendorId,
+                    'sort_order' => $index,
+                    'is_active' => true,
+                    'is_system' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
     }
 

@@ -8,11 +8,23 @@
     $headCategory = $sanitize($product->category ?? '');
     $headDesignerName = $sanitize($product->designer->name ?? '');
 @endphp
+@php
+    $ogImage = $product->images->first() ? asset('storage/' . $product->images->first()->image_path) : asset('images/logo.png');
+@endphp
+
 @section('head')
 <title>{{ $headTitle }} - {{ config('app.name') }}</title>
 <meta name="description" content="{{ Str::limit($headDescription, 160) }}">
 <meta name="keywords" content="product, {{ $headCategory }}, {{ $headDesignerName }}">
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<meta property="og:title" content="{{ $headTitle }} - {{ config('app.name') }}">
+<meta property="og:description" content="{{ Str::limit($headDescription, 160) }}">
+<meta property="og:image" content="{{ $ogImage }}">
+<meta property="og:type" content="product">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $headTitle }}">
+<meta name="twitter:description" content="{{ Str::limit($headDescription, 160) }}">
+<meta name="twitter:image" content="{{ $ogImage }}">
 <style>
     .gallery-main {
         aspect-ratio: 16/10;

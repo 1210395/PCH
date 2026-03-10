@@ -85,7 +85,7 @@ class MarketplaceController extends Controller
                 $query->orderBy('created_at', 'desc');
         }
 
-        $posts = $query->paginate(12)->withQueryString();
+        $posts = $query->simplePaginate(12)->withQueryString();
 
         // Get unique categories and types for filters (cached)
         $categories = CacheService::getMarketplaceCategories();
@@ -171,7 +171,7 @@ class MarketplaceController extends Controller
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $post->fresh()->likes_count ?? 0,
+            'likes_count' => $post->likes_count ?? 0,
         ]);
     }
 }

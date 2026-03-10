@@ -103,23 +103,23 @@ function signupWizard() {
 
         handleBackendErrors() {
             // Check for Laravel validation errors
-            const errors = {!! json_encode($errors->messages()) !!} || {};
+            const errors = @json($errors->messages()) || {};
 
             // Get old input values from Laravel
             const oldInput = {
-                first_name: {!! json_encode(old('first_name')) !!},
-                last_name: {!! json_encode(old('last_name')) !!},
-                email: {!! json_encode(old('email')) !!},
-                sector: {!! json_encode(old('sector')) !!},
-                sub_sector: {!! json_encode(old('sub_sector')) !!},
-                company_name: {!! json_encode(old('company_name')) !!},
-                position: {!! json_encode(old('position')) !!},
-                phone_number: {!! json_encode(old('phone_number')) !!},
-                city: {!! json_encode(old('city')) !!},
-                address: {!! json_encode(old('address')) !!},
-                years_of_experience: {!! json_encode(old('years_of_experience')) !!},
-                bio: {!! json_encode(old('bio')) !!},
-                skills: {!! json_encode(old('skills')) !!}
+                first_name: @json(old('first_name')),
+                last_name: @json(old('last_name')),
+                email: @json(old('email')),
+                sector: @json(old('sector')),
+                sub_sector: @json(old('sub_sector')),
+                company_name: @json(old('company_name')),
+                position: @json(old('position')),
+                phone_number: @json(old('phone_number')),
+                city: @json(old('city')),
+                address: @json(old('address')),
+                years_of_experience: @json(old('years_of_experience')),
+                bio: @json(old('bio')),
+                skills: @json(old('skills'))
             };
 
             // Restore old input values if they exist

@@ -29,7 +29,7 @@
                     <span :class="autoAcceptEnabled ? 'translate-x-5' : 'translate-x-0'"
                           class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
                 </button>
-                <span x-text="autoAcceptEnabled ? 'ON' : 'OFF'"
+                <span x-text="autoAcceptEnabled ? '{{ __("ON") }}' : '{{ __("OFF") }}'"
                       :class="autoAcceptEnabled ? 'text-green-600 font-medium' : 'text-gray-500'"
                       class="text-sm min-w-[28px]"></span>
             </div>
@@ -149,10 +149,10 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                     {{ $rating->status === 'approved' ? 'bg-green-100 text-green-800' :
                                        ($rating->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                    {{ ucfirst($rating->status) }}
+                                    {{ __(ucfirst($rating->status)) }}
                                 </span>
                                 @if($rating->status === 'rejected' && $rating->rejection_reason)
-                                    <p class="text-xs text-red-500 mt-1" title="{{ $rating->rejection_reason }}">{{ __('Reason:') }} {{ Str::limit($rating->rejection_reason, 30) }}</p>
+                                    <p class="text-xs text-red-500 mt-1" title="{{ $rating->rejection_reason }}">{{ __('Reason') }}: {{ Str::limit($rating->rejection_reason, 30) }}</p>
                                 @endif
                             </td>
                             <td class="px-4 py-4 text-sm text-gray-500">{{ $rating->created_at->format('M d, Y') }}</td>
@@ -193,7 +193,7 @@
             </div>
             <div class="p-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Reason for deletion') }} <span class="text-red-500">*</span></label>
-                <textarea x-model="rejectReason" :placeholder="__('Please provide a reason for deleting this rating...')" rows="3" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
+                <textarea x-model="rejectReason" placeholder="{{ __('Please provide a reason for deleting this rating...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                 <p class="text-xs text-gray-400 mt-2">{{ __('Minimum 10 characters required') }}</p>
             </div>
             <div class="p-6 border-t flex justify-end gap-3">
@@ -270,7 +270,7 @@ function ratingsManager() {
                 this.autoAcceptEnabled = response.data.auto_accept_enabled;
                 showToast(response.message, 'success');
             } catch (error) {
-                showToast(error.message || 'Failed to toggle auto-accept', 'error');
+                showToast(error.message || '{{ __("Failed to toggle auto-accept") }}', 'error');
             }
         },
 

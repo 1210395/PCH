@@ -359,7 +359,7 @@ class AuthController extends Controller
             } elseif ($request->hasFile('profile_image')) {
                 // Fallback: upload now if not pre-uploaded
                 $file = $request->file('profile_image');
-                $extension = $file->getClientOriginalExtension();
+                $extension = ($file->guessExtension() ?? $file->getClientOriginalExtension());
                 $filename = "profile_{$designer->id}.{$extension}";
                 $avatarPath = $file->storeAs('profiles', $filename, 'public');
             }
@@ -385,7 +385,7 @@ class AuthController extends Controller
             } elseif ($request->hasFile('cover_image')) {
                 // Fallback: upload now if not pre-uploaded
                 $file = $request->file('cover_image');
-                $extension = $file->getClientOriginalExtension();
+                $extension = ($file->guessExtension() ?? $file->getClientOriginalExtension());
                 $filename = "hero_{$designer->id}.{$extension}";
                 $coverPath = $file->storeAs('covers', $filename, 'public');
             }
@@ -705,7 +705,7 @@ class AuthController extends Controller
                             );
                         } elseif ($request->hasFile("services.{$index}.image")) {
                             $file = $request->file("services.{$index}.image");
-                            $extension = $file->getClientOriginalExtension();
+                            $extension = ($file->guessExtension() ?? $file->getClientOriginalExtension());
                             $filename = "service_{$createdService->id}.{$extension}";
                             $serviceImage = $file->storeAs('services', $filename, 'public');
                         }

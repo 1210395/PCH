@@ -49,6 +49,9 @@ Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
     ]);
 })->where('folder', '[a-zA-Z0-9_/-]+')->where('filename', '[a-zA-Z0-9._-]+')->middleware('throttle:200,1');
 
+// XML Sitemap for search engines
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 // Redirect root based on browser language preference
 Route::get('/', function () {
     // Check for saved locale preference in cookie

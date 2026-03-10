@@ -7,6 +7,21 @@
 
 @section('title', $designerName . ' - ' . __('Designer Portfolio'))
 
+@section('head')
+@php
+    $ogAvatar = $designer->avatar ? asset('storage/' . $designer->avatar) : asset('images/logo.png');
+    $ogBio = \App\Helpers\DropdownHelper::sanitizeUtf8(Str::limit($designer->bio ?? '', 160));
+@endphp
+<meta property="og:title" content="{{ $designerName }} - {{ __('Designer Portfolio') }}">
+<meta property="og:description" content="{{ $ogBio }}">
+<meta property="og:image" content="{{ $ogAvatar }}">
+<meta property="og:type" content="profile">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ $designerName }}">
+<meta name="twitter:description" content="{{ $ogBio }}">
+<meta name="twitter:image" content="{{ $ogAvatar }}">
+@endsection
+
 @section('content')
 @php
     $assetPaths = [

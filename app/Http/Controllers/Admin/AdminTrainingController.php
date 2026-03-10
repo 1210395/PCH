@@ -330,7 +330,7 @@ class AdminTrainingController extends AdminBaseController
                 Storage::disk('public')->delete($training->image);
             }
             $file = $request->file('image');
-            $filename = 'training_' . time() . '_image.' . $file->getClientOriginalExtension();
+            $filename = 'training_' . time() . '_image.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
             $paths['image'] = $file->storeAs('trainings', $filename, 'public');
         }
 
@@ -339,7 +339,7 @@ class AdminTrainingController extends AdminBaseController
                 Storage::disk('public')->delete($training->cover_image);
             }
             $file = $request->file('cover_image');
-            $filename = 'training_' . time() . '_cover.' . $file->getClientOriginalExtension();
+            $filename = 'training_' . time() . '_cover.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
             $paths['cover_image'] = $file->storeAs('trainings', $filename, 'public');
         }
 
@@ -348,7 +348,7 @@ class AdminTrainingController extends AdminBaseController
                 Storage::disk('public')->delete($training->instructor_image);
             }
             $file = $request->file('instructor_image');
-            $filename = 'training_' . time() . '_instructor.' . $file->getClientOriginalExtension();
+            $filename = 'training_' . time() . '_instructor.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
             $paths['instructor_image'] = $file->storeAs('trainings/instructors', $filename, 'public');
         }
 

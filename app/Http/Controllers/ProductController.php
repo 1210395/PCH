@@ -45,13 +45,10 @@ class ProductController extends Controller
             $query->where('category', $category);
         }
 
-        // Search (with XSS protection and SQL injection prevention via parameter binding)
+        // Search using FULLTEXT index for better performance
         if (!empty($validated['search'])) {
             $searchTerm = strip_tags($validated['search']);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('title', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
+            $query->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerm . '*']);
         }
 
         // Sort (whitelisted values only)
@@ -70,7 +67,7 @@ class ProductController extends Controller
                 $query->orderBy('featured', 'desc')->orderBy('created_at', 'desc');
         }
 
-        $products = $query->paginate(12)->withQueryString();
+        $products = $query->simplePaginate(12)->withQueryString();
 
         // Get categories for filter dropdown from admin CMS lookups
         $categories = \App\Helpers\DropdownHelper::productCategories();
@@ -163,7 +160,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $product->fresh()->likes_count
+            'likes_count' => $product->likes_count
         ]);
     }
 
@@ -321,9 +318,10 @@ class ProductController extends Controller
                 'incoming_paths' => array_values($incomingPaths)
             ]);
 
-            // Delete images that are no longer in the new set
+            // Delete images that are no longer in the new set (use flip for O(1) lookup)
+            $incomingPathsFlipped = array_flip($incomingPaths);
             foreach ($product->images as $image) {
-                if (!in_array($image->image_path, $incomingPaths)) {
+                if (!isset($incomingPathsFlipped[$image->image_path])) {
                     \Storage::disk('public')->delete($image->image_path);
                     $image->delete();
                 }
@@ -332,10 +330,11 @@ class ProductController extends Controller
             // Process new images and update display order
             $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
             $displayOrder = 0;
+            $existingPathsFlipped = array_flip($existingPaths);
 
             foreach ($incomingPaths as $index => $path) {
                 // Check if this is an existing permanent path
-                if (in_array($path, $existingPaths)) {
+                if (isset($existingPathsFlipped[$path])) {
                     // Update display order for existing image
                     $existingImage = $product->images()->where('image_path', $path)->first();
                     if ($existingImage) {

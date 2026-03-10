@@ -97,7 +97,7 @@ class AcademicWorkshopController extends AcademicBaseController
         // Handle image upload
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $filename = 'academic_workshop_' . Str::random(16) . '.' . $image->getClientOriginalExtension();
+            $filename = 'academic_workshop_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
             $path = $image->storeAs('academic-workshops', $filename, 'public');
             $validated['image'] = $path;
         }
@@ -184,7 +184,7 @@ class AcademicWorkshopController extends AcademicBaseController
             }
 
             $image = $request->file('image');
-            $filename = 'academic_workshop_' . $id . '_' . Str::random(16) . '.' . $image->getClientOriginalExtension();
+            $filename = 'academic_workshop_' . $id . '_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
             $path = $image->storeAs('academic-workshops', $filename, 'public');
             $validated['image'] = $path;
         }

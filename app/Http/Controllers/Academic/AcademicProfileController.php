@@ -62,7 +62,7 @@ class AcademicProfileController extends AcademicBaseController
         }
 
         $logo = $request->file('logo');
-        $filename = 'academic_' . $account->id . '_' . Str::random(16) . '_logo.' . $logo->getClientOriginalExtension();
+        $filename = 'academic_' . $account->id . '_' . Str::random(16) . '_logo.' . ($logo->guessExtension() ?? $logo->getClientOriginalExtension());
         $path = $logo->storeAs('academic-accounts', $filename, 'public');
 
         $account->logo = $path;

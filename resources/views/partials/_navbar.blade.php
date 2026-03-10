@@ -1215,9 +1215,14 @@
         // Update avatar
         const avatarEl = document.getElementById('chatAvatar');
         if (userAvatar) {
-            avatarEl.innerHTML = '<img src="' + userAvatar + '" class="w-8 h-8 rounded-full object-cover">';
+            const img = document.createElement('img');
+            img.src = userAvatar;
+            img.className = 'w-8 h-8 rounded-full object-cover';
+            img.alt = '';
+            avatarEl.textContent = '';
+            avatarEl.appendChild(img);
         } else {
-            avatarEl.innerHTML = userName.charAt(0).toUpperCase();
+            avatarEl.textContent = userName.charAt(0).toUpperCase();
         }
 
         // Show panel

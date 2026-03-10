@@ -1,2 +1,13 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://technopark.ps/PalestineCreativeHub/sitemap.xml
+
+# Disallow private/admin areas
+Disallow: /admin/
+Disallow: /academic/
+Disallow: /Control/
+Disallow: /messages/
+Disallow: /account/
+Disallow: /storage/temp/

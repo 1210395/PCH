@@ -81,7 +81,7 @@ class AdminSettingsController extends AdminBaseController
         }
 
         $file = $request->file('image');
-        $filename = $page . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $filename = $page . '_' . time() . '_' . uniqid() . '.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
         $imagePath = $file->storeAs('hero_images', $filename, 'public');
 
         SiteSetting::addHeroImage($page, $imagePath);

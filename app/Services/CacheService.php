@@ -27,67 +27,106 @@ class CacheService
     public static function getDashboardStats(): array
     {
         return Cache::remember('admin_dashboard_stats', self::TTL_MEDIUM, function() {
+            // Consolidate approval status counts into single queries per model (saves ~20 queries)
+            $productStats = Product::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN approval_status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN approval_status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
+            ")->first();
+
+            $projectStats = Project::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN approval_status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN approval_status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
+            ")->first();
+
+            $serviceStats = Service::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN approval_status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN approval_status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
+            ")->first();
+
+            $marketplaceStats = MarketplacePost::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN approval_status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN approval_status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
+            ")->first();
+
+            // Consolidate designer stats into single query
+            $designerStats = Designer::selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive,
+                SUM(CASE WHEN is_trusted = 1 THEN 1 ELSE 0 END) as trusted,
+                SUM(CASE WHEN is_admin = 1 THEN 1 ELSE 0 END) as admin
+            ")->first();
+
+            // Consolidate growth metrics
+            $weekStart = now()->startOfWeek();
+            $lastWeekStart = now()->subWeek()->startOfWeek();
+            $monthStart = now()->startOfMonth();
+            $lastMonthStart = now()->subMonth()->startOfMonth();
+
+            $designerGrowth = Designer::selectRaw("
+                SUM(CASE WHEN DATE(created_at) = ? THEN 1 ELSE 0 END) as today,
+                SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) as this_week,
+                SUM(CASE WHEN created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) as last_week,
+                SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) as this_month,
+                SUM(CASE WHEN created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) as last_month
+            ", [now()->toDateString(), $weekStart, $lastWeekStart, $weekStart, $monthStart, $lastMonthStart, $monthStart])->first();
+
+            // Content growth - single query per model for this week/last week
+            $contentThisWeek = Product::where('created_at', '>=', $weekStart)->count()
+                + Project::where('created_at', '>=', $weekStart)->count()
+                + Service::where('created_at', '>=', $weekStart)->count()
+                + MarketplacePost::where('created_at', '>=', $weekStart)->count();
+
+            $contentLastWeek = Product::where('created_at', '>=', $lastWeekStart)->where('created_at', '<', $weekStart)->count()
+                + Project::where('created_at', '>=', $lastWeekStart)->where('created_at', '<', $weekStart)->count()
+                + Service::where('created_at', '>=', $lastWeekStart)->where('created_at', '<', $weekStart)->count()
+                + MarketplacePost::where('created_at', '>=', $lastWeekStart)->where('created_at', '<', $weekStart)->count();
+
             return [
                 'totals' => [
-                    'designers' => Designer::count(),
-                    'products' => Product::count(),
-                    'projects' => Project::count(),
-                    'services' => Service::count(),
-                    'marketplacePosts' => MarketplacePost::count(),
+                    'designers' => $designerStats->total,
+                    'products' => $productStats->total,
+                    'projects' => $projectStats->total,
+                    'services' => $serviceStats->total,
+                    'marketplacePosts' => $marketplaceStats->total,
                     'fablabs' => FabLab::count(),
                     'trainings' => Training::count(),
                     'tenders' => Tender::count(),
                 ],
                 'pending' => [
-                    'products' => Product::where('approval_status', 'pending')->count(),
-                    'projects' => Project::where('approval_status', 'pending')->count(),
-                    'services' => Service::where('approval_status', 'pending')->count(),
-                    'marketplace' => MarketplacePost::where('approval_status', 'pending')->count(),
+                    'products' => $productStats->pending,
+                    'projects' => $projectStats->pending,
+                    'services' => $serviceStats->pending,
+                    'marketplace' => $marketplaceStats->pending,
                 ],
                 'status' => [
-                    'products' => [
-                        'pending' => Product::where('approval_status', 'pending')->count(),
-                        'approved' => Product::where('approval_status', 'approved')->count(),
-                        'rejected' => Product::where('approval_status', 'rejected')->count(),
-                    ],
-                    'projects' => [
-                        'pending' => Project::where('approval_status', 'pending')->count(),
-                        'approved' => Project::where('approval_status', 'approved')->count(),
-                        'rejected' => Project::where('approval_status', 'rejected')->count(),
-                    ],
-                    'services' => [
-                        'pending' => Service::where('approval_status', 'pending')->count(),
-                        'approved' => Service::where('approval_status', 'approved')->count(),
-                        'rejected' => Service::where('approval_status', 'rejected')->count(),
-                    ],
-                    'marketplace' => [
-                        'pending' => MarketplacePost::where('approval_status', 'pending')->count(),
-                        'approved' => MarketplacePost::where('approval_status', 'approved')->count(),
-                        'rejected' => MarketplacePost::where('approval_status', 'rejected')->count(),
-                    ],
+                    'products' => ['pending' => $productStats->pending, 'approved' => $productStats->approved, 'rejected' => $productStats->rejected],
+                    'projects' => ['pending' => $projectStats->pending, 'approved' => $projectStats->approved, 'rejected' => $projectStats->rejected],
+                    'services' => ['pending' => $serviceStats->pending, 'approved' => $serviceStats->approved, 'rejected' => $serviceStats->rejected],
+                    'marketplace' => ['pending' => $marketplaceStats->pending, 'approved' => $marketplaceStats->approved, 'rejected' => $marketplaceStats->rejected],
                 ],
                 'designers' => [
-                    'active' => Designer::where('is_active', true)->count(),
-                    'inactive' => Designer::where('is_active', false)->count(),
-                    'trusted' => Designer::where('is_trusted', true)->count(),
-                    'admin' => Designer::where('is_admin', true)->count(),
+                    'active' => $designerStats->active,
+                    'inactive' => $designerStats->inactive,
+                    'trusted' => $designerStats->trusted,
+                    'admin' => $designerStats->admin,
                 ],
                 'growth' => [
-                    'designers_today' => Designer::whereDate('created_at', now()->toDateString())->count(),
-                    'designers_this_week' => Designer::where('created_at', '>=', now()->startOfWeek())->count(),
-                    'designers_last_week' => Designer::where('created_at', '>=', now()->subWeek()->startOfWeek())
-                        ->where('created_at', '<', now()->startOfWeek())->count(),
-                    'designers_this_month' => Designer::where('created_at', '>=', now()->startOfMonth())->count(),
-                    'designers_last_month' => Designer::where('created_at', '>=', now()->subMonth()->startOfMonth())
-                        ->where('created_at', '<', now()->startOfMonth())->count(),
-                    'content_this_week' => Product::where('created_at', '>=', now()->startOfWeek())->count()
-                        + Project::where('created_at', '>=', now()->startOfWeek())->count()
-                        + Service::where('created_at', '>=', now()->startOfWeek())->count()
-                        + MarketplacePost::where('created_at', '>=', now()->startOfWeek())->count(),
-                    'content_last_week' => Product::where('created_at', '>=', now()->subWeek()->startOfWeek())->where('created_at', '<', now()->startOfWeek())->count()
-                        + Project::where('created_at', '>=', now()->subWeek()->startOfWeek())->where('created_at', '<', now()->startOfWeek())->count()
-                        + Service::where('created_at', '>=', now()->subWeek()->startOfWeek())->where('created_at', '<', now()->startOfWeek())->count()
-                        + MarketplacePost::where('created_at', '>=', now()->subWeek()->startOfWeek())->where('created_at', '<', now()->startOfWeek())->count(),
+                    'designers_today' => $designerGrowth->today,
+                    'designers_this_week' => $designerGrowth->this_week,
+                    'designers_last_week' => $designerGrowth->last_week,
+                    'designers_this_month' => $designerGrowth->this_month,
+                    'designers_last_month' => $designerGrowth->last_month,
+                    'content_this_week' => $contentThisWeek,
+                    'content_last_week' => $contentLastWeek,
                 ],
                 'sectors' => Designer::where('is_admin', false)
                     ->whereNotNull('sector')
@@ -171,20 +210,19 @@ class CacheService
     {
         return Cache::remember('homepage_featured', self::TTL_LONG, function() {
             return [
-                'topDesigners' => Designer::select('designers.*')
-                    ->selectRaw('(SELECT COUNT(*) FROM projects WHERE projects.designer_id = designers.id AND projects.approval_status = "approved") as projects_count')
+                'topDesigners' => Designer::select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
                     ->where('is_admin', false)
                     ->where('is_active', true)
                     ->whereNotIn('sector', ['manufacturer', 'showroom'])
                     ->where('sector', 'NOT LIKE', '%supplier%')
                     ->where('sub_sector', 'NOT LIKE', '%supplier%')
+                    ->withCount(['projects' => fn($q) => $q->where('approval_status', 'approved')])
                     ->with('skills:id,name')
                     ->orderByDesc('projects_count')
                     ->limit(8)
                     ->get(),
 
-                'topManufacturers' => Designer::select('designers.*')
-                    ->selectRaw('(SELECT COUNT(*) FROM products WHERE products.designer_id = designers.id AND products.approval_status = "approved") as products_count')
+                'topManufacturers' => Designer::select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
                     ->where('is_admin', false)
                     ->where('is_active', true)
                     ->where(function($q) {
@@ -192,6 +230,7 @@ class CacheService
                           ->orWhere('sector', 'LIKE', '%supplier%')
                           ->orWhere('sub_sector', 'LIKE', '%supplier%');
                     })
+                    ->withCount(['products' => fn($q) => $q->where('approval_status', 'approved')])
                     ->with('skills:id,name')
                     ->orderByDesc('products_count')
                     ->limit(8)
@@ -265,8 +304,9 @@ class CacheService
             return Designer::where('is_admin', false)
                 ->where('is_active', true)
                 ->where('sector', $sector ?? '')
-                ->inRandomOrder()
-                ->limit(20)
+                ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'followers_count')
+                ->orderByDesc('followers_count')
+                ->limit(10)
                 ->get();
         });
 
@@ -279,31 +319,24 @@ class CacheService
     public static function getDesignerContentStats(int $designerId): array
     {
         return Cache::remember("designer_{$designerId}_content_stats", self::TTL_MEDIUM, function() use ($designerId) {
+            // Consolidate 16 queries into 4 using conditional aggregation
+            $statusQuery = "
+                COUNT(*) as total,
+                SUM(CASE WHEN approval_status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN approval_status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) as rejected
+            ";
+
+            $products = Product::where('designer_id', $designerId)->selectRaw($statusQuery)->first();
+            $projects = Project::where('designer_id', $designerId)->selectRaw($statusQuery)->first();
+            $services = Service::where('designer_id', $designerId)->selectRaw($statusQuery)->first();
+            $marketplace = MarketplacePost::where('designer_id', $designerId)->selectRaw($statusQuery)->first();
+
             return [
-                'products' => [
-                    'total' => Product::where('designer_id', $designerId)->count(),
-                    'pending' => Product::where('designer_id', $designerId)->where('approval_status', 'pending')->count(),
-                    'approved' => Product::where('designer_id', $designerId)->where('approval_status', 'approved')->count(),
-                    'rejected' => Product::where('designer_id', $designerId)->where('approval_status', 'rejected')->count(),
-                ],
-                'projects' => [
-                    'total' => Project::where('designer_id', $designerId)->count(),
-                    'pending' => Project::where('designer_id', $designerId)->where('approval_status', 'pending')->count(),
-                    'approved' => Project::where('designer_id', $designerId)->where('approval_status', 'approved')->count(),
-                    'rejected' => Project::where('designer_id', $designerId)->where('approval_status', 'rejected')->count(),
-                ],
-                'services' => [
-                    'total' => Service::where('designer_id', $designerId)->count(),
-                    'pending' => Service::where('designer_id', $designerId)->where('approval_status', 'pending')->count(),
-                    'approved' => Service::where('designer_id', $designerId)->where('approval_status', 'approved')->count(),
-                    'rejected' => Service::where('designer_id', $designerId)->where('approval_status', 'rejected')->count(),
-                ],
-                'marketplace' => [
-                    'total' => MarketplacePost::where('designer_id', $designerId)->count(),
-                    'pending' => MarketplacePost::where('designer_id', $designerId)->where('approval_status', 'pending')->count(),
-                    'approved' => MarketplacePost::where('designer_id', $designerId)->where('approval_status', 'approved')->count(),
-                    'rejected' => MarketplacePost::where('designer_id', $designerId)->where('approval_status', 'rejected')->count(),
-                ],
+                'products' => ['total' => $products->total, 'pending' => $products->pending, 'approved' => $products->approved, 'rejected' => $products->rejected],
+                'projects' => ['total' => $projects->total, 'pending' => $projects->pending, 'approved' => $projects->approved, 'rejected' => $projects->rejected],
+                'services' => ['total' => $services->total, 'pending' => $services->pending, 'approved' => $services->approved, 'rejected' => $services->rejected],
+                'marketplace' => ['total' => $marketplace->total, 'pending' => $marketplace->pending, 'approved' => $marketplace->approved, 'rejected' => $marketplace->rejected],
             ];
         });
     }

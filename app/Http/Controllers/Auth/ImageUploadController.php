@@ -240,9 +240,9 @@ class ImageUploadController extends Controller
             }
 
             // Step 7: Generate unique filename
-            $extension = $file->getClientOriginalExtension();
+            $extension = $file->guessExtension() ?? $file->getClientOriginalExtension();
             if (empty($extension)) {
-                $extension = $file->guessExtension() ?? 'jpg';
+                $extension = 'jpg';
             }
             $filename = Str::uuid() . '.' . strtolower($extension);
 
@@ -708,7 +708,7 @@ class ImageUploadController extends Controller
 
             // Generate unique filename
             $uuid = Str::uuid()->toString();
-            $extension = $file->getClientOriginalExtension() ?: 'pdf';
+            $extension = $file->guessExtension() ?? ($file->getClientOriginalExtension() ?: 'pdf');
             $filename = "{$uuid}.{$extension}";
 
             // Store file

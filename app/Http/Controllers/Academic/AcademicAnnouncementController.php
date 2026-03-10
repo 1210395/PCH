@@ -97,7 +97,7 @@ class AcademicAnnouncementController extends AcademicBaseController
         // Handle image upload
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $filename = 'academic_announcement_' . Str::random(16) . '.' . $image->getClientOriginalExtension();
+            $filename = 'academic_announcement_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
             $path = $image->storeAs('academic-announcements', $filename, 'public');
             $validated['image'] = $path;
         }
@@ -174,7 +174,7 @@ class AcademicAnnouncementController extends AcademicBaseController
             }
 
             $image = $request->file('image');
-            $filename = 'academic_announcement_' . $id . '_' . Str::random(16) . '.' . $image->getClientOriginalExtension();
+            $filename = 'academic_announcement_' . $id . '_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
             $path = $image->storeAs('academic-announcements', $filename, 'public');
             $validated['image'] = $path;
         }

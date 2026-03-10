@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('designers', function (Blueprint $table) {
-            $table->json('certifications')->nullable()->after('years_of_experience');
-        });
+        if (!Schema::hasColumn('designers', 'certifications')) {
+            Schema::table('designers', function (Blueprint $table) {
+                $table->json('certifications')->nullable()->after('years_of_experience');
+            });
+        }
     }
 
     public function down(): void

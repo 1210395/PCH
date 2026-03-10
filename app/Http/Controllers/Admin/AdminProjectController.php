@@ -145,7 +145,7 @@ class AdminProjectController extends AdminBaseController
             foreach ($files as $file) {
                 if ($uploaded >= $availableSlots) break;
 
-                $filename = 'project_' . $project->id . '_' . time() . '_' . $uploaded . '.' . $file->getClientOriginalExtension();
+                $filename = 'project_' . $project->id . '_' . time() . '_' . $uploaded . '.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
                 $path = $file->storeAs('projects', $filename, 'public');
 
                 \App\Models\ProjectImage::create([

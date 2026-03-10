@@ -156,7 +156,7 @@
         @if($designers->count() > 0)
             <!-- Results Count -->
             <p class="text-gray-600 mb-6">
-                {{ __('Showing') }} {{ $designers->firstItem() }}-{{ $designers->lastItem() }} {{ __('of') }} {{ $designers->total() }} {{ __('results') }}
+                {{ __('Showing') }} {{ $designers->count() }} {{ __('results') }}
                 @if(request('search'))
                     {{ __('for') }} "<strong>{{ request('search') }}</strong>"
                 @endif

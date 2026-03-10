@@ -4,6 +4,30 @@
 <title>{{ config('app.name') }} - {{ __('Discover Creative Talent') }}</title>
 <meta name="description" content="{{ __('Discover talented designers, MSMEs, and creative professionals. Browse portfolios, projects, and connect with the creative community in Palestine.') }}">
 <meta name="keywords" content="{{ __('designers, creative professionals, portfolio, Palestine, MSMEs, creative industries') }}">
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Palestine Creative Hub",
+    "alternateName": "مركز فلسطين الإبداعي",
+    "url": "{{ url('/') }}",
+    "description": "A digital hub and marketplace supporting designers, MSMEs, and creative industries in Palestine. Connecting talent with opportunities.",
+    "inLanguage": ["en", "ar"],
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url(app()->getLocale() . '/search') }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Palestine Creative Hub",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ asset('images/logo.png') }}"
+        }
+    }
+}
+</script>
 @endsection
 
 @section('content')

@@ -19,6 +19,20 @@
 
 @section('title', $postTitle . ' | ' . __('Marketplace') . ' | ' . config('app.name'))
 
+@section('head')
+@php
+    $ogImage = $post->images->first() ? asset('storage/' . $post->images->first()->image_path) : asset('images/logo.png');
+@endphp
+<meta property="og:title" content="{{ $postTitle }} | {{ __('Marketplace') }}">
+<meta property="og:description" content="{{ Str::limit($postDescription, 160) }}">
+<meta property="og:image" content="{{ $ogImage }}">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $postTitle }}">
+<meta name="twitter:description" content="{{ Str::limit($postDescription, 160) }}">
+<meta name="twitter:image" content="{{ $ogImage }}">
+@endsection
+
 @section('content')
 <div class="min-h-screen bg-gray-50 py-6 sm:py-8" x-data="{
     liked: {{ $hasLiked ? 'true' : 'false' }},

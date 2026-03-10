@@ -98,7 +98,7 @@ class AdminAcademicAccountController extends AdminBaseController
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
-            $filename = 'academic_' . time() . '_logo.' . $logo->getClientOriginalExtension();
+            $filename = 'academic_' . time() . '_logo.' . ($logo->guessExtension() ?? $logo->getClientOriginalExtension());
             $path = $logo->storeAs('academic-accounts', $filename, 'public');
             $validated['logo'] = $path;
         }
@@ -106,7 +106,7 @@ class AdminAcademicAccountController extends AdminBaseController
         // Handle banner upload
         if ($request->hasFile('banner')) {
             $banner = $request->file('banner');
-            $filename = 'academic_' . time() . '_banner.' . $banner->getClientOriginalExtension();
+            $filename = 'academic_' . time() . '_banner.' . ($banner->guessExtension() ?? $banner->getClientOriginalExtension());
             $path = $banner->storeAs('academic-accounts', $filename, 'public');
             $validated['banner'] = $path;
         }
@@ -202,7 +202,7 @@ class AdminAcademicAccountController extends AdminBaseController
             }
 
             $logo = $request->file('logo');
-            $filename = 'academic_' . $id . '_' . time() . '_logo.' . $logo->getClientOriginalExtension();
+            $filename = 'academic_' . $id . '_' . time() . '_logo.' . ($logo->guessExtension() ?? $logo->getClientOriginalExtension());
             $path = $logo->storeAs('academic-accounts', $filename, 'public');
             $validated['logo'] = $path;
         }
@@ -215,7 +215,7 @@ class AdminAcademicAccountController extends AdminBaseController
             }
 
             $banner = $request->file('banner');
-            $filename = 'academic_' . $id . '_' . time() . '_banner.' . $banner->getClientOriginalExtension();
+            $filename = 'academic_' . $id . '_' . time() . '_banner.' . ($banner->guessExtension() ?? $banner->getClientOriginalExtension());
             $path = $banner->storeAs('academic-accounts', $filename, 'public');
             $validated['banner'] = $path;
         }

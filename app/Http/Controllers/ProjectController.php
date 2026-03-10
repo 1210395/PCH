@@ -48,13 +48,10 @@ class ProjectController extends Controller
             $query->where('category', $category);
         }
 
-        // Search (with XSS protection and SQL injection prevention via parameter binding)
+        // Search using FULLTEXT index for better performance
         if (!empty($validated['search'])) {
             $searchTerm = strip_tags($validated['search']);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('title', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
+            $query->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerm . '*']);
         }
 
         // Sort (whitelisted values only)
@@ -70,7 +67,7 @@ class ProjectController extends Controller
                 $query->orderBy('created_at', 'desc');
         }
 
-        $projects = $query->paginate(12)->withQueryString();
+        $projects = $query->simplePaginate(12)->withQueryString();
 
         // Get categories for filter dropdown from admin CMS lookups
         $categories = \App\Helpers\DropdownHelper::projectCategories();
@@ -164,7 +161,7 @@ class ProjectController extends Controller
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $project->fresh()->likes_count
+            'likes_count' => $project->likes_count
         ]);
     }
 
@@ -339,9 +336,10 @@ class ProjectController extends Controller
                 'incoming_paths' => array_values($incomingPaths)
             ]);
 
-            // Delete images that are no longer in the new set
+            // Delete images that are no longer in the new set (use flip for O(1) lookup)
+            $incomingPathsFlipped = array_flip($incomingPaths);
             foreach ($project->images as $image) {
-                if (!in_array($image->image_path, $incomingPaths)) {
+                if (!isset($incomingPathsFlipped[$image->image_path])) {
                     \Storage::disk('public')->delete($image->image_path);
                     $image->delete();
                 }
@@ -350,10 +348,11 @@ class ProjectController extends Controller
             // Process new images and update display order
             $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
             $displayOrder = 0;
+            $existingPathsFlipped = array_flip($existingPaths);
 
             foreach ($incomingPaths as $index => $path) {
                 // Check if this is an existing permanent path
-                if (in_array($path, $existingPaths)) {
+                if (isset($existingPathsFlipped[$path])) {
                     // Update display order for existing image
                     $existingImage = $project->images()->where('image_path', $path)->first();
                     if ($existingImage) {
