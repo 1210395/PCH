@@ -1751,5 +1751,57 @@
     "your.email@example.com": "بريدك@مثال.com",
     "YouTube": "يوتيوب",
     "Zoom In": "تكبير",
-    "Zoom Out": "تصغير"
+    "Zoom Out": "تصغير",
+
+    "Welcome Back": "مرحباً بعودتك",
+    "Log in to your account to continue": "سجّل دخولك للمتابعة",
+    "Log In": "تسجيل الدخول",
+    "Email": "البريد الإلكتروني",
+    "Password": "كلمة المرور",
+    "Enter your password": "أدخل كلمة المرور",
+    "Remember me": "تذكرني",
+    "Forgot password?": "نسيت كلمة المرور؟",
+    "Don't have an account?": "ليس لديك حساب؟",
+    "Sign Up": "إنشاء حساب",
+
+    "Email not verified": "البريد الإلكتروني غير مُفعّل",
+    "Please verify your email address before logging in. Check your inbox for the verification link.": "يرجى تأكيد عنوان بريدك الإلكتروني قبل تسجيل الدخول. تحقق من صندوق الوارد للحصول على رابط التأكيد.",
+    "Resend verification email": "إعادة إرسال بريد التأكيد",
+    "Sending...": "جاري الإرسال...",
+    "Verification email sent!": "تم إرسال بريد التأكيد!",
+
+    "Check Your Email": "تحقق من بريدك الإلكتروني",
+    "We've sent a verification link to your email address": "لقد أرسلنا رابط تأكيد إلى عنوان بريدك الإلكتروني",
+    "Please click the verification link in the email we sent you. If you didn't receive the email, you can request a new one.": "يرجى النقر على رابط التأكيد في البريد الإلكتروني الذي أرسلناه إليك. إذا لم تتلقَ البريد، يمكنك طلب رابط جديد.",
+    "The verification link will expire in 24 hours. Don't forget to check your spam/junk folder.": "رابط التأكيد صالح لمدة 24 ساعة. لا تنسَ التحقق من مجلد البريد العشوائي.",
+    "Resend Verification Email": "إعادة إرسال بريد التأكيد",
+    "Back to Login": "العودة لتسجيل الدخول",
+
+    "Verify your email": "أكّد بريدك الإلكتروني",
+    "We've sent a verification link to your email. Please check your inbox and click the link to activate your account.": "لقد أرسلنا رابط تأكيد إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد والنقر على الرابط لتفعيل حسابك.",
+    "The link expires in 24 hours. Check your spam folder if you don't see it.": "الرابط صالح لمدة 24 ساعة. تحقق من مجلد البريد العشوائي إذا لم تجده.",
+
+    "Your email has been verified successfully! You can now log in.": "تم تأكيد بريدك الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.",
+    "Your email is already verified. You can log in.": "بريدك الإلكتروني مؤكد بالفعل. يمكنك تسجيل الدخول.",
+    "Invalid verification link.": "رابط التأكيد غير صالح.",
+    "If an account exists with that email, a verification link has been sent.": "إذا كان هناك حساب بهذا البريد الإلكتروني، فقد تم إرسال رابط التأكيد.",
+
+    "Reset Password": "إعادة تعيين كلمة المرور",
+    "Forgot Password": "نسيت كلمة المرور",
+    "Enter your email to receive a password reset link": "أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور",
+    "Email Address": "عنوان البريد الإلكتروني",
+    "Send Reset Link": "إرسال رابط إعادة التعيين",
+    "The reset link will expire in 15 minutes. If you don't receive the email, check your spam folder.": "رابط إعادة التعيين صالح لمدة 15 دقيقة. إذا لم تتلقَ البريد، تحقق من مجلد البريد العشوائي.",
+    "Remember your password?": "تتذكر كلمة المرور؟",
+    "If an account exists with that email, a password reset link has been sent.": "إذا كان هناك حساب بهذا البريد الإلكتروني، فقد تم إرسال رابط إعادة تعيين كلمة المرور.",
+
+    "Set New Password": "تعيين كلمة مرور جديدة",
+    "Enter your new password below": "أدخل كلمة المرور الجديدة أدناه",
+    "New Password": "كلمة المرور الجديدة",
+    "Confirm New Password": "تأكيد كلمة المرور الجديدة",
+    "Enter new password": "أدخل كلمة المرور الجديدة",
+    "Re-enter new password": "أعد إدخال كلمة المرور الجديدة",
+    "Minimum 8 characters with uppercase, lowercase, number and symbol": "8 أحرف على الأقل مع حرف كبير وصغير ورقم ورمز",
+    "Your password has been reset successfully! You can now log in.": "تم إعادة تعيين كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.",
+    "Verify Email": "تأكيد البريد الإلكتروني"
 }

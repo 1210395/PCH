@@ -13,6 +13,8 @@ use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\MessageRequestController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ValidationController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\NotificationController;
@@ -139,6 +141,32 @@ Route::group(['prefix' => '{locale}'], function () {
         ->middleware('throttle:15,1')
         ->name('login.post');
 
+    // ============================================================
+    // EMAIL VERIFICATION ROUTES
+    // ============================================================
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
+        ->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:3,1')
+        ->name('verification.send');
+
+    // ============================================================
+    // PASSWORD RESET ROUTES
+    // ============================================================
+    Route::get('/password/forgot', [PasswordResetController::class, 'showForgotForm'])
+        ->name('password.request');
+    Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])
+        ->middleware('throttle:3,1')
+        ->name('password.email');
+    Route::get('/password/reset/{token}', [PasswordResetController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/password/reset', [PasswordResetController::class, 'reset'])
+        ->middleware('throttle:5,1')
+        ->name('password.update');
+
     // Certification PDF download
     Route::get('/certification/download/{filename}', function ($locale, $filename) {
         // Sanitize filename
@@ -169,7 +197,7 @@ Route::group(['prefix' => '{locale}'], function () {
         ->name('designer.ratings');
 
     // Subscription routes (auth required - controller handles multi-guard logic)
-    Route::middleware('auth:designer')->group(function () {
+    Route::middleware(['auth:designer', 'verified'])->group(function () {
         Route::post('/subscriptions/profile/toggle', [SubscriptionController::class, 'toggleProfileSubscription'])
             ->middleware('throttle:30,1')
             ->name('subscriptions.profile.toggle');
@@ -187,8 +215,8 @@ Route::group(['prefix' => '{locale}'], function () {
             ->name('subscriptions.category.delete');
     });
 
-    // Logout route
-    Route::middleware('auth:designer')->group(function () {
+    // Authenticated + verified routes
+    Route::middleware(['auth:designer', 'verified'])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/profile', [DesignerProfileController::class, 'showProfile'])->name('profile');
         Route::get('/account/settings', [DesignerProfileController::class, 'accountSettings'])->name('account.settings');

@@ -24,6 +24,36 @@
             </div>
             @endif
 
+            {{-- Unverified email notice with resend option --}}
+            @if($errors->has('unverified'))
+            <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg" x-data="{ sending: false, sent: false }">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div class="flex-1">
+                        <p class="text-sm text-amber-800 font-medium">{{ __('Email not verified') }}</p>
+                        <p class="text-sm text-amber-700 mt-1">{{ $errors->first('email') }}</p>
+                        <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" class="mt-3" @submit="sending = true">
+                            @csrf
+                            <input type="hidden" name="email" value="{{ old('email') }}">
+                            <button
+                                type="submit"
+                                class="text-sm font-semibold text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
+                                :disabled="sending"
+                                x-show="!sent"
+                                @click="setTimeout(() => sent = true, 100)"
+                            >
+                                <span x-show="!sending">{{ __('Resend verification email') }}</span>
+                                <span x-show="sending">{{ __('Sending...') }}</span>
+                            </button>
+                            <span x-show="sent" class="text-sm text-green-600 font-medium">{{ __('Verification email sent!') }}</span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <form method="POST" action="{{ route('login.post', ['locale' => app()->getLocale()]) }}" class="space-y-5">
                 @csrf
 
@@ -40,9 +70,11 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all @error('email') border-red-500 @enderror"
                         placeholder="you@example.com"
                     >
-                    @error('email')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    @if(!$errors->has('unverified'))
+                        @error('email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    @endif
                 </div>
 
                 <!-- Password -->
@@ -59,19 +91,23 @@
                     @error('password')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-500">{{ __('Contact TechnoPark if you forgot your password') }}</p>
                 </div>
 
-                <!-- Remember Me -->
-                <div class="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        id="remember"
-                        name="remember"
-                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        {{ old('remember') ? 'checked' : '' }}
-                    >
-                    <label for="remember" class="text-sm text-gray-600">{{ __('Remember me for 30 days') }}</label>
+                <!-- Remember Me + Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id="remember"
+                            name="remember"
+                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            {{ old('remember') ? 'checked' : '' }}
+                        >
+                        <label for="remember" class="text-sm text-gray-600">{{ __('Remember me') }}</label>
+                    </div>
+                    <a href="{{ route('password.request', ['locale' => app()->getLocale()]) }}" class="text-sm text-blue-600 hover:underline font-medium">
+                        {{ __('Forgot password?') }}
+                    </a>
                 </div>
 
                 <!-- Submit Button -->

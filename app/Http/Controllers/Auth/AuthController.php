@@ -73,6 +73,16 @@ class AuthController extends Controller
             // Get the authenticated designer
             $designer = Auth::guard('designer')->user();
 
+            // Check if email is verified
+            if (! $designer->hasVerifiedEmail()) {
+                Auth::guard('designer')->logout();
+                $request->session()->invalidate();
+                return back()->withErrors([
+                    'email' => __('Please verify your email address before logging in. Check your inbox for the verification link.'),
+                    'unverified' => true,
+                ])->withInput($request->only('email'));
+            }
+
             // Check if account is active (approved by admin)
             if (!$designer->is_active && !$designer->is_admin) {
                 Auth::guard('designer')->logout();
@@ -329,7 +339,7 @@ class AuthController extends Controller
                 'years_of_experience' => $validated['years_of_experience'] ?? null,
                 'bio' => $validated['bio'] ?? null,
                 'title' => $validated['position'] ?? null, // Use position as title
-                'email_verified_at' => now(), // Auto-verify email on registration
+                // email_verified_at left null - user must verify via email link
                 // is_active is set by Designer model boot method based on admin auto-accept setting
             ]);
 
@@ -745,7 +755,16 @@ class AuthController extends Controller
                 'services_submitted' => count($validated['services'] ?? []),
             ]);
 
-            // Don't auto-login - let user login manually if they want
+            // Send email verification notification
+            try {
+                $designer->sendEmailVerificationNotification();
+            } catch (\Exception $e) {
+                Log::error('Failed to send verification email', [
+                    'designer_id' => $designer->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             // Redirect to success page with registration complete message
             $locale = app()->getLocale();
 
@@ -844,8 +863,4 @@ class AuthController extends Controller
         return redirect(route('home', ['locale' => app()->getLocale()]));
     }
 
-    public function showForgotPasswordForm()
-    {
-        return view('auth.forgot-password');
-    }
 }

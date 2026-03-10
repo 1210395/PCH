@@ -68,9 +68,18 @@
                     </div>
                 @endif
 
-                <p class="text-gray-700 font-medium mb-6">
-                    {{ __('Please log in to access your profile and start showcasing your work.') }}
-                </p>
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold text-amber-800">{{ __('Verify your email') }}</p>
+                            <p class="text-sm text-amber-700 mt-1">{{ __('We\'ve sent a verification link to your email. Please check your inbox and click the link to activate your account.') }}</p>
+                            <p class="text-xs text-amber-600 mt-2">{{ __('The link expires in 24 hours. Check your spam folder if you don\'t see it.') }}</p>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Countdown Timer -->
                 <div class="mb-6">

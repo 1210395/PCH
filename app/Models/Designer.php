@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -9,7 +10,7 @@ use App\Models\MarketplacePost;
 use App\Models\Traits\HasSubscriptions;
 use App\Models\ConversationRating;
 
-class Designer extends Authenticatable
+class Designer extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasSubscriptions;
 
@@ -242,5 +243,21 @@ class Designer extends Authenticatable
     public function getRatingCountAttribute()
     {
         return ProfileRating::getRatingCount($this->id) + (ConversationRating::getRatingCount($this->id) * 2);
+    }
+
+    /**
+     * Send the email verification notification.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\VerifyEmailNotification());
+    }
+
+    /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 }

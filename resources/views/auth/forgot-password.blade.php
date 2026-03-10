@@ -15,7 +15,13 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <form method="POST" action="#" class="space-y-5">
+            @if(session('status'))
+            <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                {{ session('status') }}
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('password.email', ['locale' => app()->getLocale()]) }}" class="space-y-5">
                 @csrf
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email Address') }}</label>
@@ -23,10 +29,15 @@
                         type="email"
                         id="email"
                         name="email"
+                        value="{{ old('email') }}"
                         required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        autofocus
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all @error('email') border-red-500 @enderror"
                         placeholder="you@example.com"
                     >
+                    @error('email')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <button
@@ -36,11 +47,17 @@
                     {{ __('Send Reset Link') }}
                 </button>
             </form>
+
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                <p class="text-xs text-blue-700">
+                    {{ __('The reset link will expire in 15 minutes. If you don\'t receive the email, check your spam folder.') }}
+                </p>
+            </div>
         </div>
 
         <p class="mt-6 text-center text-gray-600">
             {{ __('Remember your password?') }}
-            <a href="{{ url('/' . app()->getLocale() . '/login') }}" class="text-blue-600 font-medium hover:underline">{{ __('Log In') }}</a>
+            <a href="{{ route('login', ['locale' => app()->getLocale()]) }}" class="text-blue-600 font-medium hover:underline">{{ __('Log In') }}</a>
         </p>
     </div>
 </div>
