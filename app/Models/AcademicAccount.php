@@ -83,11 +83,11 @@ class AcademicAccount extends Authenticatable
     public function getInstitutionTypeLabelAttribute()
     {
         return match($this->institution_type) {
-            'university' => 'University',
-            'tvet' => 'TVET',
-            'college' => 'College',
-            'other' => 'Other',
-            default => ucfirst($this->institution_type),
+            'university' => __('University'),
+            'tvet' => __('TVET'),
+            'college' => __('College'),
+            'other' => __('Other'),
+            default => __(ucfirst($this->institution_type)),
         };
     }
 

@@ -143,7 +143,7 @@ class Training extends Model
      */
     public function getLevelLabelAttribute(): string
     {
-        return ucfirst($this->level ?? 'beginner');
+        return __(ucfirst($this->level ?? 'beginner'));
     }
 
     /**
@@ -152,10 +152,10 @@ class Training extends Model
     public function getLocationTypeLabelAttribute(): string
     {
         return match($this->location_type) {
-            'online' => 'Online',
-            'in-person' => 'In-Person',
-            'hybrid' => 'Hybrid',
-            default => 'Unknown',
+            'online' => __('Online'),
+            'in-person' => __('In-Person'),
+            'hybrid' => __('Hybrid'),
+            default => __('Unknown'),
         };
     }
 

@@ -107,20 +107,23 @@ class AdminTenderController extends AdminBaseController
         $validated = $this->validateTenderRequest($request);
 
         // Create tender
-        // Note: description allows HTML for rich text formatting (sanitize with allowed tags)
         $allowedTags = '<p><br><strong><b><em><i><u><s><ul><ol><li><a><h1><h2><h3><h4><h5><h6><blockquote><pre><code><table><thead><tbody><tr><th><td><div><span>';
-        // Build create data - only include fields that exist in the database
+        $description = strip_tags($validated['description'] ?? '', $allowedTags);
+        $shortDesc = strip_tags($description);
+        $shortDescription = mb_strlen($shortDesc) > 200 ? mb_substr($shortDesc, 0, 200) . '...' : $shortDesc;
+
         $createData = [
             'title' => strip_tags($validated['title']),
-            'description' => strip_tags($validated['description'] ?? '', $allowedTags),
+            'short_description' => $shortDescription,
+            'description' => $description,
             'publisher' => strip_tags($validated['publisher'] ?? ''),
             'publisher_type' => $validated['publisher_type'] ?? 'other',
-            'budget' => strip_tags($validated['budget'] ?? ''),
+            'company_name' => strip_tags($validated['company_name'] ?? ''),
+            'company_url' => strip_tags($validated['company_url'] ?? ''),
             'location' => strip_tags($validated['location'] ?? ''),
             'status' => $validated['status'] ?? 'open',
             'published_date' => $validated['published_date'] ?? now()->toDateString(),
             'deadline' => $validated['deadline'] ?? null,
-            'requirements' => $validated['requirements'] ?? null,
             'source_url' => strip_tags($validated['source_url'] ?? ''),
             'is_visible' => $validated['is_visible'] ?? true,
         ];
@@ -166,20 +169,23 @@ class AdminTenderController extends AdminBaseController
         $validated = $this->validateTenderRequest($request, false);
 
         // Update tender fields
-        // Note: description allows HTML for rich text formatting (sanitize with allowed tags)
         $allowedTags = '<p><br><strong><b><em><i><u><s><ul><ol><li><a><h1><h2><h3><h4><h5><h6><blockquote><pre><code><table><thead><tbody><tr><th><td><div><span>';
-        // Build update data - only include fields that exist in the database
+        $description = strip_tags($validated['description'] ?? '', $allowedTags);
+        $shortDesc = strip_tags($description);
+        $shortDescription = mb_strlen($shortDesc) > 200 ? mb_substr($shortDesc, 0, 200) . '...' : $shortDesc;
+
         $updateData = [
             'title' => strip_tags($validated['title']),
-            'description' => strip_tags($validated['description'] ?? '', $allowedTags),
+            'short_description' => $shortDescription,
+            'description' => $description,
             'publisher' => strip_tags($validated['publisher'] ?? ''),
             'publisher_type' => $validated['publisher_type'] ?? 'other',
-            'budget' => strip_tags($validated['budget'] ?? ''),
+            'company_name' => strip_tags($validated['company_name'] ?? ''),
+            'company_url' => strip_tags($validated['company_url'] ?? ''),
             'location' => strip_tags($validated['location'] ?? ''),
             'status' => $validated['status'] ?? 'open',
             'published_date' => $validated['published_date'] ?? $tender->published_date,
             'deadline' => $validated['deadline'] ?? null,
-            'requirements' => $validated['requirements'] ?? $tender->requirements,
             'source_url' => strip_tags($validated['source_url'] ?? ''),
             'is_visible' => $validated['is_visible'] ?? $tender->is_visible,
         ];
@@ -286,12 +292,12 @@ class AdminTenderController extends AdminBaseController
             'description' => 'nullable|string',
             'publisher' => 'nullable|string|max:255',
             'publisher_type' => 'nullable|in:government,ngo,private,academic,media,other',
-            'budget' => 'nullable|string|max:100',
+            'company_name' => 'nullable|string|max:255',
+            'company_url' => 'nullable|url|max:500',
             'location' => 'nullable|string|max:255',
             'status' => 'nullable|in:open,closing_soon,closed',
             'published_date' => 'nullable|date',
             'deadline' => 'nullable|date',
-            'requirements' => 'nullable|string',
             'source_url' => 'nullable|url|max:500',
             'is_visible' => 'nullable',
         ]);

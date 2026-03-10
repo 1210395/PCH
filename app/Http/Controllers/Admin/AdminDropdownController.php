@@ -8,89 +8,92 @@ use Illuminate\Http\Request;
 class AdminDropdownController extends AdminBaseController
 {
     /**
-     * Dropdown type configurations
+     * Get dropdown type configurations (translated)
      */
-    private $dropdownTypes = [
-        'sector' => [
-            'label' => 'Sectors',
-            'description' => 'User profile sectors (Academic, Designer, etc.)',
-            'has_children' => true,
-            'child_type' => 'subsector',
-            'child_label' => 'Sub-Sectors'
-        ],
-        'skill' => [
-            'label' => 'Skills',
-            'description' => 'Skills and expertise options for user profiles',
-            'has_children' => false
-        ],
-        'city' => [
-            'label' => 'Cities / Governorates',
-            'description' => 'Palestinian governorates for location selection',
-            'has_children' => false
-        ],
-        'product_category' => [
-            'label' => 'Product Categories',
-            'description' => 'Categories for product listings',
-            'has_children' => false
-        ],
-        'project_category' => [
-            'label' => 'Project Categories',
-            'description' => 'Categories for project portfolios',
-            'has_children' => false
-        ],
-        'project_role' => [
-            'label' => 'Project Roles',
-            'description' => 'Roles users can have in projects',
-            'has_children' => false
-        ],
-        'service_category' => [
-            'label' => 'Service Categories',
-            'description' => 'Categories for service offerings',
-            'has_children' => false
-        ],
-        'years_experience' => [
-            'label' => 'Years of Experience',
-            'description' => 'Experience range options for profiles',
-            'has_children' => false
-        ],
-        'fablab_type' => [
-            'label' => 'FabLab Types',
-            'description' => 'Types of fabrication laboratories',
-            'has_children' => false
-        ],
-        'marketplace_type' => [
-            'label' => 'Marketplace Types',
-            'description' => 'Types of marketplace posts',
-            'has_children' => false
-        ],
-        'marketplace_tag' => [
-            'label' => 'Marketplace Tags',
-            'description' => 'Tags for marketplace posts',
-            'has_children' => false
-        ],
-        'marketplace_category' => [
-            'label' => 'Marketplace Categories',
-            'description' => 'Categories for marketplace posts',
-            'has_children' => false
-        ],
-        'training_category' => [
-            'label' => 'Training Categories',
-            'description' => 'Categories for academic training programs',
-            'has_children' => false
-        ],
-        'tender_category' => [
-            'label' => 'Tender Categories',
-            'description' => 'Categories for tender listings',
-            'has_children' => false
-        ],
-    ];
+    private function getDropdownTypes()
+    {
+        return [
+            'sector' => [
+                'label' => __('Sectors'),
+                'description' => __('User profile sectors (Academic, Designer, etc.)'),
+                'has_children' => true,
+                'child_type' => 'subsector',
+                'child_label' => __('Sub-Sectors')
+            ],
+            'skill' => [
+                'label' => __('Skills'),
+                'description' => __('Skills and expertise options for user profiles'),
+                'has_children' => false
+            ],
+            'city' => [
+                'label' => __('Cities / Governorates'),
+                'description' => __('Palestinian governorates for location selection'),
+                'has_children' => false
+            ],
+            'product_category' => [
+                'label' => __('Product Categories'),
+                'description' => __('Categories for product listings'),
+                'has_children' => false
+            ],
+            'project_category' => [
+                'label' => __('Project Categories'),
+                'description' => __('Categories for project portfolios'),
+                'has_children' => false
+            ],
+            'project_role' => [
+                'label' => __('Project Roles'),
+                'description' => __('Roles users can have in projects'),
+                'has_children' => false
+            ],
+            'service_category' => [
+                'label' => __('Service Categories'),
+                'description' => __('Categories for service offerings'),
+                'has_children' => false
+            ],
+            'years_experience' => [
+                'label' => __('Years of Experience'),
+                'description' => __('Experience range options for profiles'),
+                'has_children' => false
+            ],
+            'fablab_type' => [
+                'label' => __('FabLab Types'),
+                'description' => __('Types of fabrication laboratories'),
+                'has_children' => false
+            ],
+            'marketplace_type' => [
+                'label' => __('Marketplace Types'),
+                'description' => __('Types of marketplace posts'),
+                'has_children' => false
+            ],
+            'marketplace_tag' => [
+                'label' => __('Marketplace Tags'),
+                'description' => __('Tags for marketplace posts'),
+                'has_children' => false
+            ],
+            'marketplace_category' => [
+                'label' => __('Marketplace Categories'),
+                'description' => __('Categories for marketplace posts'),
+                'has_children' => false
+            ],
+            'training_category' => [
+                'label' => __('Training Categories'),
+                'description' => __('Categories for academic training programs'),
+                'has_children' => false
+            ],
+            'tender_category' => [
+                'label' => __('Tender Categories'),
+                'description' => __('Categories for tender listings'),
+                'has_children' => false
+            ],
+        ];
+    }
 
     /**
      * Display list of all dropdown categories
      */
     public function index(Request $request, $locale)
     {
-        $types = $this->dropdownTypes;
+        $types = $this->getDropdownTypes();
 
         // Get counts for each type
         $counts = DropdownOption::selectRaw('type, COUNT(*) as count')
@@ -107,11 +110,11 @@ class AdminDropdownController extends AdminBaseController
      */
     public function show(Request $request, $locale, $type)
     {
-        if (!isset($this->dropdownTypes[$type])) {
+        if (!isset($this->getDropdownTypes()[$type])) {
             abort(404, 'Invalid dropdown type');
         }
 
-        $typeConfig = $this->dropdownTypes[$type];
+        $typeConfig = $this->getDropdownTypes()[$type];
 
         $options = DropdownOption::ofType($type)
             ->rootLevel()
@@ -144,11 +147,11 @@ class AdminDropdownController extends AdminBaseController
      */
     public function showChildren(Request $request, $locale, $type, $parentId)
     {
-        if (!isset($this->dropdownTypes[$type])) {
+        if (!isset($this->getDropdownTypes()[$type])) {
             abort(404, 'Invalid dropdown type');
         }
 
-        $typeConfig = $this->dropdownTypes[$type];
+        $typeConfig = $this->getDropdownTypes()[$type];
         $parent = DropdownOption::findOrFail($parentId);
 
         $childType = $typeConfig['child_type'] ?? null;
@@ -176,7 +179,7 @@ class AdminDropdownController extends AdminBaseController
      */
     public function store(Request $request, $locale, $type)
     {
-        if (!isset($this->dropdownTypes[$type])) {
+        if (!isset($this->getDropdownTypes()[$type])) {
             return $this->errorResponse('Invalid dropdown type', 404);
         }
 
@@ -195,8 +198,8 @@ class AdminDropdownController extends AdminBaseController
 
         // Determine the actual type (for subsectors, use 'subsector' as type)
         $actualType = $type;
-        if (isset($validated['parent_id']) && $this->dropdownTypes[$type]['has_children'] ?? false) {
-            $actualType = $this->dropdownTypes[$type]['child_type'];
+        if (isset($validated['parent_id']) && $this->getDropdownTypes()[$type]['has_children'] ?? false) {
+            $actualType = $this->getDropdownTypes()[$type]['child_type'];
         }
 
         // Check for duplicate
@@ -328,7 +331,7 @@ class AdminDropdownController extends AdminBaseController
      */
     public function sortAlphabetically(Request $request, $locale, $type)
     {
-        if (!isset($this->dropdownTypes[$type])) {
+        if (!isset($this->getDropdownTypes()[$type])) {
             return $this->errorResponse('Invalid dropdown type', 404);
         }
 

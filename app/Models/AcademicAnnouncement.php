@@ -87,13 +87,13 @@ class AcademicAnnouncement extends Model
     public function getCategoryLabelAttribute()
     {
         return match($this->category) {
-            'general' => 'General',
-            'admission' => 'Admission',
-            'event' => 'Event',
-            'scholarship' => 'Scholarship',
-            'job' => 'Job Opportunity',
-            'other' => 'Other',
-            default => ucfirst($this->category ?? 'General'),
+            'general' => __('General'),
+            'admission' => __('Admission'),
+            'event' => __('Event'),
+            'scholarship' => __('Scholarship'),
+            'job' => __('Job Opportunity'),
+            'other' => __('Other'),
+            default => __(ucfirst($this->category ?? 'General')),
         };
     }
 
@@ -113,10 +113,10 @@ class AcademicAnnouncement extends Model
     public function getPriorityLabelAttribute()
     {
         return match($this->priority) {
-            'normal' => 'Normal',
-            'important' => 'Important',
-            'urgent' => 'Urgent',
-            default => ucfirst($this->priority ?? 'Normal'),
+            'normal' => __('Normal'),
+            'important' => __('Important'),
+            'urgent' => __('Urgent'),
+            default => __(ucfirst($this->priority ?? 'Normal')),
         };
     }
 

@@ -53,7 +53,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Account Type') }}</label>
-                            <p class="text-gray-900 capitalize">{{ ucfirst($designer->sector ?? 'N/A') }}</p>
+                            <p class="text-gray-900 capitalize">{{ __(ucfirst($designer->sector ?? 'N/A')) }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Member Since') }}</label>

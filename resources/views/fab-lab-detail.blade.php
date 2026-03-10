@@ -53,7 +53,7 @@
                                 default => 'bg-gray-600',
                             };
                         @endphp text-white text-sm font-medium px-3 py-1 rounded-full">
-                            {{ ucfirst($fabLab->type) }}
+                            {{ __(ucfirst($fabLab->type)) }}
                         </span>
                         @if($fabLab->verified)
                             <span class="bg-green-600 text-white text-sm font-medium px-3 py-1 rounded-full flex items-center gap-1">

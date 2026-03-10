@@ -94,6 +94,13 @@ Route::group(['prefix' => '{locale}'], function () {
         ->name('search.instant');
 
     // ============================================================
+    // CMS STATIC PAGES (About, Terms, Privacy, etc.)
+    // ============================================================
+    Route::get('/{slug}', [\App\Http\Controllers\PageController::class, 'show'])
+        ->where('slug', 'about|support|community-guidelines|terms|privacy|accessibility|sitemap')
+        ->name('page.show');
+
+    // ============================================================
     // SIGNUP WIZARD ROUTES (Active)
     // ============================================================
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -285,8 +292,9 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::get('/marketplace-posts/source-data', [\App\Http\Controllers\MarketplacePostController::class, 'getSourceData'])->name('marketplace-posts.source-data');
         Route::post('/marketplace-posts/{id}/share', [\App\Http\Controllers\MarketplacePostController::class, 'shareToUsers'])->middleware('throttle:10,1')->name('marketplace-posts.share');
 
-        // User search (for sharing)
+        // User search & suggestions (for sharing)
         Route::get('/designers/search-users', [DesignerFollowController::class, 'searchUsers'])->name('designers.search-users');
+        Route::get('/designers/suggested-users', [DesignerFollowController::class, 'suggestedUsers'])->name('designers.suggested-users');
 
         // Marketplace comments routes (authenticated only, rate limited)
         Route::post('/marketplace/{postId}/comments', [\App\Http\Controllers\MarketplaceCommentController::class, 'store'])

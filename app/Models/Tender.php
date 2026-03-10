@@ -163,10 +163,10 @@ class Tender extends Model
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'open' => 'Open',
-            'closing_soon' => 'Closing Soon',
-            'closed' => 'Closed',
-            default => 'Unknown',
+            'open' => __('Open'),
+            'closing_soon' => __('Closing Soon'),
+            'closed' => __('Closed'),
+            default => __('Unknown'),
         };
     }
 
@@ -176,13 +176,13 @@ class Tender extends Model
     public function getPublisherTypeLabelAttribute(): string
     {
         return match($this->publisher_type) {
-            'government' => 'Government',
-            'ngo' => 'NGO',
-            'private' => 'Private Sector',
-            'academic' => 'Academic',
-            'media' => 'Media',
-            'other' => 'Other',
-            default => 'Other',
+            'government' => __('Government'),
+            'ngo' => __('NGO'),
+            'private' => __('Private Sector'),
+            'academic' => __('Academic'),
+            'media' => __('Media'),
+            'other' => __('Other'),
+            default => __('Other'),
         };
     }
 

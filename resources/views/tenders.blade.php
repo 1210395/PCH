@@ -45,9 +45,9 @@
     @endif
     <div class="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6">
         <div class="max-w-2xl text-white">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ __('Tenders & Opportunities') }}</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('tenders', 'Tenders & Opportunities') }}</h1>
             <p class="text-sm sm:text-lg text-white/90">
-                {{ __('Discover the latest tender opportunities for designers, developers, and creative professionals across Palestine.') }}
+                {{ \App\Models\SiteSetting::getHeroSubtitle('tenders', 'Discover the latest tender opportunities for designers, developers, and creative professionals across Palestine.') }}
             </p>
         </div>
     </div>

@@ -833,10 +833,127 @@
             </div>
         </div>
     </div>
+
+    {{-- Hero Texts Section --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="heroTextsManager()">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-teal-500 to-cyan-500">
+            <h2 class="text-lg font-semibold text-white">{{ __('Page Hero Texts') }}</h2>
+            <p class="text-white/80 text-sm">{{ __('Manage the title and subtitle text displayed on each page hero section (English & Arabic).') }}</p>
+        </div>
+
+        <div class="p-6">
+            <div class="space-y-4">
+                <template x-for="(page, key) in pages" :key="key">
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-gray-900" x-text="page.label"></h3>
+                            <div class="flex gap-2">
+                                <button @click="resetPage(key)" type="button" class="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors">
+                                    <i class="fas fa-undo mr-1"></i> {{ __('Reset') }}
+                                </button>
+                                <button @click="savePage(key)" type="button" class="px-3 py-1.5 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 transition-colors" :disabled="page.saving">
+                                    <span x-show="!page.saving"><i class="fas fa-save mr-1"></i> {{ __('Save') }}</span>
+                                    <span x-show="page.saving">{{ __('Saving...') }}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('Title (English)') }}</label>
+                                <input type="text" x-model="page.title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('Title (Arabic)') }}</label>
+                                <input type="text" x-model="page.title_ar" dir="rtl" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('Subtitle (English)') }}</label>
+                                <textarea x-model="page.subtitle" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">{{ __('Subtitle (Arabic)') }}</label>
+                                <textarea x-model="page.subtitle_ar" dir="rtl" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 <script>
+function heroTextsManager() {
+    const heroTexts = @json($heroTexts ?? []);
+    const heroPageLabels = @json(collect($heroImages)->mapWithKeys(fn($data, $key) => [$key => $data['label']]));
+
+    let pages = {};
+    for (const [key, label] of Object.entries(heroPageLabels)) {
+        pages[key] = {
+            label: label,
+            title: heroTexts[key]?.title || '',
+            title_ar: heroTexts[key]?.title_ar || '',
+            subtitle: heroTexts[key]?.subtitle || '',
+            subtitle_ar: heroTexts[key]?.subtitle_ar || '',
+            saving: false,
+        };
+    }
+
+    return {
+        pages: pages,
+
+        async savePage(key) {
+            this.pages[key].saving = true;
+            try {
+                const response = await fetch('{{ route("admin.settings.hero-texts.update", ["locale" => app()->getLocale()]) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        page: key,
+                        title: this.pages[key].title,
+                        title_ar: this.pages[key].title_ar,
+                        subtitle: this.pages[key].subtitle,
+                        subtitle_ar: this.pages[key].subtitle_ar,
+                    })
+                });
+                const result = await response.json();
+                showToast(result.message || 'Saved', result.success ? 'success' : 'error');
+            } catch (e) {
+                showToast('Failed to save', 'error');
+            }
+            this.pages[key].saving = false;
+        },
+
+        async resetPage(key) {
+            if (!confirm('Reset hero texts for this page to defaults?')) return;
+            try {
+                const response = await fetch('{{ route("admin.settings.hero-texts.reset", ["locale" => app()->getLocale()]) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ page: key })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    // Reload to get fresh defaults
+                    location.reload();
+                }
+                showToast(result.message || 'Reset', result.success ? 'success' : 'error');
+            } catch (e) {
+                showToast('Failed to reset', 'error');
+            }
+        }
+    };
+}
+
 function headerSettings() {
     return {
         navLinks: @json($headerSettings['nav_links'] ?? []),

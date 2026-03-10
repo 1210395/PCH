@@ -377,11 +377,14 @@ class DropdownHelper
 
         try {
             // Clear any stale cache that might contain empty arrays
-            $cacheKey = "dropdown_options_marketplace_category_labels";
+            $locale = app()->getLocale();
+            $cacheKey = "dropdown_options_marketplace_category_labels_{$locale}";
             $cached = \Cache::get($cacheKey);
             if ($cached !== null && empty($cached)) {
                 \Cache::forget($cacheKey);
             }
+            // Also clear old non-locale cache key
+            \Cache::forget("dropdown_options_marketplace_category_labels");
 
             $result = DropdownOption::getLabels('marketplace_category');
             return !empty($result) ? $result : self::getDefaultMarketplaceCategories();
@@ -401,11 +404,14 @@ class DropdownHelper
 
         try {
             // Clear any stale cache that might contain empty arrays
-            $cacheKey = "dropdown_options_marketplace_tag_labels";
+            $locale = app()->getLocale();
+            $cacheKey = "dropdown_options_marketplace_tag_labels_{$locale}";
             $cached = \Cache::get($cacheKey);
             if ($cached !== null && empty($cached)) {
                 \Cache::forget($cacheKey);
             }
+            // Also clear old non-locale cache key
+            \Cache::forget("dropdown_options_marketplace_tag_labels");
 
             $result = DropdownOption::getLabels('marketplace_tag');
             return !empty($result) ? $result : self::getDefaultMarketplaceTags();

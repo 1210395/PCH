@@ -231,7 +231,7 @@ class DesignerFollowController extends Controller
     }
 
     /**
-     * Search users by name (for sharing marketplace posts)
+     * Search users by name, sector, or city (for sharing marketplace posts)
      */
     public function searchUsers(Request $request, $locale)
     {
@@ -248,18 +248,116 @@ class DesignerFollowController extends Controller
 
         $users = Designer::where('is_active', true)
             ->where('id', '!=', $currentDesigner->id)
-            ->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $query . '%'])
-            ->limit(10)
-            ->get(['id', 'first_name', 'last_name', 'avatar', 'city']);
+            ->where(function ($q) use ($query) {
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $query . '%'])
+                  ->orWhere('city', 'like', '%' . $query . '%')
+                  ->orWhere('sector', 'like', '%' . $query . '%')
+                  ->orWhere('title', 'like', '%' . $query . '%')
+                  ->orWhere('company_name', 'like', '%' . $query . '%');
+            })
+            ->limit(15)
+            ->get(['id', 'first_name', 'last_name', 'avatar', 'city', 'sector', 'title']);
 
-        $results = $users->map(function ($user) {
+        $followingIds = $currentDesigner->following()->pluck('designers.id')->toArray();
+
+        $results = $users->map(function ($user) use ($followingIds) {
             return [
                 'id' => $user->id,
                 'name' => $user->first_name . ' ' . $user->last_name,
                 'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
                 'city' => $user->city,
+                'sector' => $user->sector,
+                'title' => $user->title,
+                'is_following' => in_array($user->id, $followingIds),
             ];
         });
+
+        return response()->json(['success' => true, 'users' => $results]);
+    }
+
+    /**
+     * Get suggested users for sharing (followers, same sector/city, recently interacted)
+     */
+    public function suggestedUsers(Request $request, $locale)
+    {
+        $currentDesigner = auth('designer')->user();
+
+        if (!$currentDesigner) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $excludeIds = array_filter(explode(',', $request->input('exclude', '')));
+        $excludeIds[] = $currentDesigner->id;
+
+        $suggested = collect();
+
+        // 1. Users who follow the current designer (mutual interest)
+        $followers = $currentDesigner->followers()
+            ->where('is_active', true)
+            ->whereNotIn('designers.id', $excludeIds)
+            ->limit(6)
+            ->get(['designers.id', 'first_name', 'last_name', 'avatar', 'city', 'sector', 'title']);
+        foreach ($followers as $user) {
+            $user->_reason = 'follower';
+        }
+        $suggested = $suggested->merge($followers);
+
+        // 2. Users the current designer follows
+        $following = $currentDesigner->following()
+            ->where('is_active', true)
+            ->whereNotIn('designers.id', $excludeIds)
+            ->whereNotIn('designers.id', $suggested->pluck('id'))
+            ->limit(6)
+            ->get(['designers.id', 'first_name', 'last_name', 'avatar', 'city', 'sector', 'title']);
+        foreach ($following as $user) {
+            $user->_reason = 'following';
+        }
+        $suggested = $suggested->merge($following);
+
+        // 3. Same sector
+        if ($currentDesigner->sector && $suggested->count() < 12) {
+            $sameSector = Designer::where('is_active', true)
+                ->where('sector', $currentDesigner->sector)
+                ->whereNotIn('id', $excludeIds)
+                ->whereNotIn('id', $suggested->pluck('id'))
+                ->inRandomOrder()
+                ->limit(6)
+                ->get(['id', 'first_name', 'last_name', 'avatar', 'city', 'sector', 'title']);
+            foreach ($sameSector as $user) {
+                $user->_reason = 'same_sector';
+            }
+            $suggested = $suggested->merge($sameSector);
+        }
+
+        // 4. Same city
+        if ($currentDesigner->city && $suggested->count() < 12) {
+            $sameCity = Designer::where('is_active', true)
+                ->where('city', $currentDesigner->city)
+                ->whereNotIn('id', $excludeIds)
+                ->whereNotIn('id', $suggested->pluck('id'))
+                ->inRandomOrder()
+                ->limit(4)
+                ->get(['id', 'first_name', 'last_name', 'avatar', 'city', 'sector', 'title']);
+            foreach ($sameCity as $user) {
+                $user->_reason = 'same_city';
+            }
+            $suggested = $suggested->merge($sameCity);
+        }
+
+        $followingIds = $currentDesigner->following()->pluck('designers.id')->toArray();
+
+        $results = $suggested->take(12)->map(function ($user) use ($followingIds) {
+            return [
+                'id' => $user->id,
+                'name' => $user->first_name . ' ' . $user->last_name,
+                'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                'city' => $user->city,
+                'sector' => $user->sector,
+                'title' => $user->title,
+                'reason' => $user->_reason ?? null,
+                'is_following' => in_array($user->id, $followingIds),
+            ];
+        })->values();
 
         return response()->json(['success' => true, 'users' => $results]);
     }

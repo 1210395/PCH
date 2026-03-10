@@ -190,4 +190,59 @@ class SiteSetting extends Model
         }
         return null;
     }
+
+    /**
+     * Get hero texts (title + subtitle) for a specific page
+     */
+    public static function getHeroTexts($page)
+    {
+        return static::get("hero_texts_{$page}");
+    }
+
+    /**
+     * Set hero texts for a specific page
+     */
+    public static function setHeroTexts($page, array $texts)
+    {
+        return static::set(
+            "hero_texts_{$page}",
+            $texts,
+            'json',
+            'hero_texts',
+            ucfirst(str_replace('_', ' ', $page)) . ' Hero Texts',
+            'Hero title and subtitle for the ' . $page . ' page'
+        );
+    }
+
+    /**
+     * Get hero title for a page, with fallback to default text
+     */
+    public static function getHeroTitle($page, $fallback = '')
+    {
+        $texts = static::getHeroTexts($page);
+        if ($texts) {
+            $locale = app()->getLocale();
+            $key = $locale === 'ar' ? 'title_ar' : 'title';
+            if (!empty($texts[$key])) {
+                return $texts[$key];
+            }
+        }
+        return __($fallback);
+    }
+
+    /**
+     * Get hero subtitle for a page, with fallback to default text
+     */
+    public static function getHeroSubtitle($page, $fallback = '')
+    {
+        $texts = static::getHeroTexts($page);
+        if ($texts) {
+            $locale = app()->getLocale();
+            $key = $locale === 'ar' ? 'subtitle_ar' : 'subtitle';
+            if (!empty($texts[$key])) {
+                return $texts[$key];
+            }
+        }
+        return __($fallback);
+    }
 }

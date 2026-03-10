@@ -380,9 +380,7 @@ class MarketplacePostController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $post = MarketplacePost::where('id', $id)
-            ->where('designer_id', $currentDesigner->id)
-            ->first();
+        $post = MarketplacePost::find($id);
 
         if (!$post) {
             return response()->json(['success' => false, 'message' => 'Post not found'], 404);

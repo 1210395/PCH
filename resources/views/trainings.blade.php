@@ -38,9 +38,9 @@
     @endif
     <div class="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6">
         <div class="max-w-3xl text-white">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ __('Training & Workshops') }}</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('trainings', 'Training & Workshops') }}</h1>
             <p class="text-sm sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8">
-                {{ __('Enhance your skills with professional training courses from academic institutions.') }}
+                {{ \App\Models\SiteSetting::getHeroSubtitle('trainings', 'Enhance your skills with professional training courses from academic institutions.') }}
             </p>
             <div class="flex flex-wrap gap-6 md:gap-8 text-white/90">
                 <div class="flex items-center gap-2">
@@ -61,83 +61,92 @@
 </section>
 
 {{-- Filter Section --}}
-<section class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+<section class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm" x-data="{ filtersOpen: false }">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <form method="GET" action="{{ route('trainings.index', ['locale' => app()->getLocale()]) }}">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {{-- Search --}}
-                <div class="md:col-span-1">
-                    <div class="relative">
-                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input
-                            type="text"
-                            name="search"
-                            value="{{ request('search') }}"
-                            placeholder="{{ __('Search...') }}"
-                            class="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            {{-- Search + Filter Toggle (always visible) --}}
+            <div class="flex gap-2">
+                <div class="flex-1 relative">
+                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="{{ __('Search...') }}"
+                        class="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                </div>
+                <button type="button" @click="filtersOpen = !filtersOpen" class="md:hidden px-3 py-2.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    <span class="text-sm font-medium">{{ __('Filters') }}</span>
+                </button>
+            </div>
+
+            {{-- Collapsible Filters --}}
+            <div x-show="filtersOpen" x-collapse class="md:!block mt-4 md:mt-0" :class="{ 'hidden': !filtersOpen }">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+                    {{-- Content Type Filter --}}
+                    <div>
+                        <select
+                            name="type"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onchange="this.form.submit()"
                         >
+                            <option value="all">{{ __('All Types') }}</option>
+                            <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>{{ __('Trainings') }}</option>
+                            <option value="workshop" {{ request('type') == 'workshop' ? 'selected' : '' }}>{{ __('Workshops') }}</option>
+                            <option value="announcement" {{ request('type') == 'announcement' ? 'selected' : '' }}>{{ __('Announcements') }}</option>
+                        </select>
                     </div>
-                </div>
 
-                {{-- Content Type Filter --}}
-                <div>
-                    <select
-                        name="type"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        onchange="this.form.submit()"
-                    >
-                        <option value="all">{{ __('All Types') }}</option>
-                        <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>{{ __('Trainings') }}</option>
-                        <option value="workshop" {{ request('type') == 'workshop' ? 'selected' : '' }}>{{ __('Workshops') }}</option>
-                        <option value="announcement" {{ request('type') == 'announcement' ? 'selected' : '' }}>{{ __('Announcements') }}</option>
-                    </select>
-                </div>
+                    {{-- Category Filter --}}
+                    <div>
+                        <select
+                            name="category"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onchange="this.form.submit()"
+                        >
+                            <option value="all">{{ __('All Categories') }}</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>
+                                    {{ $category }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                {{-- Category Filter --}}
-                <div>
-                    <select
-                        name="category"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        onchange="this.form.submit()"
-                    >
-                        <option value="all">{{ __('All Categories') }}</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>
-                                {{ $category }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                    {{-- Level Filter --}}
+                    <div>
+                        <select
+                            name="level"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onchange="this.form.submit()"
+                        >
+                            <option value="all">{{ __('All Levels') }}</option>
+                            <option value="beginner" {{ request('level') == 'beginner' ? 'selected' : '' }}>{{ __('Beginner') }}</option>
+                            <option value="intermediate" {{ request('level') == 'intermediate' ? 'selected' : '' }}>{{ __('Intermediate') }}</option>
+                            <option value="advanced" {{ request('level') == 'advanced' ? 'selected' : '' }}>{{ __('Advanced') }}</option>
+                        </select>
+                    </div>
 
-                {{-- Level Filter --}}
-                <div>
-                    <select
-                        name="level"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        onchange="this.form.submit()"
-                    >
-                        <option value="all">{{ __('All Levels') }}</option>
-                        <option value="beginner" {{ request('level') == 'beginner' ? 'selected' : '' }}>{{ __('Beginner') }}</option>
-                        <option value="intermediate" {{ request('level') == 'intermediate' ? 'selected' : '' }}>{{ __('Intermediate') }}</option>
-                        <option value="advanced" {{ request('level') == 'advanced' ? 'selected' : '' }}>{{ __('Advanced') }}</option>
-                    </select>
-                </div>
+                    {{-- Filter Button --}}
+                    <div>
+                        <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
+                            {{ __('Filter') }}
+                        </button>
+                    </div>
 
-                {{-- Filter Button --}}
-                <div>
-                    <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                        </svg>
-                        {{ __('Filter') }}
-                    </button>
-                </div>
-
-                {{-- Notification Subscription Button --}}
-                <div>
-                    <x-category-subscribe-button contentType="training" />
+                    {{-- Notification Subscription Button --}}
+                    <div>
+                        <x-category-subscribe-button contentType="training" />
+                    </div>
                 </div>
             </div>
         </form>
@@ -172,7 +181,7 @@
                                     };
                                 @endphp
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $typeClasses }}">
-                                    {{ ucfirst($item->content_type) }}
+                                    {{ __(ucfirst($item->content_type)) }}
                                 </span>
                                 @if($item->content_type === 'training' && $item->level)
                                     @php
@@ -184,12 +193,12 @@
                                         };
                                     @endphp
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $levelClasses }}">
-                                        {{ ucfirst($item->level) }}
+                                        {{ __(ucfirst($item->level)) }}
                                     </span>
                                 @endif
                                 @if($item->location_type)
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">
-                                        {{ ucfirst($item->location_type) }}
+                                        {{ __(ucfirst($item->location_type)) }}
                                     </span>
                                 @endif
                                 @if($item->content_type === 'workshop' && $item->is_expired)

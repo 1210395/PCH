@@ -55,7 +55,12 @@ class AdminSettingsController extends AdminBaseController
         $availableSectors = AdminCounterSettingsController::getAvailableSectors();
         $registrationPolicies = SiteSetting::get('registration_policies') ?: $this->getDefaultRegistrationPolicies();
 
-        return view('admin.settings.index', compact('heroImages', 'footerSettings', 'headerSettings', 'subheaderSettings', 'counterSettings', 'availableCounterTypes', 'availableSectors', 'registrationPolicies'));
+        $heroTexts = [];
+        foreach ($this->heroPages as $key => $label) {
+            $heroTexts[$key] = SiteSetting::getHeroTexts($key) ?: self::getDefaultHeroTexts($key);
+        }
+
+        return view('admin.settings.index', compact('heroImages', 'heroTexts', 'footerSettings', 'headerSettings', 'subheaderSettings', 'counterSettings', 'availableCounterTypes', 'availableSectors', 'registrationPolicies'));
     }
 
     /**
@@ -214,5 +219,120 @@ class AdminSettingsController extends AdminBaseController
         SiteSetting::set('registration_policies', $this->getDefaultRegistrationPolicies(), 'json', 'policies', 'Registration Policies', 'Terms and policies shown during registration');
 
         return $this->successResponse('Registration policies reset to defaults');
+    }
+
+    /**
+     * Update hero texts for a specific page
+     */
+    public function updateHeroTexts(Request $request, $locale)
+    {
+        $request->validate([
+            'page' => 'required|string|in:' . implode(',', array_keys($this->heroPages)),
+            'title' => 'required|string|max:200',
+            'title_ar' => 'required|string|max:200',
+            'subtitle' => 'required|string|max:500',
+            'subtitle_ar' => 'required|string|max:500',
+        ]);
+
+        $page = $request->input('page');
+        SiteSetting::setHeroTexts($page, [
+            'title' => $request->input('title'),
+            'title_ar' => $request->input('title_ar'),
+            'subtitle' => $request->input('subtitle'),
+            'subtitle_ar' => $request->input('subtitle_ar'),
+        ]);
+
+        return $this->successResponse('Hero texts updated for ' . $this->heroPages[$page]);
+    }
+
+    /**
+     * Reset hero texts for a specific page to defaults
+     */
+    public function resetHeroTexts(Request $request, $locale)
+    {
+        $request->validate([
+            'page' => 'required|string|in:' . implode(',', array_keys($this->heroPages)),
+        ]);
+
+        $page = $request->input('page');
+        SiteSetting::setHeroTexts($page, self::getDefaultHeroTexts($page));
+
+        return $this->successResponse('Hero texts reset to defaults for ' . $this->heroPages[$page]);
+    }
+
+    /**
+     * Default hero texts for each page
+     */
+    public static function getDefaultHeroTexts($page)
+    {
+        $defaults = [
+            'home' => [
+                'title' => 'Showcase Your Creative Excellence',
+                'title_ar' => 'اعرض تميزك الإبداعي',
+                'subtitle' => 'The ultimate platform for designers, MSMEs, and creative industries to connect, collaborate, and grow their business',
+                'subtitle_ar' => 'المنصة المثالية للمصممين والمنشآت الصغيرة والمتوسطة والصناعات الإبداعية للتواصل والتعاون وتنمية أعمالهم',
+            ],
+            'products' => [
+                'title' => 'Discover Unique Products',
+                'title_ar' => 'اكتشف منتجات فريدة',
+                'subtitle' => 'Explore handcrafted and unique products from talented creators and manufacturers',
+                'subtitle_ar' => 'استكشف منتجات مصنوعة يدوياً وفريدة من المبدعين والمصنعين الموهوبين',
+            ],
+            'projects' => [
+                'title' => 'Explore Creative Projects',
+                'title_ar' => 'استكشف المشاريع الإبداعية',
+                'subtitle' => 'Discover inspiring work from talented designers and creative professionals',
+                'subtitle_ar' => 'اكتشف أعمالاً ملهمة من المصممين والمحترفين المبدعين الموهوبين',
+            ],
+            'services' => [
+                'title' => 'Professional Services',
+                'title_ar' => 'الخدمات المهنية',
+                'subtitle' => 'Connect with skilled professionals offering design, consulting, and creative services',
+                'subtitle_ar' => 'تواصل مع محترفين مهرة يقدمون خدمات التصميم والاستشارات والخدمات الإبداعية',
+            ],
+            'marketplace' => [
+                'title' => 'Marketplace',
+                'title_ar' => 'السوق',
+                'subtitle' => 'Discover services, collaborations, showcases and opportunities from the design community',
+                'subtitle_ar' => 'اكتشف الخدمات والتعاون والمعارض والفرص من مجتمع التصميم',
+            ],
+            'designers' => [
+                'title' => 'Discover Creative Talent',
+                'title_ar' => 'اكتشف المواهب الإبداعية',
+                'subtitle' => 'Browse talented designers, manufacturers, showrooms, and vendors. Connect with creative professionals and discover amazing work.',
+                'subtitle_ar' => 'تصفح المصممين والمصنعين وصالات العرض والموردين الموهوبين. تواصل مع المحترفين المبدعين واكتشف أعمالاً مذهلة.',
+            ],
+            'fab_labs' => [
+                'title' => 'Fab Labs & Incubators',
+                'title_ar' => 'مختبرات التصنيع والحاضنات',
+                'subtitle' => 'Discover fabrication laboratories across Palestine. Access cutting-edge equipment, learn new skills, and bring your ideas to life.',
+                'subtitle_ar' => 'اكتشف مختبرات التصنيع في فلسطين. احصل على معدات متطورة وتعلم مهارات جديدة وحقق أفكارك.',
+            ],
+            'trainings' => [
+                'title' => 'Training & Workshops',
+                'title_ar' => 'التدريب وورش العمل',
+                'subtitle' => 'Enhance your skills with professional training courses from academic institutions.',
+                'subtitle_ar' => 'طور مهاراتك من خلال دورات تدريبية مهنية من المؤسسات الأكاديمية.',
+            ],
+            'tenders' => [
+                'title' => 'Tenders & Opportunities',
+                'title_ar' => 'المناقصات والفرص',
+                'subtitle' => 'Discover the latest tender opportunities for designers, developers, and creative professionals across Palestine.',
+                'subtitle_ar' => 'اكتشف أحدث فرص المناقصات للمصممين والمطورين والمحترفين المبدعين في فلسطين.',
+            ],
+            'academic_tevets' => [
+                'title' => 'Academic & Workplace Learning Centers',
+                'title_ar' => 'المراكز الأكاديمية ومراكز التعلم المهني',
+                'subtitle' => 'Discover academic institutions, TVETs, and workplace learning centers across Palestine. Connect with universities, colleges, and workplace learning enterprises.',
+                'subtitle_ar' => 'اكتشف المؤسسات الأكاديمية ومراكز التعليم والتدريب المهني والتقني ومراكز التعلم في مكان العمل في فلسطين.',
+            ],
+        ];
+
+        return $defaults[$page] ?? [
+            'title' => '',
+            'title_ar' => '',
+            'subtitle' => '',
+            'subtitle_ar' => '',
+        ];
     }
 }

@@ -57,7 +57,7 @@
                                         <!-- Show Showroom badge for manufacturers -->
                                         <div x-show="formData.sector === 'manufacturer' && formData.hasShowroom">
                                             <p class="text-xs text-gray-500 uppercase tracking-wide">{{ __('Showroom') }}</p>
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700 mt-1" x-text="formData.hasShowroom === 'yes' ? 'Has Showroom' : 'No Showroom'"></span>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700 mt-1" x-text="formData.hasShowroom === 'yes' ? '{{ __('Has Showroom') }}' : '{{ __('No Showroom') }}'"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -381,7 +381,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                <span x-text="formData.sector === 'guest' ? 'Create Account' : 'Confirm & Publish'"></span>
+                                <span x-text="formData.sector === 'guest' ? '{{ __('Create Account') }}' : '{{ __('Confirm & Publish') }}'"></span>
                             </button>
                         </div>
                     </div>
@@ -458,7 +458,7 @@
                     <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
-                    <span x-text="currentStep === 1 ? 'Cancel' : 'Previous'"></span>
+                    <span x-text="currentStep === 1 ? '{{ __('Cancel') }}' : '{{ __('Previous') }}'"></span>
                 </button>
 
                 <template x-if="currentStep < 7">
@@ -481,7 +481,7 @@
                         :class="termsAccepted ? 'bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600' : 'bg-gray-300 cursor-not-allowed'"
                         class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 text-white rounded-lg transition-all text-sm sm:text-base"
                     >
-                        <span x-text="formData.sector === 'guest' ? 'Create Account' : 'Publish Profile'"></span>
+                        <span x-text="formData.sector === 'guest' ? '{{ __('Create Account') }}' : '{{ __('Publish Profile') }}'"></span>
                         <svg class="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>

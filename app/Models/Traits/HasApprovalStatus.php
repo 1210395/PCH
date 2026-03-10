@@ -263,6 +263,6 @@ trait HasApprovalStatus
      */
     public function getApprovalLabelAttribute(): string
     {
-        return ucfirst($this->approval_status ?? 'pending');
+        return __(ucfirst($this->approval_status ?? 'pending'));
     }
 }

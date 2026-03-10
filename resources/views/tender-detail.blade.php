@@ -195,7 +195,7 @@
                             </div>
                             <p class="font-semibold text-gray-900" dir="{{ $hasArabic($tender->publisher ?? '') ? 'rtl' : 'ltr' }}">{{ $tender->publisher }}</p>
                             @if($tender->publisher_type)
-                                <p class="text-sm text-gray-600">{{ ucfirst($tender->publisher_type) }}</p>
+                                <p class="text-sm text-gray-600">{{ __(ucfirst($tender->publisher_type)) }}</p>
                             @endif
                         </div>
 

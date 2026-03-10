@@ -45,12 +45,12 @@
             @endphp
             @if($training->location_type)
             <span class="px-2.5 py-1 rounded-full text-xs font-semibold {{ $locationTypeClasses }}">
-                {{ ucfirst($training->location_type) }}
+                {{ __(ucfirst($training->location_type)) }}
             </span>
             @endif
             @if($training->level)
             <span class="px-2.5 py-1 rounded-full text-xs font-semibold {{ $levelClasses }}">
-                {{ ucfirst($training->level) }}
+                {{ __(ucfirst($training->level)) }}
             </span>
             @endif
             @if($training->category)

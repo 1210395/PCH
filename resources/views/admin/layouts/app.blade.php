@@ -37,8 +37,8 @@
         @if(app()->getLocale() === 'ar')
         body, html[dir="rtl"] body { font-family: 'Noto Sans Arabic', system-ui, sans-serif; text-align: right; }
 
-        /* RTL: Flip sidebar to right side */
-        html[dir="rtl"] aside.fixed.left-0 { left: auto; right: 0; }
+        /* RTL: Ensure sidebar stays on right side */
+        html[dir="rtl"] aside.fixed { right: 0 !important; left: auto !important; }
 
         /* RTL: Margin flips */
         html[dir="rtl"] .ml-1 { margin-left: 0; margin-right: 0.25rem; }
@@ -49,9 +49,9 @@
         html[dir="rtl"] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
         html[dir="rtl"] .mr-3 { margin-right: 0; margin-left: 0.75rem; }
 
-        /* RTL: Positioning flips */
-        html[dir="rtl"] .left-0 { left: auto; right: 0; }
-        html[dir="rtl"] .right-0 { right: auto; left: 0; }
+        /* RTL: Positioning flips - exclude sidebar which handles its own RTL */
+        html[dir="rtl"] .left-0:not(aside) { left: auto; right: 0; }
+        html[dir="rtl"] .right-0:not(aside) { right: auto; left: 0; }
 
         /* RTL: Text alignment flips */
         html[dir="rtl"] .text-left { text-align: right; }
@@ -102,7 +102,8 @@
         @include('admin.partials.sidebar')
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col transition-all duration-300" :class="{ '{{ app()->getLocale() === 'ar' ? 'mr-64' : 'ml-64' }}': sidebarOpen, '{{ app()->getLocale() === 'ar' ? 'mr-20' : 'ml-20' }}': !sidebarOpen }">
+        <div class="flex-1 flex flex-col transition-all duration-300"
+             :style="sidebarOpen ? '{{ app()->getLocale() === 'ar' ? 'margin-right: 16rem' : 'margin-left: 16rem' }}' : '{{ app()->getLocale() === 'ar' ? 'margin-right: 5rem' : 'margin-left: 5rem' }}'">
             <!-- Top Navigation -->
             @include('admin.partials.topnav')
 

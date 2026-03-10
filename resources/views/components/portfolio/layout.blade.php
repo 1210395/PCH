@@ -157,6 +157,84 @@
         };
     };
 
+    window.serviceCategorySelect = function() {
+        const categories = @json(\App\Helpers\DropdownHelper::serviceCategories());
+
+        return {
+            selectedValue: '',
+            searchQuery: '',
+            isOpen: false,
+            highlightedIndex: -1,
+
+            initFromParent() {
+                const parentComponent = Alpine.$data(this.$el.closest('[x-data*="portfolioData"]'));
+                if (parentComponent && parentComponent.currentItem && parentComponent.currentItem.category) {
+                    this.selectedValue = parentComponent.currentItem.category;
+                    this.searchQuery = parentComponent.currentItem.category;
+                }
+            },
+
+            get filteredOptions() {
+                const query = this.searchQuery.toLowerCase();
+                const currentValue = this.selectedValue.toLowerCase();
+
+                if (query === currentValue) {
+                    return categories;
+                }
+
+                if (!query) {
+                    return categories;
+                }
+                return categories.filter(option =>
+                    option.toLowerCase().includes(query)
+                );
+            },
+
+            selectOption(option) {
+                this.selectedValue = option;
+                this.searchQuery = option;
+                this.isOpen = false;
+                this.highlightedIndex = -1;
+                // Update parent component's currentItem.category
+                const parentComponent = Alpine.$data(this.$el.closest('[x-data*="portfolioData"]'));
+                if (parentComponent && parentComponent.currentItem) {
+                    parentComponent.currentItem.category = option;
+                }
+            },
+
+            validateAndUpdate() {
+                const matchedCategory = categories.find(cat => cat.toLowerCase() === this.searchQuery.trim().toLowerCase());
+                if (matchedCategory) {
+                    this.selectOption(matchedCategory);
+                } else if (this.searchQuery.trim() && !this.selectedValue) {
+                    this.searchQuery = '';
+                } else {
+                    this.searchQuery = this.selectedValue;
+                }
+            },
+
+            highlightNext() {
+                if (this.highlightedIndex < this.filteredOptions.length - 1) {
+                    this.highlightedIndex++;
+                }
+            },
+
+            highlightPrevious() {
+                if (this.highlightedIndex > 0) {
+                    this.highlightedIndex--;
+                } else if (this.highlightedIndex === -1) {
+                    this.highlightedIndex = this.filteredOptions.length - 1;
+                }
+            },
+
+            selectHighlighted() {
+                if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredOptions.length) {
+                    this.selectOption(this.filteredOptions[this.highlightedIndex]);
+                }
+            }
+        };
+    };
+
     window.portfolioData = function() {
         return {
         deleteModal: false,

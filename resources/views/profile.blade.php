@@ -339,7 +339,7 @@
                                 @if($designer->sector)
                                 <div>
                                     <div class="text-sm text-gray-500 mb-1">{{ __('Sector') }}</div>
-                                    <div class="text-gray-900">{{ ucfirst($designer->sector) }}</div>
+                                    <div class="text-gray-900">{{ __(ucfirst($designer->sector)) }}</div>
                                 </div>
                                 @endif
                                 @if($designer->sub_sector)

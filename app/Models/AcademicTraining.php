@@ -116,10 +116,10 @@ class AcademicTraining extends Model
     public function getLevelLabelAttribute()
     {
         return match($this->level) {
-            'beginner' => 'Beginner',
-            'intermediate' => 'Intermediate',
-            'advanced' => 'Advanced',
-            default => ucfirst($this->level ?? 'All Levels'),
+            'beginner' => __('Beginner'),
+            'intermediate' => __('Intermediate'),
+            'advanced' => __('Advanced'),
+            default => __(ucfirst($this->level ?? 'All Levels')),
         };
     }
 
@@ -136,10 +136,10 @@ class AcademicTraining extends Model
     public function getLocationTypeLabelAttribute()
     {
         return match($this->location_type) {
-            'online' => 'Online',
-            'in-person' => 'In Person',
-            'hybrid' => 'Hybrid',
-            default => ucfirst($this->location_type ?? 'TBD'),
+            'online' => __('Online'),
+            'in-person' => __('In Person'),
+            'hybrid' => __('Hybrid'),
+            default => __(ucfirst($this->location_type ?? 'TBD')),
         };
     }
 

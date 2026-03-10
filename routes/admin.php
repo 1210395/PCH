@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdminTenderController;
 use App\Http\Controllers\Admin\AdminAcademicAccountController;
 use App\Http\Controllers\Admin\AdminAcademicContentController;
 use App\Http\Controllers\Admin\AdminProfileRatingController;
+use App\Http\Controllers\Admin\AdminPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +119,8 @@ Route::prefix('{locale}/admin')
             Route::get('/', [AdminSettingsController::class, 'index'])->name('index');
             Route::post('/hero/update', [AdminSettingsController::class, 'updateHeroImage'])->name('hero.update');
             Route::post('/hero/remove', [AdminSettingsController::class, 'removeHeroImage'])->name('hero.remove');
+            Route::post('/hero-texts/update', [AdminSettingsController::class, 'updateHeroTexts'])->name('hero-texts.update');
+            Route::post('/hero-texts/reset', [AdminSettingsController::class, 'resetHeroTexts'])->name('hero-texts.reset');
             Route::post('/footer/update', [AdminLayoutSettingsController::class, 'updateFooter'])->name('footer.update');
             Route::post('/footer/reset', [AdminLayoutSettingsController::class, 'resetFooter'])->name('footer.reset');
             Route::post('/header/update', [AdminLayoutSettingsController::class, 'updateHeader'])->name('header.update');
@@ -144,6 +147,16 @@ Route::prefix('{locale}/admin')
             Route::post('/{type}/reorder', [AdminDropdownController::class, 'reorder'])->name('reorder');
             Route::post('/{type}/sort-alphabetically', [AdminDropdownController::class, 'sortAlphabetically'])->name('sort-alphabetically');
             Route::post('/{type}/{id}/toggle-active', [AdminDropdownController::class, 'toggleActive'])->name('toggle-active')->where('id', '[0-9]+');
+        });
+
+        // CMS Pages Management
+        Route::prefix('pages')->name('admin.pages.')->group(function () {
+            Route::get('/', [AdminPageController::class, 'index'])->name('index');
+            Route::get('/{slug}/edit', [AdminPageController::class, 'edit'])->name('edit');
+            Route::post('/{slug}/update', [AdminPageController::class, 'update'])->name('update');
+            Route::post('/{slug}/upload-image', [AdminPageController::class, 'uploadImage'])->name('upload-image');
+            Route::post('/{slug}/remove-image', [AdminPageController::class, 'removeImage'])->name('remove-image');
+            Route::post('/{slug}/reset', [AdminPageController::class, 'reset'])->name('reset');
         });
 
         // Public API for dropdowns (used by frontend)

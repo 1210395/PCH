@@ -49,7 +49,7 @@
                 @elseif($type === 'designers')
                     {{ __('Designers') }}
                 @else
-                    {{ __('All Members') }}
+                    {{ \App\Models\SiteSetting::getHeroTitle('designers', 'Discover Creative Talent') }}
                 @endif
             </h1>
             <p class="text-sm sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
@@ -64,7 +64,7 @@
                 @elseif($type === 'designers')
                     {{ __('Connect with talented creatives and artists') }}
                 @else
-                    {{ __('Browse all members of our creative community') }}
+                    {{ \App\Models\SiteSetting::getHeroSubtitle('designers', 'Browse talented designers, manufacturers, showrooms, and vendors. Connect with creative professionals and discover amazing work.') }}
                 @endif
             </p>
         </div>
@@ -73,14 +73,14 @@
 
 <div class="min-h-screen bg-gray-50">
     <!-- Filter Section -->
-    <div class="bg-white border-b border-gray-200">
+    <div class="bg-white border-b border-gray-200" x-data="{ filtersOpen: false }">
         <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <!-- Search Form -->
                 <form action="{{ route('designers', ['locale' => app()->getLocale()]) }}" method="GET" class="flex gap-2">
                     <input type="hidden" name="type" value="{{ $type }}">
                     <input type="hidden" name="sort" value="{{ $sort }}">
-                    <div class="relative">
+                    <div class="relative flex-1">
                         <input type="text"
                                name="search"
                                value="{{ request('search') }}"
@@ -90,54 +90,63 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
+                    <button type="button" @click="filtersOpen = !filtersOpen" class="md:hidden px-3 py-2.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                        <span class="text-sm font-medium">{{ __('Filters') }}</span>
+                    </button>
                     <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium rounded-lg hover:from-blue-700 hover:to-green-600 transition-all">
                         {{ __('Search') }}
                     </button>
                 </form>
             </div>
 
-            <!-- Filter Tabs -->
-            <div class="mt-6 flex flex-wrap gap-2">
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'all', 'sort' => $sort, 'search' => request('search')]) }}"
-                   class="px-4 py-2 rounded-full font-medium transition-all {{ $type === 'all' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
-                    {{ __('All') }}
-                    <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {{ $type === 'all' ? 'bg-white/20' : 'bg-gray-100' }}">{{ $allCount }}</span>
-                </a>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'designers', 'sort' => $sort, 'search' => request('search')]) }}"
-                   class="px-4 py-2 rounded-full font-medium transition-all {{ $type === 'designers' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
-                    {{ __('Designers') }}
-                    <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {{ $type === 'designers' ? 'bg-white/20' : 'bg-gray-100' }}">{{ $designersCount }}</span>
-                </a>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'manufacturers', 'sort' => $sort, 'search' => request('search')]) }}"
-                   class="px-4 py-2 rounded-full font-medium transition-all {{ $type === 'manufacturers' && empty($sector) ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
-                    {{ __('Manufacturers, Showrooms & Vendors') }}
-                    <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {{ $type === 'manufacturers' && empty($sector) ? 'bg-white/20' : 'bg-gray-100' }}">{{ $manufacturersCount }}</span>
-                </a>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'sector' => 'manufacturer', 'sort' => $sort, 'search' => request('search')]) }}"
-                   class="px-4 py-2 rounded-full font-medium transition-all {{ !empty($sector) && $sector === 'manufacturer' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
-                    {{ __('Manufacturers') }}
-                </a>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'sector' => 'showroom', 'sort' => $sort, 'search' => request('search')]) }}"
-                   class="px-4 py-2 rounded-full font-medium transition-all {{ !empty($sector) && $sector === 'showroom' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
-                    {{ __('Showrooms') }}
-                </a>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'sector' => 'vendor', 'sort' => $sort, 'search' => request('search')]) }}"
-                   class="px-4 py-2 rounded-full font-medium transition-all {{ !empty($sector) && $sector === 'vendor' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
-                    {{ __('Vendors') }}
-                </a>
-            </div>
+            <!-- Collapsible Filter Tabs & Sort -->
+            <div x-show="filtersOpen" x-collapse class="md:!block" :class="{ 'hidden': !filtersOpen }">
+                <!-- Filter Tabs -->
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'all', 'sort' => $sort, 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-medium transition-all {{ $type === 'all' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
+                        {{ __('All') }}
+                        <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {{ $type === 'all' ? 'bg-white/20' : 'bg-gray-100' }}">{{ $allCount }}</span>
+                    </a>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'designers', 'sort' => $sort, 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-medium transition-all {{ $type === 'designers' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
+                        {{ __('Designers') }}
+                        <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {{ $type === 'designers' ? 'bg-white/20' : 'bg-gray-100' }}">{{ $designersCount }}</span>
+                    </a>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'manufacturers', 'sort' => $sort, 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-medium transition-all {{ $type === 'manufacturers' && empty($sector) ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
+                        {{ __('Manufacturers, Showrooms & Vendors') }}
+                        <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs {{ $type === 'manufacturers' && empty($sector) ? 'bg-white/20' : 'bg-gray-100' }}">{{ $manufacturersCount }}</span>
+                    </a>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'sector' => 'manufacturer', 'sort' => $sort, 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-medium transition-all {{ !empty($sector) && $sector === 'manufacturer' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
+                        {{ __('Manufacturers') }}
+                    </a>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'sector' => 'showroom', 'sort' => $sort, 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-medium transition-all {{ !empty($sector) && $sector === 'showroom' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
+                        {{ __('Showrooms') }}
+                    </a>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'sector' => 'vendor', 'sort' => $sort, 'search' => request('search')]) }}"
+                       class="px-4 py-2 rounded-full font-medium transition-all {{ !empty($sector) && $sector === 'vendor' ? 'bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-lg' : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50' }}">
+                        {{ __('Vendors') }}
+                    </a>
+                </div>
 
-            <!-- Sort Options -->
-            <div class="mt-4 flex items-center gap-2">
-                <span class="text-sm text-gray-500">{{ __('Sort by:') }}</span>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => $type, 'sort' => 'popular', 'search' => request('search')]) }}"
-                   class="px-3 py-1.5 text-sm rounded-lg transition-all {{ $sort === 'popular' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">
-                    {{ __('Most Popular') }}
-                </a>
-                <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => $type, 'sort' => 'newest', 'search' => request('search')]) }}"
-                   class="px-3 py-1.5 text-sm rounded-lg transition-all {{ $sort === 'newest' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">
-                    {{ __('Newest') }}
-                </a>
+                <!-- Sort Options -->
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-sm text-gray-500">{{ __('Sort by:') }}</span>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => $type, 'sort' => 'popular', 'search' => request('search')]) }}"
+                       class="px-3 py-1.5 text-sm rounded-lg transition-all {{ $sort === 'popular' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">
+                        {{ __('Most Popular') }}
+                    </a>
+                    <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => $type, 'sort' => 'newest', 'search' => request('search')]) }}"
+                       class="px-3 py-1.5 text-sm rounded-lg transition-all {{ $sort === 'newest' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">
+                        {{ __('Newest') }}
+                    </a>
+                </div>
             </div>
         </div>
     </div>

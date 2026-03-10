@@ -3,7 +3,7 @@
     $locale = app()->getLocale();
 @endphp
 
-<aside class="fixed left-0 top-0 h-full bg-gray-800 text-white transition-all duration-300 z-50 shadow-xl flex flex-col"
+<aside class="fixed top-0 h-full bg-gray-800 text-white transition-all duration-300 z-50 shadow-xl flex flex-col {{ app()->getLocale() === 'ar' ? 'right-0' : 'left-0' }}"
        :class="{ 'w-64': sidebarOpen, 'w-20': !sidebarOpen }">
 
     <!-- Logo / Brand -->
@@ -193,6 +193,14 @@
                   {{ $currentRoute === 'admin.settings.index' ? 'sidebar-item active text-white' : 'text-gray-300 hover:bg-gray-700' }}">
             <i class="fas fa-cog w-5 text-center"></i>
             <span x-show="sidebarOpen" x-transition class="flex-1">{{ __('Settings') }}</span>
+        </a>
+
+        <!-- Pages -->
+        <a href="{{ route('admin.pages.index', ['locale' => $locale]) }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200
+                  {{ str_starts_with($currentRoute, 'admin.pages') ? 'sidebar-item active text-white' : 'text-gray-300 hover:bg-gray-700' }}">
+            <i class="fas fa-file-alt w-5 text-center"></i>
+            <span x-show="sidebarOpen" x-transition class="flex-1">{{ __('Pages') }}</span>
         </a>
 
         <!-- Lookups -->

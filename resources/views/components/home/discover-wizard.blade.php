@@ -235,11 +235,17 @@ function discoverWizard() {
         step2Options: [],
 
         init() {
+            const lastDismissed = localStorage.getItem('discoverWizardDismissed');
+            if (lastDismissed) {
+                const minutesAgo = (Date.now() - parseInt(lastDismissed)) / 1000 / 60;
+                if (minutesAgo < 30) return;
+            }
             setTimeout(() => { this.show = true; }, 800);
         },
 
         dismiss() {
             this.show = false;
+            localStorage.setItem('discoverWizardDismissed', Date.now().toString());
         },
 
         selectIntent(intent) {
@@ -344,7 +350,8 @@ function discoverWizard() {
                 url += separator + 'search=' + encodeURIComponent(city);
             }
 
-            this.dismiss();
+            localStorage.setItem('discoverWizardDismissed', Date.now().toString());
+            this.show = false;
             window.location.href = url;
         }
     };

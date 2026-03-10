@@ -150,12 +150,12 @@
                         <div class="flex flex-wrap items-center gap-2 mb-3">
                             @if($training->level)
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
-                                {{ $training->level_label ?? ucfirst($training->level) }}
+                                {{ $training->level_label ?? __(ucfirst($training->level)) }}
                             </span>
                             @endif
                             @if($training->location_type)
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
-                                {{ $training->location_type_label ?? ucfirst($training->location_type) }}
+                                {{ $training->location_type_label ?? __(ucfirst($training->location_type)) }}
                             </span>
                             @endif
                         </div>
@@ -237,7 +237,7 @@
                         <div class="flex flex-wrap items-center gap-2 mb-3">
                             @if($workshop->location_type)
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
-                                {{ $workshop->location_type_label ?? ucfirst($workshop->location_type) }}
+                                {{ $workshop->location_type_label ?? __(ucfirst($workshop->location_type)) }}
                             </span>
                             @endif
                             @if($workshop->is_expired)
@@ -333,11 +333,11 @@
                     <div class="p-4">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">
-                                {{ $announcement->category_label ?? ucfirst($announcement->category ?? __('General')) }}
+                                {{ $announcement->category_label ?? __(ucfirst($announcement->category ?? __('General'))) }}
                             </span>
                             @if($announcement->priority && $announcement->priority !== 'normal')
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-                                {{ $announcement->priority_label ?? ucfirst($announcement->priority) }}
+                                {{ $announcement->priority_label ?? __(ucfirst($announcement->priority)) }}
                             </span>
                             @endif
                         </div>

@@ -54,12 +54,12 @@
 
             {{-- Headline --}}
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl mb-4 sm:mb-6 bg-gradient-to-r from-gray-900 via-blue-900 to-teal-900 bg-clip-text text-transparent animate-slideUp">
-                {{ __('Showcase Your Creative Excellence') }}
+                {{ \App\Models\SiteSetting::getHeroTitle('home', 'Showcase Your Creative Excellence') }}
             </h1>
 
             {{-- Subheadline --}}
             <p class="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed animate-slideUp" style="animation-delay: 0.1s;">
-                {{ __('The ultimate platform for designers, MSMEs, and creative industries to connect, collaborate, and grow their business') }}
+                {{ \App\Models\SiteSetting::getHeroSubtitle('home', 'The ultimate platform for designers, MSMEs, and creative industries to connect, collaborate, and grow their business') }}
             </p>
 
             {{-- CTA Buttons --}}

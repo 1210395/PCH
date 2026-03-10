@@ -107,10 +107,10 @@ class AcademicWorkshop extends Model
     public function getLocationTypeLabelAttribute()
     {
         return match($this->location_type) {
-            'online' => 'Online',
-            'in-person' => 'In Person',
-            'hybrid' => 'Hybrid',
-            default => ucfirst($this->location_type ?? 'TBD'),
+            'online' => __('Online'),
+            'in-person' => __('In Person'),
+            'hybrid' => __('Hybrid'),
+            default => __(ucfirst($this->location_type ?? 'TBD')),
         };
     }
 

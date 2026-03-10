@@ -38,9 +38,9 @@
     @endif
     <div class="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6">
         <div class="text-center md:text-left text-white">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ __('Academic & Workplace Learning Centers') }}</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('academic_tevets', 'Academic & Workplace Learning Centers') }}</h1>
             <p class="text-sm sm:text-lg md:text-xl text-white/90 max-w-2xl">
-                {{ __('Discover academic institutions, TVETs, and workplace learning centers across Palestine. Connect with universities, colleges, and workplace learning enterprises.') }}
+                {{ \App\Models\SiteSetting::getHeroSubtitle('academic_tevets', 'Discover academic institutions, TVETs, and workplace learning centers across Palestine. Connect with universities, colleges, and workplace learning enterprises.') }}
             </p>
 
             {{-- Stats --}}
@@ -336,7 +336,7 @@
                                 @endif
                                 {{-- Sector Badge --}}
                                 <span class="absolute top-3 right-3 px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                                    {{ ucfirst($privateSector->sector) }}
+                                    {{ __(ucfirst($privateSector->sector)) }}
                                 </span>
                             </div>
 
@@ -394,7 +394,7 @@
                 <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ __('No Results Found') }}</h3>
                 <p class="text-gray-600 mb-6">{{ __('Try adjusting your search or filters') }}</p>
                 <a href="{{ route('academic-tevets', ['locale' => app()->getLocale()]) }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg transition-all">
-                    Clear Filters
+                    {{ __('Clear Filters') }}
                 </a>
             </div>
         @endif

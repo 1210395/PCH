@@ -105,12 +105,16 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Location') }}</label>
-                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Ramallah, Palestine')">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Company Name') }}</label>
+                    <input type="text" x-model="form.company_name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Acme Corporation')">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Budget') }}</label>
-                    <input type="text" x-model="form.budget" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., $5,000 - $10,000')">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Company Website') }}</label>
+                    <input type="url" x-model="form.company_url" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Location') }}</label>
+                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Ramallah, Palestine')">
                 </div>
             </div>
         </div>
@@ -138,18 +142,12 @@
             </div>
         </div>
 
-        <!-- Additional Information -->
+        <!-- Source URL -->
         <div class="bg-white rounded-xl shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4"><i class="fas fa-list-check text-teal-500 mr-2"></i>{{ __('Additional Information') }}</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Requirements') }}</label>
-                    <textarea x-model="form.requirements" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Enter requirements for this tender...')"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Source URL') }}</label>
-                    <input type="url" x-model="form.source_url" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.org/tenders/...">
-                </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4"><i class="fas fa-link text-teal-500 mr-2"></i>{{ __('Source') }}</h3>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Source URL') }}</label>
+                <input type="url" x-model="form.source_url" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.org/tenders/...">
             </div>
         </div>
 
@@ -231,12 +229,12 @@ function tenderForm() {
             description: tender?.description || '',
             publisher: tender?.publisher || '',
             publisher_type: tender?.publisher_type || 'other',
+            company_name: tender?.company_name || '',
+            company_url: tender?.company_url || '',
             location: tender?.location || '',
-            budget: tender?.budget || '',
             status: tender?.status || 'open',
             published_date: tender?.published_date ? tender.published_date.split('T')[0] : new Date().toISOString().split('T')[0],
             deadline: tender?.deadline ? tender.deadline.split('T')[0] : '',
-            requirements: tender?.requirements || '',
             source_url: tender?.source_url || '',
             is_visible: tender?.is_visible !== false
         },
