@@ -98,18 +98,19 @@
     html[dir="rtl"] .mr-1\.5 { margin-right: 0; margin-left: 0.375rem; }
 
     /* Flip left/right positioning */
-    html[dir="rtl"] .left-0 { left: auto; right: 0; }
-    html[dir="rtl"] .left-3 { left: auto; right: 0.75rem; }
-    html[dir="rtl"] .left-4 { left: auto; right: 1rem; }
-    html[dir="rtl"] .right-0 { right: auto; left: 0; }
-    html[dir="rtl"] .right-3 { right: auto; left: 0.75rem; }
-    html[dir="rtl"] .right-4 { right: auto; left: 1rem; }
+    html[dir="rtl"] .left-0 { left: auto !important; right: 0 !important; }
+    html[dir="rtl"] .left-3 { left: auto !important; right: 0.75rem !important; }
+    html[dir="rtl"] .left-4 { left: auto !important; right: 1rem !important; }
+    html[dir="rtl"] .right-0 { right: auto !important; left: 0 !important; }
+    html[dir="rtl"] .right-3 { right: auto !important; left: 0.75rem !important; }
+    html[dir="rtl"] .right-4 { right: auto !important; left: 1rem !important; }
 
-    /* Flip padding-left/right */
-    html[dir="rtl"] .pl-10 { padding-left: 0; padding-right: 2.5rem; }
-    html[dir="rtl"] .pl-4 { padding-left: 0; padding-right: 1rem; }
-    html[dir="rtl"] .pr-4 { padding-right: 0; padding-left: 1rem; }
-    html[dir="rtl"] .pr-10 { padding-right: 0; padding-left: 2.5rem; }
+    /* Flip padding-left/right for search inputs */
+    html[dir="rtl"] .pl-10 { padding-left: 0.5rem !important; padding-right: 2.5rem !important; }
+    html[dir="rtl"] .pl-11 { padding-left: 0.5rem !important; padding-right: 2.75rem !important; }
+    html[dir="rtl"] .pl-4 { padding-left: 0 !important; padding-right: 1rem !important; }
+    html[dir="rtl"] .pr-4 { padding-right: 0 !important; padding-left: 1rem !important; }
+    html[dir="rtl"] .pr-10 { padding-right: 0.5rem !important; padding-left: 2.5rem !important; }
 
     /* Flip text-align */
     html[dir="rtl"] .text-left { text-align: right; }
