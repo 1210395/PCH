@@ -37,7 +37,7 @@
         @endif
         <div class="relative z-10 container mx-auto px-4 h-full flex items-center justify-center text-center">
             <div>
-                <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('marketplace', 'Marketplace') }}</h1>
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold leading-snug text-white mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('marketplace', 'Marketplace') }}</h1>
                 <p class="text-sm sm:text-lg text-white/90 max-w-2xl mx-auto">
                     {{ \App\Models\SiteSetting::getHeroSubtitle('marketplace', 'Discover services, collaborations, showcases and opportunities from the design community') }}
                 </p>
@@ -57,9 +57,9 @@
                             name="search"
                             value="{{ request('search') }}"
                             placeholder="{{ __('Search marketplace...') }}"
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full pl-10 rtl:pr-10 rtl:pl-4 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>

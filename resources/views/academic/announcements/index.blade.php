@@ -25,10 +25,10 @@
         <form method="GET" action="{{ route('academic.announcements.index', ['locale' => app()->getLocale()]) }}" class="flex flex-wrap gap-4">
             <div class="flex-1 min-w-[200px]">
                 <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <i class="fas fa-search absolute left-3 rtl:right-3 rtl:left-auto top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
                            placeholder="{{ __('Search announcements...') }}"
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                           class="w-full pl-10 rtl:pr-10 rtl:pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                 </div>
             </div>
             <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">

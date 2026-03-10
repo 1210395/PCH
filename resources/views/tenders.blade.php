@@ -45,7 +45,7 @@
     @endif
     <div class="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6">
         <div class="max-w-2xl text-white">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('tenders', 'Tenders & Opportunities') }}</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-snug mb-3 sm:mb-4">{{ \App\Models\SiteSetting::getHeroTitle('tenders', 'Tenders & Opportunities') }}</h1>
             <p class="text-sm sm:text-lg text-white/90">
                 {{ \App\Models\SiteSetting::getHeroSubtitle('tenders', 'Discover the latest tender opportunities for designers, developers, and creative professionals across Palestine.') }}
             </p>
@@ -62,7 +62,7 @@
                     {{-- Search --}}
                     <div class="md:col-span-2">
                         <div class="relative">
-                            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <input
@@ -70,7 +70,7 @@
                                 name="search"
                                 value="{{ request('search') }}"
                                 placeholder="{{ __('Search tenders...') }}"
-                                class="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full px-4 py-2.5 pl-10 rtl:pr-10 rtl:pl-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                         </div>
                     </div>
