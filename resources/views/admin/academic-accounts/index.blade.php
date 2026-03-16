@@ -134,7 +134,7 @@
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($account->logo)
-                                        <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-10 h-10 rounded-lg object-cover">
+                                        <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-10 h-10 rounded-lg object-cover">
                                     @else
                                         <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                                             {{ strtoupper(substr($account->name, 0, 2)) }}

@@ -21,7 +21,7 @@
 
 @section('head')
 @php
-    $ogImage = $post->images->first() ? asset('storage/' . $post->images->first()->image_path) : asset('images/logo.png');
+    $ogImage = $post->image ? url('media/' . $post->image) : asset('images/logo.png');
 @endphp
 <meta property="og:title" content="{{ $postTitle }} | {{ __('Marketplace') }}">
 <meta property="og:description" content="{{ Str::limit($postDescription, 160) }}">
@@ -80,7 +80,7 @@
                     @if($post->image)
                         <div class="relative aspect-[16/9] overflow-hidden">
                             <x-optimized-image
-                                :src="asset('storage/' . $post->image)"
+                                :src="url('media/' . $post->image)"
                                 :alt="$post->title"
                                 eager="true"
                                 aspect-ratio="16/9"
@@ -204,7 +204,7 @@
                             <div class="flex gap-3">
                                 <div class="flex-shrink-0">
                                     @if(auth('designer')->user()->avatar)
-                                        <img src="{{ asset('storage/' . auth('designer')->user()->avatar) }}"
+                                        <img src="{{ url('media/' . auth('designer')->user()->avatar) }}"
                                              alt="{{ auth('designer')->user()->name }}"
                                              class="w-10 h-10 rounded-full object-cover">
                                     @else
@@ -389,7 +389,7 @@
                 @if($post->designer)
                     @php
                         $designer = $post->designer;
-                        $designerAvatar = $designer->avatar ? asset('storage/' . $designer->avatar) : null;
+                        $designerAvatar = $designer->avatar ? url('media/' . $designer->avatar) : null;
                     @endphp
                     <div class="bg-white rounded-xl p-6 shadow-sm">
                         <div class="text-center">
@@ -553,7 +553,7 @@
                                     <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                                         @if($relatedPost->image)
                                             <x-optimized-image
-                                                :src="asset('storage/' . $relatedPost->image)"
+                                                :src="url('media/' . $relatedPost->image)"
                                                 :alt="$relatedPost->title"
                                                 eager="false"
                                                 aspect-ratio="1/1"

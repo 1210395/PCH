@@ -14,7 +14,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
             @if($workshop->image)
-                <img src="{{ asset('storage/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                <img src="{{ url('media/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
             @else
                 <div class="w-16 h-16 rounded-xl bg-green-100 flex items-center justify-center text-green-600 shadow-lg">
                     <i class="fas fa-tools text-2xl"></i>
@@ -104,7 +104,7 @@
             @if($workshop->image)
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Workshop Image') }}</h3>
-                    <img src="{{ asset('storage/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="rounded-lg max-w-full">
+                    <img src="{{ url('media/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="rounded-lg max-w-full">
                 </div>
             @endif
         </div>

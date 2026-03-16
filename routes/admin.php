@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdminTenderController;
 use App\Http\Controllers\Admin\AdminAcademicAccountController;
 use App\Http\Controllers\Admin\AdminAcademicContentController;
 use App\Http\Controllers\Admin\AdminProfileRatingController;
+use App\Http\Controllers\Admin\AdminRatingCriteriaController;
 use App\Http\Controllers\Admin\AdminPageController;
 
 /*
@@ -238,10 +239,21 @@ Route::prefix('{locale}/admin')
         Route::prefix('ratings')->name('admin.ratings.')->group(function () {
             Route::get('/', [AdminProfileRatingController::class, 'index'])->name('index');
             Route::get('/stats', [AdminProfileRatingController::class, 'stats'])->name('stats');
+            Route::get('/analytics', [AdminProfileRatingController::class, 'analytics'])->name('analytics');
             Route::get('/{id}', [AdminProfileRatingController::class, 'show'])->name('show')->where('id', '[0-9]+');
             Route::post('/{id}/approve', [AdminProfileRatingController::class, 'approve'])->name('approve')->where('id', '[0-9]+');
             Route::post('/{id}/reject', [AdminProfileRatingController::class, 'reject'])->name('reject')->where('id', '[0-9]+');
             Route::post('/bulk-action', [AdminProfileRatingController::class, 'bulkAction'])->name('bulk-action');
             Route::post('/toggle-auto-accept', [AdminProfileRatingController::class, 'toggleAutoAccept'])->name('toggle-auto-accept');
+
+            // Rating Criteria management (nested)
+            Route::prefix('criteria')->name('criteria.')->group(function () {
+                Route::get('/', [AdminRatingCriteriaController::class, 'index'])->name('index');
+                Route::post('/', [AdminRatingCriteriaController::class, 'store'])->name('store');
+                Route::put('/{id}', [AdminRatingCriteriaController::class, 'update'])->name('update')->where('id', '[0-9]+');
+                Route::post('/{id}/toggle', [AdminRatingCriteriaController::class, 'toggleActive'])->name('toggle')->where('id', '[0-9]+');
+                Route::post('/reorder', [AdminRatingCriteriaController::class, 'reorder'])->name('reorder');
+                Route::delete('/{id}', [AdminRatingCriteriaController::class, 'destroy'])->name('destroy')->where('id', '[0-9]+');
+            });
         });
     });

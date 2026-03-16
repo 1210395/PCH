@@ -121,7 +121,7 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Designer Information') }}</h3>
             <div class="flex items-center gap-4">
                 @if($service->designer && $service->designer->avatar)
-                    <img src="{{ asset('storage/' . $service->designer->avatar) }}" class="w-12 h-12 rounded-full object-cover">
+                    <img src="{{ url('media/' . $service->designer->avatar) }}" class="w-12 h-12 rounded-full object-cover">
                 @else
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                         {{ substr($service->designer->name ?? 'D', 0, 1) }}
@@ -153,7 +153,7 @@
     <div x-show="showRejectModal" x-cloak @click.self="showRejectModal = false" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div @click.stop class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 class="text-lg font-semibold mb-4">{{ __('Reject Service') }}</h3>
-            <textarea x-model="rejectReason" :placeholder="__('Reason for rejection (optional)...')" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
+            <textarea x-model="rejectReason" placeholder="{{ __('Reason for rejection (optional)...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
             <div class="flex justify-end gap-3">
                 <button @click="showRejectModal = false" class="px-4 py-2 text-gray-600">{{ __('Cancel') }}</button>
                 <button @click="submitReject()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg">{{ __('Reject') }}</button>

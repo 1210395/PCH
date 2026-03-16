@@ -182,7 +182,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Current Image') }}</label>
                     <div class="flex items-center gap-4">
-                        <img src="{{ asset('storage/' . $training->image) }}" alt="{{ $training->title }}" class="w-32 h-24 object-cover rounded-lg">
+                        <img src="{{ url('media/' . $training->image) }}" alt="{{ $training->title }}" class="w-32 h-24 object-cover rounded-lg">
                         <p class="text-sm text-gray-500">{{ __('Upload a new image below to replace it') }}</p>
                     </div>
                 </div>

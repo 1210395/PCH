@@ -94,7 +94,7 @@
                 <button @click="open = !open"
                         class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                     @if($account && $account->logo)
-                        <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-8 h-8 rounded-full object-cover">
+                        <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-8 h-8 rounded-full object-cover">
                     @else
                         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
                             {{ strtoupper(substr($account->name ?? 'A', 0, 1)) }}

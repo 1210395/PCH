@@ -8,7 +8,7 @@
     <div class="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-6 text-white">
         <div class="flex items-center gap-4">
             @if($account->logo)
-                <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
             @else
                 <div class="w-16 h-16 rounded-xl bg-white/20 flex items-center justify-center text-2xl font-bold">
                     {{ strtoupper(substr($account->name, 0, 2)) }}

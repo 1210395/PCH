@@ -40,21 +40,28 @@ class HomeController extends Controller
             ];
         }
 
-        // Build badge counter data using cached stats
+        // Build badge counter data using cached stats (locale-aware labels)
+        $locale = app()->getLocale();
         $badgeType = $counterSettings['badge_counter']['type'] ?? 'designers';
+        $badgeLabel = ($locale === 'ar' && !empty($counterSettings['badge_counter']['label_ar']))
+            ? $counterSettings['badge_counter']['label_ar']
+            : __($counterSettings['badge_counter']['label'] ?? 'creative professionals');
         $badgeCounter = [
             'count' => $this->getStatFromCache($badgeType, $counterSettings['badge_counter']['sectors'] ?? [], $homepageStats),
-            'label' => $counterSettings['badge_counter']['label'] ?? 'creative professionals',
+            'label' => $badgeLabel,
         ];
 
-        // Build stats counters data using cached stats
+        // Build stats counters data using cached stats (locale-aware labels)
         $statsCounters = [];
         foreach ($counterSettings['stats_counters'] ?? [] as $counter) {
             $counterType = $counter['type'] ?? 'products';
             $counterSectors = $counter['sectors'] ?? [];
+            $counterLabel = ($locale === 'ar' && !empty($counter['label_ar']))
+                ? $counter['label_ar']
+                : __($counter['label']);
             $statsCounters[] = [
                 'count' => $this->getStatFromCache($counterType, $counterSectors, $homepageStats),
-                'label' => $counter['label'],
+                'label' => $counterLabel,
             ];
         }
 

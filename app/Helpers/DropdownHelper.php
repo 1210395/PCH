@@ -158,7 +158,7 @@ class DropdownHelper
     }
 
     /**
-     * Get cities/governorates list
+     * Get cities/governorates list (localized labels)
      */
     public static function cities(): array
     {
@@ -178,6 +178,28 @@ class DropdownHelper
             return !empty($result) ? $result : self::getDefaultCities();
         } catch (\Exception $e) {
             return self::getDefaultCities();
+        }
+    }
+
+    /**
+     * Get cities as [english_key => localized_label] pairs
+     * Use this for <select> dropdowns where the stored value must be consistent across locales
+     */
+    public static function citiesKeyValue(): array
+    {
+        if (!self::tableExists()) {
+            $defaults = self::getDefaultCities();
+            return array_combine($defaults, $defaults);
+        }
+
+        try {
+            $result = DropdownOption::getKeyLabelPairs('city');
+            if (!empty($result)) return $result;
+            $defaults = self::getDefaultCities();
+            return array_combine($defaults, $defaults);
+        } catch (\Exception $e) {
+            $defaults = self::getDefaultCities();
+            return array_combine($defaults, $defaults);
         }
     }
 

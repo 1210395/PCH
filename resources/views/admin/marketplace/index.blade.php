@@ -92,7 +92,7 @@
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-3">
                                 @if($post->image)
-                                    <img src="{{ asset('storage/' . $post->image) }}" alt="" class="w-12 h-12 rounded-lg object-cover">
+                                    <img src="{{ url('media/' . $post->image) }}" alt="" class="w-12 h-12 rounded-lg object-cover">
                                 @else
                                     <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>
                                 @endif

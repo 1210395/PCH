@@ -328,7 +328,7 @@
                             {{-- Logo/Header --}}
                             <div class="h-32 bg-gradient-to-br from-blue-500 to-green-500 relative flex items-center justify-center">
                                 @if($privateSector->avatar)
-                                    <img src="{{ asset('storage/' . $privateSector->avatar) }}" alt="{{ $privateSector->name }}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
+                                    <img src="{{ url('media/' . $privateSector->avatar) }}" alt="{{ $privateSector->name }}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
                                 @else
                                     <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
                                         <span class="text-3xl font-bold text-blue-600">{{ strtoupper(substr($privateSector->name, 0, 1)) }}</span>

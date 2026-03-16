@@ -38,7 +38,7 @@
             <!-- Post Image -->
             <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
                 @if($post->image)
-                <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title ?? __('Marketplace Post') }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gradient-to-br', 'from-blue-600', 'to-green-500');"/>
+                <img src="{{ url('media/' . $post->image) }}" alt="{{ $post->title ?? __('Marketplace Post') }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gradient-to-br', 'from-blue-600', 'to-green-500');"/>
                 @else
                 <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
                     <svg class="w-16 h-16 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

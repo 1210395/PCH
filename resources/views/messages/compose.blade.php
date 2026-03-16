@@ -21,7 +21,7 @@
             <div class="flex items-center gap-3 sm:gap-4">
                 <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden flex-shrink-0">
                     @if($recipient->avatar)
-                        <img src="{{ asset('storage/' . $recipient->avatar) }}" alt="{{ $recipient->name }}" class="w-full h-full object-cover">
+                        <img src="{{ url('media/' . $recipient->avatar) }}" alt="{{ $recipient->name }}" class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-white text-lg sm:text-xl font-bold">
                             {{ strtoupper(substr($recipient->name, 0, 2)) }}

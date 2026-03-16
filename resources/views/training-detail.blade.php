@@ -217,7 +217,7 @@
                         <h2 class="text-xl font-bold text-gray-900 mb-4">{{ __('Your Instructor') }}</h2>
                         <div class="flex items-start gap-4">
                             @if($training->instructor_image)
-                                <img src="{{ asset('storage/' . $training->instructor_image) }}"
+                                <img src="{{ url('media/' . $training->instructor_image) }}"
                                      alt="{{ $training->instructor_name }}"
                                      class="w-20 h-20 rounded-full object-cover">
                             @else
@@ -245,7 +245,7 @@
                     {{-- Training Image --}}
                     <div class="aspect-video mb-4 rounded-lg overflow-hidden bg-gray-200">
                         @if($training->image)
-                            <img src="{{ asset('storage/' . $training->image) }}"
+                            <img src="{{ url('media/' . $training->image) }}"
                                  alt="{{ $training->title }}"
                                  class="w-full h-full object-cover">
                         @else

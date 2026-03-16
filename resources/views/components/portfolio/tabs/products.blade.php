@@ -19,7 +19,7 @@
                 @php
                     try {
                         $primaryImage = $product->images && $product->images->count() > 0 ? $product->images->where('is_primary', 1)->first() : null;
-                        $imageUrl = $primaryImage ? asset('storage/' . $primaryImage->image_path) : asset('images/placeholder.jpg');
+                        $imageUrl = $primaryImage ? url('media/' . $primaryImage->image_path) : asset('images/placeholder.jpg');
                     } catch (\Exception $e) {
                         $imageUrl = asset('images/placeholder.jpg');
                         \Log::error('Error loading product image', ['error' => $e->getMessage(), 'product_id' => $product->id]);

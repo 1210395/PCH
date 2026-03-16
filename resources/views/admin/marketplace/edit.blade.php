@@ -105,7 +105,7 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Post Image') }}</h3>
             @if($post->image)
             <div class="mb-4">
-                <img src="{{ asset('storage/' . $post->image) }}" alt="{{ __('Post image') }}" class="max-w-md rounded-lg">
+                <img src="{{ url('media/' . $post->image) }}" alt="{{ __('Post image') }}" class="max-w-md rounded-lg">
             </div>
             @else
             <p class="text-gray-500">{{ __('No image uploaded') }}</p>
@@ -117,7 +117,7 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Designer Information') }}</h3>
             <div class="flex items-center gap-4">
                 @if($post->designer->avatar)
-                <img src="{{ asset('storage/' . $post->designer->avatar) }}" alt="" class="w-12 h-12 rounded-full object-cover">
+                <img src="{{ url('media/' . $post->designer->avatar) }}" alt="" class="w-12 h-12 rounded-full object-cover">
                 @else
                 <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                     <i class="fas fa-user text-gray-400"></i>

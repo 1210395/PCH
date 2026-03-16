@@ -27,7 +27,7 @@
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center gap-4">
                 @if($account->logo)
-                    <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-12 h-12 rounded-lg object-cover">
+                    <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-12 h-12 rounded-lg object-cover">
                 @else
                     <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                         {{ strtoupper(substr($account->name, 0, 2)) }}
@@ -103,7 +103,7 @@
                          @drop.prevent="handleLogoDrop($event)">
                         <template x-if="logoPreview || '{{ $account->logo }}'">
                             <div class="relative inline-block">
-                                <img :src="logoPreview || '{{ $account->logo ? asset('storage/' . $account->logo) : '' }}'"
+                                <img :src="logoPreview || '{{ $account->logo ? url('media/' . $account->logo) : '' }}'"
                                      class="w-24 h-24 object-cover rounded-lg mx-auto mb-2">
                                 <button type="button" @click.stop="removeLogo()"
                                         class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600">
@@ -132,7 +132,7 @@
                          @drop.prevent="handleBannerDrop($event)">
                         <template x-if="bannerPreview || '{{ $account->banner }}'">
                             <div class="relative inline-block w-full">
-                                <img :src="bannerPreview || '{{ $account->banner ? asset('storage/' . $account->banner) : '' }}'"
+                                <img :src="bannerPreview || '{{ $account->banner ? url('media/' . $account->banner) : '' }}'"
                                      class="w-full h-24 object-cover rounded-lg mb-2">
                                 <button type="button" @click.stop="removeBanner()"
                                         class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600">

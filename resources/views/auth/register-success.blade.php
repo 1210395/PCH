@@ -109,6 +109,13 @@
                         class="inline-block w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
                         {{ __('Login Now') }}
                     </a>
+                    <a href="{{ route('verification.notice', ['locale' => app()->getLocale(), 'email' => session('verification_email')]) }}"
+                        class="inline-block w-full py-3 px-4 border-2 border-amber-300 text-amber-700 font-semibold rounded-xl hover:border-amber-400 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200">
+                        <svg class="w-5 h-5 inline-block {{ app()->getLocale() === 'ar' ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        {{ __('Didn\'t receive the email? Resend') }}
+                    </a>
                     <a href="{{ url(app()->getLocale()) }}"
                         class="inline-block w-full py-3 px-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                         {{ __('Go to Home') }}

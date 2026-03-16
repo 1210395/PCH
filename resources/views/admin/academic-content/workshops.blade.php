@@ -126,7 +126,7 @@
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($workshop->image)
-                                        <img src="{{ asset('storage/' . $workshop->image) }}" class="w-12 h-12 rounded-lg object-cover">
+                                        <img src="{{ url('media/' . $workshop->image) }}" class="w-12 h-12 rounded-lg object-cover">
                                     @else
                                         <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
                                             <i class="fas fa-tools text-green-600"></i>

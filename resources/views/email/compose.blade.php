@@ -23,7 +23,7 @@
                 <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
                         @if($recipient->profile_picture)
-                            <img src="{{ asset('storage/' . $recipient->profile_picture) }}"
+                            <img src="{{ url('media/' . $recipient->profile_picture) }}"
                                  alt="{{ $recipient->name }}"
                                  class="w-12 h-12 rounded-full border-2 border-white object-cover">
                         @else
@@ -48,7 +48,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('From') }}</label>
                     <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                         @if($sender->profile_picture)
-                            <img src="{{ asset('storage/' . $sender->profile_picture) }}"
+                            <img src="{{ url('media/' . $sender->profile_picture) }}"
                                  alt="{{ $sender->name }}"
                                  class="w-8 h-8 rounded-full object-cover">
                         @else

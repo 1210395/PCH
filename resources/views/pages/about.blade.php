@@ -20,7 +20,7 @@
         </div>
         @if(!empty($section['image']))
         <div class="md:w-2/5">
-            <img src="{{ url('storage/' . $section['image']) }}" alt="{{ $section['title'] ?? '' }}" class="rounded-xl shadow-lg w-full">
+            <img src="{{ url('media/' . $section['image']) }}" alt="{{ $section['title'] ?? '' }}" class="rounded-xl shadow-lg w-full">
         </div>
         @endif
     </div>
@@ -39,7 +39,7 @@
         @if(!empty($member['name']) || !empty($member['name_ar']))
         <div class="text-center">
             @if(!empty($member['image']))
-            <img src="{{ url('storage/' . $member['image']) }}" alt="{{ $member['name'] ?? '' }}" class="w-24 h-24 rounded-full object-cover mx-auto mb-3 shadow-md">
+            <img src="{{ url('media/' . $member['image']) }}" alt="{{ $member['name'] ?? '' }}" class="w-24 h-24 rounded-full object-cover mx-auto mb-3 shadow-md">
             @else
             <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-green-500 mx-auto mb-3 flex items-center justify-center text-white text-2xl font-bold shadow-md">
                 {{ mb_substr($isAr && !empty($member['name_ar']) ? $member['name_ar'] : ($member['name'] ?? '?'), 0, 1) }}

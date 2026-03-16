@@ -165,8 +165,8 @@
             <label for="city" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Governorate') }}</label>
             <select id="city" x-model="form.city" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
                 <option value="">{{ __('Select your city/governorate') }}</option>
-                @foreach(\App\Helpers\DropdownHelper::cities() as $city)
-                    <option value="{{ $city }}">{{ $city }}</option>
+                @foreach(\App\Helpers\DropdownHelper::citiesKeyValue() as $key => $label)
+                    <option value="{{ $key }}">{{ $label }}</option>
                 @endforeach
             </select>
         </div>

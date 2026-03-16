@@ -15,7 +15,7 @@
 <section class="page-hero text-white py-16 sm:py-20 relative overflow-hidden">
     @if(!empty($content['hero_image']))
     <div class="absolute inset-0">
-        <img src="{{ url('storage/' . $content['hero_image']) }}" alt="" class="w-full h-full object-cover opacity-20">
+        <img src="{{ url('media/' . $content['hero_image']) }}" alt="" class="w-full h-full object-cover opacity-20">
     </div>
     @endif
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 relative z-10">

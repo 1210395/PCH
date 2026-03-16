@@ -4,6 +4,7 @@
     $averageRating = $designer->average_rating;
     $ratingCount = $designer->rating_count;
     $hasRated = auth('designer')->check() ? \App\Models\ProfileRating::hasRated($designer->id, auth('designer')->id()) : false;
+    $ratingCriteria = \App\Models\RatingCriteria::active()->ordered()->get();
 @endphp
 
 <!-- Cover Image Section -->
@@ -497,11 +498,35 @@ async function sendMessageRequest(designerId) {
 // Profile Rating Functions
 // ==========================================
 
+// Criteria loaded server-side (avoids extra AJAX round-trip)
+const ratingCriteriaList = @json($ratingCriteria->map(fn($c) => [
+    'id'    => $c->id,
+    'label' => app()->getLocale() === 'ar' ? $c->ar_label : $c->en_label,
+]));
+
 function scrollToRatings() {
     const ratingsSection = document.getElementById('ratings-section');
     if (ratingsSection) {
         ratingsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+}
+
+function buildCriteriaHTML() {
+    if (!ratingCriteriaList || ratingCriteriaList.length === 0) return '';
+    return `
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('How was your experience?') }} <span class="text-xs text-gray-400">{{ __('(optional)') }}</span></label>
+            <div class="space-y-2" id="criteriaCheckboxes">
+                ${ratingCriteriaList.map(c => `
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 cursor-pointer transition-all group">
+                        <input type="checkbox" value="${c.id}" name="criteria_ids[]"
+                               class="criteria-checkbox w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400 cursor-pointer">
+                        <span class="text-sm text-gray-700 group-hover:text-gray-900">${c.label}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `;
 }
 
 function showRatingModal(isUpdate = false) {
@@ -515,7 +540,7 @@ function showRatingModal(isUpdate = false) {
 
     modal.innerHTML = `
         <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform" style="animation: scaleIn 0.2s ease-out;">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform max-h-[90vh] overflow-y-auto" style="animation: scaleIn 0.2s ease-out;">
             <div class="p-6">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center">
@@ -540,6 +565,9 @@ function showRatingModal(isUpdate = false) {
                     </div>
                     <input type="hidden" id="selectedRating" value="0">
                 </div>
+
+                <!-- Criteria Checkboxes -->
+                ${buildCriteriaHTML()}
 
                 <!-- Comment -->
                 <div class="mb-4">
@@ -581,7 +609,7 @@ function showRatingModal(isUpdate = false) {
         validateRatingForm();
     });
 
-    // If updating, fetch existing rating
+    // If updating, fetch existing rating (includes pre-checked criteria)
     if (isUpdate) {
         fetchExistingRating(designerId);
     }
@@ -636,6 +664,17 @@ async function fetchExistingRating(designerId) {
             setRating(data.rating.rating);
             document.getElementById('ratingComment').value = data.rating.comment || '';
             document.getElementById('charCount').textContent = (data.rating.comment || '').length;
+
+            // Pre-check previously selected criteria
+            if (data.rating.criteria_ids && data.rating.criteria_ids.length > 0) {
+                document.querySelectorAll('.criteria-checkbox').forEach(checkbox => {
+                    if (data.rating.criteria_ids.includes(parseInt(checkbox.value))) {
+                        checkbox.checked = true;
+                        checkbox.closest('label').classList.add('border-yellow-400', 'bg-yellow-50');
+                    }
+                });
+            }
+
             validateRatingForm();
         }
     } catch (error) {
@@ -661,6 +700,11 @@ async function submitRating(designerId, isUpdate) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ __("Submitting...") }}';
 
+    // Collect checked criteria IDs
+    const criteriaIds = Array.from(
+        document.querySelectorAll('.criteria-checkbox:checked')
+    ).map(cb => parseInt(cb.value));
+
     try {
         const url = `{{ url(app()->getLocale()) }}/designer/${designerId}/rate`;
         const method = isUpdate ? 'PUT' : 'POST';
@@ -672,7 +716,7 @@ async function submitRating(designerId, isUpdate) {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ rating, comment })
+            body: JSON.stringify({ rating, comment, criteria_ids: criteriaIds })
         });
 
         const data = await response.json();

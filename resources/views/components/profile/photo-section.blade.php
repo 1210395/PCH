@@ -14,7 +14,7 @@
                 <div class="h-32 sm:h-48 w-full bg-gradient-to-br from-blue-600 to-green-500 rounded-lg overflow-hidden">
                     @if($designer->cover_image)
                         @php
-                            $coverUrl = asset('storage/' . $designer->cover_image);
+                            $coverUrl = url('media/' . $designer->cover_image);
                         @endphp
                         <img :src="form.coverPreview || '{{ $coverUrl }}'" alt="Cover" class="w-full h-full object-cover">
                     @else
@@ -43,7 +43,7 @@
                     <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-2xl font-semibold overflow-hidden transition-transform duration-300 group-hover:scale-105">
                         @if($designer->avatar)
                             @php
-                                $avatarUrl = asset('storage/' . $designer->avatar);
+                                $avatarUrl = url('media/' . $designer->avatar);
                             @endphp
                             <img :src="form.avatarPreview || '{{ $avatarUrl }}'" alt="{{ $designer->name ?? 'Avatar' }}" class="w-full h-full object-cover">
                         @else

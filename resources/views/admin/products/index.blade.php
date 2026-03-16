@@ -46,7 +46,7 @@
                     <input type="text"
                            name="search"
                            value="{{ request('search') }}"
-                           :placeholder="__('Search by title, description, or designer...')"
+                           placeholder="{{ __('Search by title, description, or designer...') }}"
                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
@@ -142,7 +142,7 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
                                         @if($product->images->first())
-                                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}"
+                                            <img src="{{ url('media/' . $product->images->first()->image_path) }}"
                                                  class="w-full h-full object-cover" alt="">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center">
@@ -253,7 +253,7 @@
             </div>
             <div class="p-6">
                 <textarea x-model="rejectReason"
-                          :placeholder="__('Enter rejection reason...')"
+                          placeholder="{{ __('Enter rejection reason...') }}"
                           rows="3"
                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>

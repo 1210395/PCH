@@ -78,7 +78,7 @@
             <div class="hidden md:flex flex-1 max-w-md" x-data="searchDropdown()" @click.away="showResults = false">
                 <div class="relative w-full">
                     <form action="{{ route('search', ['locale' => app()->getLocale()]) }}" method="GET" class="relative w-full">
-                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="search-icon-fixed absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <input
@@ -129,7 +129,7 @@
                                     <a :href="'{{ url(app()->getLocale()) }}/designer/' + designer.id"
                                        class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
                                         <template x-if="designer.avatar">
-                                            <img :src="'{{ asset('storage') }}/' + designer.avatar" class="w-10 h-10 rounded-full object-cover">
+                                            <img :src="'{{ url('media') }}/' + designer.avatar" class="w-10 h-10 rounded-full object-cover">
                                         </template>
                                         <template x-if="!designer.avatar">
                                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center text-white font-semibold text-sm" x-text="designer.name.charAt(0).toUpperCase()"></div>
@@ -151,7 +151,7 @@
                                     <a :href="'{{ url(app()->getLocale()) }}/projects/' + project.id"
                                        class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
                                         <template x-if="project.image">
-                                            <img :src="'{{ asset('storage') }}/' + project.image" class="w-12 h-10 rounded-lg object-cover">
+                                            <img :src="'{{ url('media') }}/' + project.image" class="w-12 h-10 rounded-lg object-cover">
                                         </template>
                                         <template x-if="!project.image">
                                             <div class="w-12 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
@@ -177,7 +177,7 @@
                                     <a :href="'{{ url(app()->getLocale()) }}/products/' + product.id"
                                        class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
                                         <template x-if="product.image">
-                                            <img :src="'{{ asset('storage') }}/' + product.image" class="w-12 h-10 rounded-lg object-cover">
+                                            <img :src="'{{ url('media') }}/' + product.image" class="w-12 h-10 rounded-lg object-cover">
                                         </template>
                                         <template x-if="!product.image">
                                             <div class="w-12 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
@@ -335,12 +335,12 @@
                         <!-- Chat List -->
                         <div class="max-h-[320px] overflow-y-auto">
                             @forelse($recentChats as $chat)
-                            <button @click="openChat({{ $chat['id'] }}, @js($chat['other_user']->name), @js($chat['other_user']->avatar ? asset('storage/' . $chat['other_user']->avatar) : null), {{ $chat['other_user']->id }})"
+                            <button @click="openChat({{ $chat['id'] }}, @js($chat['other_user']->name), @js($chat['other_user']->avatar ? url('media/' . $chat['other_user']->avatar) : null), {{ $chat['other_user']->id }})"
                                     class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 text-left {{ $chat['unread_count'] > 0 ? 'bg-blue-50/50' : '' }}">
                                 <!-- Avatar -->
                                 <div class="relative flex-shrink-0">
                                     @if($chat['other_user']->avatar)
-                                    <img src="{{ asset('storage/' . $chat['other_user']->avatar) }}" alt="{{ $chat['other_user']->name }}" class="w-12 h-12 rounded-full object-cover">
+                                    <img src="{{ url('media/' . $chat['other_user']->avatar) }}" alt="{{ $chat['other_user']->name }}" class="w-12 h-12 rounded-full object-cover">
                                     @else
                                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center text-white font-semibold">
                                         {{ strtoupper(substr($chat['other_user']->name, 0, 1)) }}
@@ -539,7 +539,7 @@
                         <!-- Profile Avatar Button -->
                         <button @click="open = !open" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                             @if(Auth::guard('designer')->user()->avatar)
-                            <img src="{{ asset('storage/' . Auth::guard('designer')->user()->avatar) }}" alt="{{ Auth::guard('designer')->user()->name }}" class="w-8 h-8 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-all">
+                            <img src="{{ url('media/' . Auth::guard('designer')->user()->avatar) }}" alt="{{ Auth::guard('designer')->user()->name }}" class="w-8 h-8 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-all">
                             @else
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center text-white text-sm font-medium border-2 border-transparent hover:border-blue-600 transition-all">
                                 {{ strtoupper(substr(Auth::guard('designer')->user()->name, 0, 1)) }}
@@ -654,7 +654,7 @@
         <!-- Mobile Search Bar -->
         <div class="md:hidden">
             <form action="{{ route('search', ['locale' => app()->getLocale()]) }}" method="GET" class="relative">
-                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="search-icon-fixed absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input
@@ -729,7 +729,7 @@
             <div class="px-4 py-3 bg-gray-50 rounded-lg mb-3">
                 <div class="flex items-center gap-3">
                     @if(Auth::guard('designer')->user()->avatar)
-                    <img src="{{ asset('storage/' . Auth::guard('designer')->user()->avatar) }}" alt="{{ Auth::guard('designer')->user()->name }}" class="w-10 h-10 rounded-full object-cover">
+                    <img src="{{ url('media/' . Auth::guard('designer')->user()->avatar) }}" alt="{{ Auth::guard('designer')->user()->name }}" class="w-10 h-10 rounded-full object-cover">
                     @else
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center text-white font-medium">
                         {{ strtoupper(substr(Auth::guard('designer')->user()->name, 0, 1)) }}

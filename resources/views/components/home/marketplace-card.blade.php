@@ -2,8 +2,8 @@
 
 @php
     $designer = $post->designer ?? null;
-    $designerAvatar = $designer && $designer->avatar ? asset('storage/' . $designer->avatar) : null;
-    $postImage = $post->image ? asset('storage/' . $post->image) : null;
+    $designerAvatar = $designer && $designer->avatar ? url('media/' . $designer->avatar) : null;
+    $postImage = $post->image ? url('media/' . $post->image) : null;
 
     // Type badge colors
     $typeBadges = [

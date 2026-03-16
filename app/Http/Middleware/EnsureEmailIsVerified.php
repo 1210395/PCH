@@ -17,7 +17,7 @@ class EnsureEmailIsVerified
     {
         $user = Auth::guard($guard)->user();
 
-        if ($user && ! $user->hasVerifiedEmail()) {
+        if ($user && ! $user->hasVerifiedEmail() && ! $user->is_admin) {
             return redirect()->route('verification.notice', ['locale' => app()->getLocale()]);
         }
 

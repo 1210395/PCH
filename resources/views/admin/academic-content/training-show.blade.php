@@ -14,7 +14,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
             @if($training->image)
-                <img src="{{ asset('storage/' . $training->image) }}" alt="{{ $training->title }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                <img src="{{ url('media/' . $training->image) }}" alt="{{ $training->title }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
             @else
                 <div class="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-lg">
                     <i class="fas fa-chalkboard-teacher text-2xl"></i>
@@ -105,7 +105,7 @@
             @if($training->image)
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Training Image') }}</h3>
-                    <img src="{{ asset('storage/' . $training->image) }}" alt="{{ $training->title }}" class="rounded-lg max-w-full">
+                    <img src="{{ url('media/' . $training->image) }}" alt="{{ $training->title }}" class="rounded-lg max-w-full">
                 </div>
             @endif
         </div>
@@ -171,7 +171,7 @@
                 @if($training->academicAccount)
                 <div class="flex items-center gap-3 mb-4">
                     @if($training->academicAccount->logo)
-                        <img src="{{ asset('storage/' . $training->academicAccount->logo) }}" class="w-12 h-12 rounded-lg object-cover">
+                        <img src="{{ url('media/' . $training->academicAccount->logo) }}" class="w-12 h-12 rounded-lg object-cover">
                     @else
                         <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                             {{ strtoupper(substr($training->academicAccount->name ?? 'U', 0, 2)) }}

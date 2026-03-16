@@ -14,7 +14,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
             @if($workshop->image)
-                <img src="{{ asset('storage/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                <img src="{{ url('media/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
             @else
                 <div class="w-16 h-16 rounded-xl bg-green-100 flex items-center justify-center text-green-600 shadow-lg">
                     <i class="fas fa-tools text-2xl"></i>
@@ -99,7 +99,7 @@
             @if($workshop->image)
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Workshop Image') }}</h3>
-                    <img src="{{ asset('storage/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="rounded-lg max-w-full">
+                    <img src="{{ url('media/' . $workshop->image) }}" alt="{{ $workshop->title }}" class="rounded-lg max-w-full">
                 </div>
             @endif
         </div>
@@ -112,7 +112,7 @@
                 <div class="space-y-3">
                     <div>
                         <p class="text-sm text-gray-500">{{ __('Date') }}</p>
-                        <p class="font-medium text-gray-800">{{ $workshop->workshop_date->format('F d, Y') }}</p>
+                        <p class="font-medium text-gray-800">{{ $workshop->workshop_date ? $workshop->workshop_date->format('F d, Y') : __('Not set') }}</p>
                     </div>
                     @if($workshop->start_time)
                         <div>
@@ -170,7 +170,7 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Institution') }}</h3>
                 <div class="flex items-center gap-3 mb-4">
                     @if($workshop->academicAccount->logo)
-                        <img src="{{ asset('storage/' . $workshop->academicAccount->logo) }}" class="w-12 h-12 rounded-lg object-cover">
+                        <img src="{{ url('media/' . $workshop->academicAccount->logo) }}" class="w-12 h-12 rounded-lg object-cover">
                     @else
                         <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                             {{ strtoupper(substr($workshop->academicAccount->name ?? 'U', 0, 2)) }}

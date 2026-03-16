@@ -71,7 +71,7 @@
                             <a href="{{ route('designer.portfolio', ['locale' => app()->getLocale(), 'id' => $request->fromDesigner->id]) }}" class="flex-shrink-0 group">
                                 <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
                                     @if($request->fromDesigner->avatar)
-                                        <img src="{{ asset('storage/' . $request->fromDesigner->avatar) }}" alt="{{ $request->fromDesigner->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ url('media/' . $request->fromDesigner->avatar) }}" alt="{{ $request->fromDesigner->name }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-white text-lg font-bold">
                                             {{ strtoupper(substr($request->fromDesigner->name, 0, 2)) }}
@@ -155,7 +155,7 @@
                             <a href="{{ route('designer.portfolio', ['locale' => app()->getLocale(), 'id' => $request->toDesigner->id]) }}" class="flex-shrink-0 group">
                                 <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
                                     @if($request->toDesigner->avatar)
-                                        <img src="{{ asset('storage/' . $request->toDesigner->avatar) }}" alt="{{ $request->toDesigner->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ url('media/' . $request->toDesigner->avatar) }}" alt="{{ $request->toDesigner->name }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-white text-lg font-bold">
                                             {{ strtoupper(substr($request->toDesigner->name, 0, 2)) }}

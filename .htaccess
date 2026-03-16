@@ -10,10 +10,13 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    # Send media/storage requests directly to Laravel
+    RewriteRule ^media/(.+)$ index.php [L]
+
     # Serve static files from public/ directory if they exist
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{DOCUMENT_ROOT}/PalestineCreativeHub/public/$1 -f
+    RewriteCond /home/technopark/public_html/PalestineCreativeHub/public/$1 -f
     RewriteRule ^(.+)$ public/$1 [L]
 
     # Redirect Trailing Slashes If Not A Folder...

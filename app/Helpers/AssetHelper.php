@@ -68,7 +68,7 @@ class AssetHelper
     {
         $version = config('app.asset_version', '1');
 
-        $url = asset('storage/' . $path);
+        $url = url('media/' . $path);
         $separator = str_contains($url, '?') ? '&' : '?';
 
         return $url . $separator . 'v=' . $version;

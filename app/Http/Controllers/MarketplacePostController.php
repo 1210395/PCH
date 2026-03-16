@@ -99,7 +99,7 @@ class MarketplacePostController extends Controller
                     'category' => $post->category,
                     'type' => $post->type,
                     'tags' => $post->tags,
-                    'image' => $post->image ? asset('storage/' . $post->image) : null,
+                    'image' => $post->image ? url('media/' . $post->image) : null,
                     'approval_status' => $post->approval_status,
                 ]
             ]);
@@ -203,7 +203,7 @@ class MarketplacePostController extends Controller
                     'category' => $post->category,
                     'type' => $post->type,
                     'tags' => $post->tags,
-                    'image' => $post->image ? asset('storage/' . $post->image) : null,
+                    'image' => $post->image ? url('media/' . $post->image) : null,
                     'approval_status' => $post->approval_status,
                 ]
             ]);
@@ -322,7 +322,7 @@ class MarketplacePostController extends Controller
                         'title' => $product->title,
                         'description' => $product->description,
                         'category' => $product->category,
-                        'image' => $primaryImage ? asset('storage/' . $primaryImage->image_path) : null,
+                        'image' => $primaryImage ? url('media/' . $primaryImage->image_path) : null,
                         'image_path' => $primaryImage ? $primaryImage->image_path : null,
                     ];
                 }
@@ -338,7 +338,7 @@ class MarketplacePostController extends Controller
                         'title' => $project->title,
                         'description' => $project->description,
                         'category' => $project->category,
-                        'image' => $primaryImage ? asset('storage/' . $primaryImage->image_path) : null,
+                        'image' => $primaryImage ? url('media/' . $primaryImage->image_path) : null,
                         'image_path' => $primaryImage ? $primaryImage->image_path : null,
                     ];
                 }

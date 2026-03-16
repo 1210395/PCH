@@ -1,7 +1,7 @@
 @props(['fabLab'])
 
 @php
-    $imageUrl = $fabLab->image ? url('storage/' . $fabLab->image) : null;
+    $imageUrl = $fabLab->image ? url('media/' . $fabLab->image) : null;
     $equipment = is_array($fabLab->equipment) ? $fabLab->equipment : [];
     $typeClass = match($fabLab->type) {
         'university' => 'bg-blue-600',

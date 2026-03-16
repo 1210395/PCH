@@ -11,7 +11,7 @@
     <div class="relative h-48 sm:h-64 md:h-80 bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden">
         @if($designer->cover_image)
             <img
-                src="{{ asset('storage/app/public/' . $designer->cover_image) }}"
+                src="{{ url('media/app/public/' . $designer->cover_image) }}"
                 alt="Cover"
                 class="w-full h-full object-cover opacity-30"
                 loading="lazy"
@@ -31,7 +31,7 @@
                         <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 border-4 border-white shadow-xl rounded-full overflow-hidden">
                             @if($designer->avatar)
                                 <img
-                                    src="{{ asset('storage/app/public/' . $designer->avatar) }}"
+                                    src="{{ url('media/app/public/' . $designer->avatar) }}"
                                     alt="{{ $designer->name }}"
                                     class="w-full h-full object-cover"
                                     loading="lazy"
@@ -162,7 +162,7 @@
                             <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
                                 @if($project->image)
                                     <img
-                                        src="{{ asset('storage/app/public/' . $project->image) }}"
+                                        src="{{ url('media/app/public/' . $project->image) }}"
                                         alt="{{ $project->title }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                         loading="lazy"
@@ -223,7 +223,7 @@
                             <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
                                 @if($product->image)
                                     <img
-                                        src="{{ asset('storage/app/public/' . $product->image) }}"
+                                        src="{{ url('media/app/public/' . $product->image) }}"
                                         alt="{{ $product->title }}"
                                         class="w-full h-full object-cover"
                                         loading="lazy"
@@ -263,7 +263,7 @@
                             <div class="relative aspect-[4/3] overflow-hidden bg-gray-100">
                                 @if($service->image)
                                     <img
-                                        src="{{ asset('storage/app/public/' . $service->image) }}"
+                                        src="{{ url('media/app/public/' . $service->image) }}"
                                         alt="{{ $service->name }}"
                                         class="w-full h-full object-cover"
                                         loading="lazy"

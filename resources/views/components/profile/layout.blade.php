@@ -233,7 +233,7 @@ window.__profileUploadSession = '{{ App\View\Components\Profile\Layout::generate
 window.__profileCsrfToken = '{{ csrf_token() }}';
 window.__profileUpdateUrl = '{{ route("profile.update", ["locale" => app()->getLocale()]) }}';
 window.__profileBaseUrl = '{{ url(app()->getLocale()) }}';
-window.__profileStorageUrl = '{{ str_replace("'", "\\'", asset("storage")) }}';
+window.__profileStorageUrl = '{{ str_replace("'", "\\'", url("media")) }}';
 window.__profileUploadUrl = '{{ route("upload.registration.image", ["locale" => app()->getLocale()]) }}';
 
 // Main Alpine.js component for profile editing

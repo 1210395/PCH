@@ -29,7 +29,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Institution Name') }} <span class="text-red-500">*</span></label>
                     <input type="text" x-model="form.name" required
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           :placeholder="__('e.g., Palestine Technical University')">
+                           placeholder="{{ __('e.g., Palestine Technical University') }}">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -57,13 +57,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Password') }} <span class="text-red-500">*</span></label>
                         <input type="password" x-model="form.password" required minlength="8"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               :placeholder="__('Minimum 8 characters')">
+                               placeholder="{{ __('Minimum 8 characters') }}">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Confirm Password') }} <span class="text-red-500">*</span></label>
                         <input type="password" x-model="form.password_confirmation" required
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               :placeholder="__('Confirm password')">
+                               placeholder="{{ __('Confirm password') }}">
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Description') }}</label>
                     <textarea x-model="form.description" rows="3"
                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                              :placeholder="__('Brief description of the institution...')"></textarea>
+                              placeholder="{{ __('Brief description of the institution...') }}"></textarea>
                 </div>
             </div>
         </div>
@@ -100,13 +100,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('City') }}</label>
                         <input type="text" x-model="form.city"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               :placeholder="__('e.g., Ramallah')">
+                               placeholder="{{ __('e.g., Ramallah') }}">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Address') }}</label>
                         <input type="text" x-model="form.address"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               :placeholder="__('Street address')">
+                               placeholder="{{ __('Street address') }}">
                     </div>
                 </div>
             </div>

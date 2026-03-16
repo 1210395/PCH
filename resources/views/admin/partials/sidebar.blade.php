@@ -172,17 +172,42 @@
             {{ __('Moderation') }}
         </div>
 
-        <!-- Profile Ratings -->
-        <a href="{{ route('admin.ratings.index', ['locale' => $locale]) }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200
-                  {{ str_starts_with($currentRoute, 'admin.ratings') ? 'sidebar-item active text-white' : 'text-gray-300 hover:bg-gray-700' }}">
-            <i class="fas fa-star w-5 text-center"></i>
-            <span x-show="sidebarOpen" x-transition class="flex-1">{{ __('Profile Ratings') }}</span>
-            <span x-show="sidebarOpen && pendingCounts.profile_ratings > 0"
-                  x-text="pendingCounts.profile_ratings"
-                  class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
-            </span>
-        </a>
+        <!-- Profile Ratings (expandable group) -->
+        <div x-data="{ ratingsOpen: {{ str_starts_with($currentRoute, 'admin.ratings') ? 'true' : 'false' }} }">
+            <button @click="ratingsOpen = !ratingsOpen"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-all duration-200
+                           {{ str_starts_with($currentRoute, 'admin.ratings') ? 'sidebar-item active text-white' : 'text-gray-300 hover:bg-gray-700' }}">
+                <i class="fas fa-star w-5 text-center"></i>
+                <span x-show="sidebarOpen" x-transition class="flex-1 text-left">{{ __('Profile Ratings') }}</span>
+                <span x-show="sidebarOpen && pendingCounts.profile_ratings > 0"
+                      x-text="pendingCounts.profile_ratings"
+                      class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                </span>
+                <i x-show="sidebarOpen" :class="ratingsOpen ? 'fa-chevron-down' : 'fa-chevron-right'" class="fas text-xs opacity-60"></i>
+            </button>
+
+            <!-- Nested links -->
+            <div x-show="ratingsOpen && sidebarOpen" x-transition class="ml-4 space-y-1 mb-2">
+                <a href="{{ route('admin.ratings.index', ['locale' => $locale]) }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                          {{ $currentRoute === 'admin.ratings.index' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }}">
+                    <i class="fas fa-list w-4 text-center text-xs"></i>
+                    <span>{{ __('All Ratings') }}</span>
+                </a>
+                <a href="{{ route('admin.ratings.analytics', ['locale' => $locale]) }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                          {{ $currentRoute === 'admin.ratings.analytics' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }}">
+                    <i class="fas fa-chart-bar w-4 text-center text-xs"></i>
+                    <span>{{ __('Analytics') }}</span>
+                </a>
+                <a href="{{ route('admin.ratings.criteria.index', ['locale' => $locale]) }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                          {{ str_starts_with($currentRoute, 'admin.ratings.criteria') ? 'bg-gray-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }}">
+                    <i class="fas fa-check-square w-4 text-center text-xs"></i>
+                    <span>{{ __('Criteria') }}</span>
+                </a>
+            </div>
+        </div>
 
         <!-- Divider -->
         <div class="my-4 border-t border-gray-700"></div>

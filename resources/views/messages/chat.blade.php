@@ -23,7 +23,7 @@
                         <div class="relative flex-shrink-0">
                             <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden shadow-md">
                                 @if($otherDesigner->avatar)
-                                    <img src="{{ asset('storage/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
+                                    <img src="{{ url('media/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-white text-sm font-bold">
                                         {{ strtoupper(substr($otherDesigner->name, 0, 2)) }}
@@ -107,7 +107,7 @@
                                 @if(!$isSender)
                                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden flex-shrink-0 shadow-sm">
                                     @if($otherDesigner->avatar)
-                                        <img src="{{ asset('storage/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
+                                        <img src="{{ url('media/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-white text-xs font-bold">
                                             {{ strtoupper(substr($otherDesigner->name, 0, 1)) }}
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const avatarHtml = !isSender ? `
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden flex-shrink-0 shadow-sm">
                 @if($otherDesigner->avatar)
-                    <img src="{{ asset('storage/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
+                    <img src="{{ url('media/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
                 @else
                     <div class="w-full h-full flex items-center justify-center text-white text-xs font-bold">
                         {{ strtoupper(substr($otherDesigner->name, 0, 1)) }}

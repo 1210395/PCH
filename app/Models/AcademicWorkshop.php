@@ -73,24 +73,24 @@ class AcademicWorkshop extends Model
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            return url('media/' . $this->image);
         }
         return null;
     }
 
     public function getIsExpiredAttribute()
     {
-        return Carbon::parse($this->workshop_date)->isPast();
+        return $this->workshop_date ? Carbon::parse($this->workshop_date)->isPast() : false;
     }
 
     public function getIsUpcomingAttribute()
     {
-        return Carbon::parse($this->workshop_date)->isFuture();
+        return $this->workshop_date ? Carbon::parse($this->workshop_date)->isFuture() : false;
     }
 
     public function getIsTodayAttribute()
     {
-        return Carbon::parse($this->workshop_date)->isToday();
+        return $this->workshop_date ? Carbon::parse($this->workshop_date)->isToday() : false;
     }
 
     public function getFormattedTimeAttribute()

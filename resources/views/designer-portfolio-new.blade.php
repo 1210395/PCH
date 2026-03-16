@@ -9,7 +9,7 @@
 
 @section('head')
 @php
-    $ogAvatar = $designer->avatar ? asset('storage/' . $designer->avatar) : asset('images/logo.png');
+    $ogAvatar = $designer->avatar ? url('media/' . $designer->avatar) : asset('images/logo.png');
     $ogBio = \App\Helpers\DropdownHelper::sanitizeUtf8(Str::limit($designer->bio ?? '', 160));
 @endphp
 <meta property="og:title" content="{{ $designerName }} - {{ __('Designer Portfolio') }}">
@@ -25,8 +25,8 @@
 @section('content')
 @php
     $assetPaths = [
-        'avatar' => $designer->avatar ? asset('storage/' . $designer->avatar) : null,
-        'cover' => $designer->cover_image ? asset('storage/' . $designer->cover_image) : null,
+        'avatar' => $designer->avatar ? url('media/' . $designer->avatar) : null,
+        'cover' => $designer->cover_image ? url('media/' . $designer->cover_image) : null,
     ];
     $isOwner = auth('designer')->check() && auth('designer')->id() == $designer->id;
 @endphp

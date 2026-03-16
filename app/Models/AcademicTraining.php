@@ -75,7 +75,7 @@ class AcademicTraining extends Model
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            return url('media/' . $this->image);
         }
         return null;
     }

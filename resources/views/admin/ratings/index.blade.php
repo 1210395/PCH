@@ -20,6 +20,14 @@
                     {{ $pendingCount }} {{ __('pending approval') }}
                 </span>
             @endif
+            <a href="{{ route('admin.ratings.analytics', ['locale' => app()->getLocale()]) }}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 shadow-sm">
+                <i class="fas fa-chart-bar text-blue-500"></i>{{ __('Analytics') }}
+            </a>
+            <a href="{{ route('admin.ratings.criteria.index', ['locale' => app()->getLocale()]) }}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 shadow-sm">
+                <i class="fas fa-check-square text-green-500"></i>{{ __('Criteria') }}
+            </a>
             <!-- Auto-Accept Toggle -->
             <div class="flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm border border-gray-200">
                 <span class="text-sm text-gray-600">{{ __('Auto-Accept:') }}</span>
@@ -102,7 +110,7 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
                                         @if($rating->designer->avatar)
-                                            <img src="{{ asset('storage/' . $rating->designer->avatar) }}" class="w-full h-full object-cover" alt="">
+                                            <img src="{{ url('media/' . $rating->designer->avatar) }}" class="w-full h-full object-cover" alt="">
                                         @else
                                             <div class="w-full h-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-xs font-bold">
                                                 {{ strtoupper(substr($rating->designer->name ?? 'U', 0, 2)) }}
@@ -119,7 +127,7 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
                                         @if($rating->rater->avatar)
-                                            <img src="{{ asset('storage/' . $rating->rater->avatar) }}" class="w-full h-full object-cover" alt="">
+                                            <img src="{{ url('media/' . $rating->rater->avatar) }}" class="w-full h-full object-cover" alt="">
                                         @else
                                             <div class="w-full h-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-xs font-bold">
                                                 {{ strtoupper(substr($rating->rater->name ?? 'U', 0, 2)) }}
@@ -232,6 +240,24 @@
                     <p class="text-gray-700" x-text="viewingRating?.comment"></p>
                 </div>
 
+                <!-- Criteria tags (loaded separately) -->
+                <div x-show="viewingCriteria.length > 0">
+                    <p class="text-sm font-medium text-gray-700 mb-2">{{ __('Criteria Checked:') }}</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <template x-for="c in viewingCriteria" :key="c.id">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs rounded-full font-medium">
+                                <svg class="w-3 h-3 text-yellow-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span x-text="c.{{ app()->getLocale() === 'ar' ? 'ar_label' : 'en_label' }}"></span>
+                            </span>
+                        </template>
+                    </div>
+                </div>
+                <div x-show="viewingCriteria.length === 0 && viewingRating">
+                    <p class="text-xs text-gray-400 italic">{{ __('No criteria selected by the rater.') }}</p>
+                </div>
+
                 <div class="flex items-center justify-between text-sm text-gray-500">
                     <span x-text="'{{ __('Status:') }} ' + (viewingRating?.status || 'pending')"></span>
                     <span x-text="viewingRating?.created_at ? new Date(viewingRating.created_at).toLocaleDateString() : ''"></span>
@@ -262,6 +288,7 @@ function ratingsManager() {
         rejectingIds: [],
         rejectReason: '',
         viewingRating: null,
+        viewingCriteria: [],
         autoAcceptEnabled: {{ $autoAcceptEnabled ? 'true' : 'false' }},
 
         async toggleAutoAccept() {
@@ -278,9 +305,18 @@ function ratingsManager() {
             this.selectedIds = e.target.checked ? [...this.itemIds] : [];
         },
 
-        viewRating(id, rating) {
+        async viewRating(id, rating) {
             this.viewingRating = rating;
+            this.viewingCriteria = [];
             this.showViewModal = true;
+
+            // Load criteria for this rating
+            try {
+                const res = await adminFetch(`{{ url('') }}/{{ app()->getLocale() }}/admin/ratings/${id}`);
+                this.viewingCriteria = res.rating?.criteria ?? [];
+            } catch (e) {
+                // silently ignore — criteria just won't show
+            }
         },
 
         async approve(id) {

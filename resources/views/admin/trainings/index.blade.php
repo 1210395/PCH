@@ -86,7 +86,7 @@
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-3">
                                 @if($training->image)
-                                    <img src="{{ asset('storage/' . $training->image) }}" alt="" class="w-12 h-12 rounded-lg object-cover">
+                                    <img src="{{ url('media/' . $training->image) }}" alt="" class="w-12 h-12 rounded-lg object-cover">
                                 @else
                                     <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center"><i class="fas fa-graduation-cap text-white"></i></div>
                                 @endif

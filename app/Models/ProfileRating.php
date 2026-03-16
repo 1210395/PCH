@@ -89,6 +89,27 @@ class ProfileRating extends Model
         return $this->belongsTo(Designer::class, 'approved_by');
     }
 
+    /**
+     * Get the criteria checked by the rater
+     */
+    public function criteria()
+    {
+        return $this->belongsToMany(
+            RatingCriteria::class,
+            'rating_criteria_responses',
+            'profile_rating_id',
+            'rating_criteria_id'
+        );
+    }
+
+    /**
+     * Get the criteria response pivot records
+     */
+    public function criteriaResponses()
+    {
+        return $this->hasMany(RatingCriteriaResponse::class, 'profile_rating_id');
+    }
+
     // ==========================================
     // Scopes
     // ==========================================

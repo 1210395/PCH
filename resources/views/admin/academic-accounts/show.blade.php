@@ -14,7 +14,7 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
             @if($account->logo)
-                <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-16 h-16 rounded-xl object-cover shadow-lg">
             @else
                 <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                     {{ strtoupper(substr($account->name, 0, 2)) }}

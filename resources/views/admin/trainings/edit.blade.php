@@ -51,15 +51,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Title') }} <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="form.title" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Advanced UI/UX Design Fundamentals')">
+                    <input type="text" x-model="form.title" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Advanced UI/UX Design Fundamentals') }}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Short Description') }}</label>
-                    <input type="text" x-model="form.short_description" maxlength="500" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Brief description for cards (max 500 characters)')">
+                    <input type="text" x-model="form.short_description" maxlength="500" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('Brief description for cards (max 500 characters)') }}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Full Description') }}</label>
-                    <textarea x-model="form.description" rows="5" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Detailed course description')"></textarea>
+                    <textarea x-model="form.description" rows="5" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('Detailed course description') }}"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Category') }}</label>
@@ -88,15 +88,15 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Location') }}</label>
-                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Ramallah Creative Hub')">
+                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Ramallah Creative Hub') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Price') }}</label>
-                    <input type="text" x-model="form.price" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Free for members')">
+                    <input type="text" x-model="form.price" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Free for members') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Duration') }}</label>
-                    <input type="text" x-model="form.duration" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., 8 weeks')">
+                    <input type="text" x-model="form.duration" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., 8 weeks') }}">
                 </div>
             </div>
         </div>
@@ -115,7 +115,7 @@
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Schedule') }}</label>
-                    <input type="text" x-model="form.schedule" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Tuesdays & Thursdays, 6:00 PM - 8:30 PM')">
+                    <input type="text" x-model="form.schedule" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Tuesdays & Thursdays, 6:00 PM - 8:30 PM') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Languages') }} <span class="text-gray-400 text-xs">({{ __('comma separated') }})</span></label>
@@ -134,21 +134,21 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Instructor Name') }}</label>
-                    <input type="text" x-model="form.instructor_name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Layla Hassan')">
+                    <input type="text" x-model="form.instructor_name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Layla Hassan') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Instructor Title') }}</label>
-                    <input type="text" x-model="form.instructor_title" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Senior UX Designer at Google')">
+                    <input type="text" x-model="form.instructor_title" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Senior UX Designer at Google') }}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Instructor Bio') }}</label>
-                    <textarea x-model="form.instructor_bio" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Brief bio about the instructor')"></textarea>
+                    <textarea x-model="form.instructor_bio" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('Brief bio about the instructor') }}"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Instructor Image') }}</label>
                     @if(isset($training) && $training->instructor_image)
                         <div class="mb-2">
-                            <img src="{{ asset('storage/' . $training->instructor_image) }}" class="w-20 h-20 object-cover rounded-full">
+                            <img src="{{ url('media/' . $training->instructor_image) }}" class="w-20 h-20 object-cover rounded-full">
                             <p class="text-xs text-gray-400 mt-1">{{ __('Current image') }}</p>
                         </div>
                     @endif
@@ -171,7 +171,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Main Image') }}</label>
                     @if(isset($training) && $training->image)
                         <div class="mb-2">
-                            <img src="{{ asset('storage/' . $training->image) }}" class="w-32 h-32 object-cover rounded-lg">
+                            <img src="{{ url('media/' . $training->image) }}" class="w-32 h-32 object-cover rounded-lg">
                             <p class="text-xs text-gray-400 mt-1">{{ __('Current image') }}</p>
                         </div>
                     @endif
@@ -187,7 +187,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Cover Image') }}</label>
                     @if(isset($training) && $training->cover_image)
                         <div class="mb-2">
-                            <img src="{{ asset('storage/' . $training->cover_image) }}" class="w-48 h-24 object-cover rounded-lg">
+                            <img src="{{ url('media/' . $training->cover_image) }}" class="w-48 h-24 object-cover rounded-lg">
                             <p class="text-xs text-gray-400 mt-1">{{ __('Current cover') }}</p>
                         </div>
                     @endif
@@ -247,7 +247,7 @@
     <div x-show="showRejectModal" x-cloak @click.self="showRejectModal = false" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div @click.stop class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 class="text-lg font-semibold mb-4">{{ __('Reject Training') }}</h3>
-            <textarea x-model="rejectReason" :placeholder="__('Reason for rejection (optional)...')" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
+            <textarea x-model="rejectReason" placeholder="{{ __('Reason for rejection (optional)...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
             <div class="flex justify-end gap-3">
                 <button @click="showRejectModal = false" class="px-4 py-2 text-gray-600">{{ __('Cancel') }}</button>
                 <button @click="quickReject()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg">{{ __('Reject') }}</button>

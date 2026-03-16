@@ -773,7 +773,8 @@ class AuthController extends Controller
                     'products' => $productsCount,
                     'projects' => $projectsCount,
                     'services' => $servicesCount,
-                ]);
+                ])
+                ->with('verification_email', $designer->email);
 
         } catch (\Exception $e) {
             // Rollback the transaction on any error

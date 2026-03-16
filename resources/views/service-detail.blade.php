@@ -9,7 +9,7 @@
     $headDesignerName = $sanitize($service->designer->name ?? '');
 @endphp
 @php
-    $ogImage = $service->images->first() ? asset('storage/' . $service->images->first()->image_path) : asset('images/logo.png');
+    $ogImage = $service->images->first() ? url('media/' . $service->images->first()->image_path) : asset('images/logo.png');
 @endphp
 
 @section('head')
@@ -36,7 +36,7 @@
     $sanitize = [\App\Helpers\DropdownHelper::class, 'sanitizeUtf8'];
 
     $designer = $service->designer;
-    $designerAvatar = $designer && $designer->profile_image ? asset('storage/' . $designer->profile_image) : null;
+    $designerAvatar = $designer && $designer->profile_image ? url('media/' . $designer->profile_image) : null;
 
     // Sanitize text fields
     $serviceName = $sanitize($service->name ?? '');

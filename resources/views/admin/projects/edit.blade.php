@@ -167,7 +167,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         @foreach($project->images as $image)
                             <div class="relative group">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" class="w-full h-32 object-cover rounded-lg border border-gray-200">
+                                <img src="{{ url('media/' . $image->image_path) }}" class="w-full h-32 object-cover rounded-lg border border-gray-200">
                                 <button type="button" @click="deleteExistingImage({{ $image->id }})"
                                         class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100">
                                     &times;
@@ -214,7 +214,7 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Designer Information') }}</h3>
             <div class="flex items-center gap-4">
                 @if($project->designer && $project->designer->avatar)
-                    <img src="{{ asset('storage/' . $project->designer->avatar) }}" class="w-12 h-12 rounded-full object-cover">
+                    <img src="{{ url('media/' . $project->designer->avatar) }}" class="w-12 h-12 rounded-full object-cover">
                 @else
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                         {{ substr($project->designer->name ?? 'D', 0, 1) }}
@@ -246,7 +246,7 @@
     <div x-show="showRejectModal" x-cloak @click.self="showRejectModal = false" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div @click.stop class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 class="text-lg font-semibold mb-4">{{ __('Reject Project') }}</h3>
-            <textarea x-model="rejectReason" :placeholder="__('Reason for rejection (optional)...')" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
+            <textarea x-model="rejectReason" placeholder="{{ __('Reason for rejection (optional)...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
             <div class="flex justify-end gap-3">
                 <button @click="showRejectModal = false" class="px-4 py-2 text-gray-600">{{ __('Cancel') }}</button>
                 <button @click="submitReject()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg">{{ __('Reject') }}</button>

@@ -10,7 +10,7 @@
     <div class="h-16 flex items-center justify-between px-4 border-b border-white/10">
         <div class="flex items-center gap-3">
             @if($account && $account->logo)
-                <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-10 h-10 rounded-lg object-cover">
+                <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-10 h-10 rounded-lg object-cover">
             @else
                 <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
                     <i class="fas fa-university text-xl"></i>
@@ -93,7 +93,7 @@
     <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10" x-show="sidebarOpen" x-transition>
         <div class="flex items-center gap-3">
             @if($account && $account->logo)
-                <img src="{{ asset('storage/' . $account->logo) }}" alt="{{ $account->name }}" class="w-10 h-10 rounded-lg object-cover">
+                <img src="{{ url('media/' . $account->logo) }}" alt="{{ $account->name }}" class="w-10 h-10 rounded-lg object-cover">
             @else
                 <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center font-bold">
                     {{ strtoupper(substr($account->name ?? 'A', 0, 2)) }}

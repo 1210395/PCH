@@ -36,7 +36,7 @@ class AdminSettingsController extends AdminBaseController
             $images = [];
             foreach ($imagePaths as $path) {
                 $images[] = [
-                    'url' => url('storage/' . $path),
+                    'url' => url('media/' . $path),
                     'path' => $path,
                 ];
             }
@@ -89,7 +89,7 @@ class AdminSettingsController extends AdminBaseController
         $images = [];
         foreach (SiteSetting::getHeroImagePaths($page) as $path) {
             $images[] = [
-                'url' => url('storage/' . $path),
+                'url' => url('media/' . $path),
                 'path' => $path,
             ];
         }
@@ -122,7 +122,7 @@ class AdminSettingsController extends AdminBaseController
         $images = [];
         foreach (SiteSetting::getHeroImagePaths($page) as $path) {
             $images[] = [
-                'url' => url('storage/' . $path),
+                'url' => url('media/' . $path),
                 'path' => $path,
             ];
         }

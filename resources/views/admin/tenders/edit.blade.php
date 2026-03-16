@@ -75,7 +75,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Title') }} <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="form.title" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Brand Identity Design for Cultural Center')">
+                    <input type="text" x-model="form.title" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Brand Identity Design for Cultural Center') }}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Description') }} <span class="text-gray-400 text-xs">({{ __('supports formatting') }})</span></label>
@@ -91,7 +91,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Publisher Name') }}</label>
-                    <input type="text" x-model="form.publisher" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Palestinian Ministry of Culture')">
+                    <input type="text" x-model="form.publisher" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Palestinian Ministry of Culture') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Publisher Type') }}</label>
@@ -106,7 +106,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Company Name') }}</label>
-                    <input type="text" x-model="form.company_name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Acme Corporation')">
+                    <input type="text" x-model="form.company_name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Acme Corporation') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Company Website') }}</label>
@@ -114,7 +114,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Location') }}</label>
-                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Ramallah, Palestine')">
+                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Ramallah, Palestine') }}">
                 </div>
             </div>
         </div>
@@ -175,7 +175,7 @@
     <div x-show="showRejectModal" x-cloak @click.self="showRejectModal = false" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div @click.stop class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 class="text-lg font-semibold mb-4">{{ __('Reject Tender') }}</h3>
-            <textarea x-model="rejectReason" :placeholder="__('Reason for rejection (optional)...')" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
+            <textarea x-model="rejectReason" placeholder="{{ __('Reason for rejection (optional)...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
             <div class="flex justify-end gap-3">
                 <button @click="showRejectModal = false" class="px-4 py-2 text-gray-600">{{ __('Cancel') }}</button>
                 <button @click="quickReject()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg">{{ __('Reject') }}</button>

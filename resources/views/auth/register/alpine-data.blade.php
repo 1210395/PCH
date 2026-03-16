@@ -1756,7 +1756,7 @@ function signupWizard() {
             }
 
             // Add product image paths (multiple images support)
-            this.formData.products.forEach((product, index) => {
+            (this.formData.products || []).forEach((product, index) => {
                 // Legacy single image path (deprecated but kept for backward compatibility)
                 if (this.uploadedPaths.products[product.id]) {
                     const input = document.createElement('input');
@@ -1779,7 +1779,7 @@ function signupWizard() {
             });
 
             // Add project image paths (multiple images support)
-            this.formData.projects.forEach((project, index) => {
+            (this.formData.projects || []).forEach((project, index) => {
                 // Legacy single image path (deprecated but kept for backward compatibility)
                 if (this.uploadedPaths.projects[project.id]) {
                     const input = document.createElement('input');
@@ -1804,7 +1804,7 @@ function signupWizard() {
             // Services don't use images, so no image paths to add
 
             // Add certification paths
-            this.uploadedPaths.certifications.forEach((certPath, index) => {
+            (this.uploadedPaths.certifications || []).forEach((certPath, index) => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = `certification_paths[${index}]`;

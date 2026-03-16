@@ -19,7 +19,7 @@
                 @php
                     try {
                         $primaryImage = $project->images && $project->images->count() > 0 ? $project->images->where('is_primary', 1)->first() : null;
-                        $imageUrl = $primaryImage ? asset('storage/' . $primaryImage->image_path) : asset('images/placeholder.jpg');
+                        $imageUrl = $primaryImage ? url('media/' . $primaryImage->image_path) : asset('images/placeholder.jpg');
                     } catch (\Exception $e) {
                         $imageUrl = asset('images/placeholder.jpg');
                         \Log::error('Error loading project image', ['error' => $e->getMessage(), 'project_id' => $project->id]);
@@ -88,7 +88,7 @@
                 <div class="flex items-center gap-2">
                     <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden bg-gray-200">
                         @if($designer->avatar)
-                            <img src="{{ asset('storage/' . $designer->avatar) }}" alt="{{ $designer->name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gradient-to-br', 'from-blue-600', 'to-green-500');"/>
+                            <img src="{{ url('media/' . $designer->avatar) }}" alt="{{ $designer->name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gradient-to-br', 'from-blue-600', 'to-green-500');"/>
                         @else
                             <div class="w-full h-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-xs font-bold">
                                 {{ strtoupper(substr($designer->name, 0, 1)) }}

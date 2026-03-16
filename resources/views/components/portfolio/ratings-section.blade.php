@@ -1,7 +1,7 @@
 @props(['designer'])
 
 @php
-    $ratings = \App\Models\ProfileRating::with('rater:id,name,avatar')
+    $ratings = \App\Models\ProfileRating::with(['rater:id,name,avatar', 'criteria:id,en_label,ar_label'])
         ->approved()
         ->forDesigner($designer->id)
         ->orderBy('created_at', 'desc')
@@ -53,7 +53,7 @@
                     <a href="{{ route('designer.portfolio', ['locale' => app()->getLocale(), 'id' => $rating->rater->id]) }}" class="flex-shrink-0">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden ring-2 ring-white shadow">
                             @if($rating->rater->avatar)
-                                <img src="{{ asset('storage/' . $rating->rater->avatar) }}" alt="{{ $rating->rater->name }}" class="w-full h-full object-cover">
+                                <img src="{{ url('media/' . $rating->rater->avatar) }}" alt="{{ $rating->rater->name }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full bg-gradient-to-br from-blue-600 to-green-500 flex items-center justify-center text-white text-sm font-bold">
                                     {{ strtoupper(substr($rating->rater->name, 0, 2)) }}
@@ -78,6 +78,20 @@
                             <span class="text-xs text-gray-500">{{ $rating->created_at->diffForHumans() }}</span>
                         </div>
                         <p class="text-gray-700 text-sm sm:text-base">{{ $rating->comment }}</p>
+
+                        {{-- Criteria tags --}}
+                        @if($rating->criteria->count() > 0)
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            @foreach($rating->criteria as $criterion)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs rounded-full font-medium">
+                                <svg class="w-3 h-3 text-yellow-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ app()->getLocale() === 'ar' ? $criterion->ar_label : $criterion->en_label }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                 </div>
                 @endforeach

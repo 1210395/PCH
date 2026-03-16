@@ -31,8 +31,8 @@ class ViewPage extends Component
 
         // Prepare asset paths for views
         $this->assetPaths = [
-            'avatar' => $designer->avatar ? asset('storage/' . $designer->avatar) : null,
-            'cover' => $designer->cover_image ? asset('storage/' . $designer->cover_image) : null,
+            'avatar' => $designer->avatar ? url('media/' . $designer->avatar) : null,
+            'cover' => $designer->cover_image ? url('media/' . $designer->cover_image) : null,
         ];
 
         // Check if current user is the portfolio owner

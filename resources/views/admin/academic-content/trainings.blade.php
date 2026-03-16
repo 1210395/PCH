@@ -125,7 +125,7 @@
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($training->image)
-                                        <img src="{{ asset('storage/' . $training->image) }}" class="w-12 h-12 rounded-lg object-cover">
+                                        <img src="{{ url('media/' . $training->image) }}" class="w-12 h-12 rounded-lg object-cover">
                                     @else
                                         <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
                                             <i class="fas fa-chalkboard-teacher text-blue-600"></i>

@@ -32,7 +32,7 @@
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center gap-4">
                 @if($designer->avatar)
-                    <img src="{{ asset('storage/' . $designer->avatar) }}" alt="{{ $designer->name }}" class="w-12 h-12 rounded-full object-cover">
+                    <img src="{{ url('media/' . $designer->avatar) }}" alt="{{ $designer->name }}" class="w-12 h-12 rounded-full object-cover">
                 @else
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
                         {{ substr($designer->name ?? 'D', 0, 1) }}
@@ -72,7 +72,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Professional Title') }}</label>
                         <input type="text" x-model="form.title"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                               :placeholder="__('e.g., UI/UX Designer, Product Designer')">
+                               placeholder="{{ __('e.g., UI/UX Designer, Product Designer') }}">
                     </div>
                 </div>
 
@@ -80,7 +80,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Bio') }}</label>
                     <textarea x-model="form.bio" rows="4" maxlength="500"
                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all"
-                              :placeholder="__('Tell us about yourself and your work...')"></textarea>
+                              placeholder="{{ __('Tell us about yourself and your work...') }}"></textarea>
                     <p class="text-sm mt-1 transition-colors" :class="(form.bio || '').length >= 500 ? 'text-red-600' : 'text-gray-500'">
                         <span x-text="(form.bio || '').length"></span>/500 {{ __('characters') }}
                     </p>
@@ -121,7 +121,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Address') }}</label>
                     <textarea x-model="form.address" rows="2" maxlength="200"
                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all"
-                              :placeholder="__('Street address, building number, etc.')"></textarea>
+                              placeholder="{{ __('Street address, building number, etc.') }}"></textarea>
                     <p class="text-xs text-gray-500 mt-1">
                         <span x-text="(form.address || '').length"></span>/200 {{ __('characters') }}
                     </p>
@@ -268,7 +268,7 @@
                     </div>
                     <input type="text" x-model="customSkill" @input="selectedSkill = ''" @keydown.enter.prevent="addSkill()"
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                           :placeholder="__('Type a custom skill (e.g., 3D Printing, Embroidery, etc.)')" maxlength="50">
+                           placeholder="{{ __('Type a custom skill (e.g., 3D Printing, Embroidery, etc.)') }}" maxlength="50">
                     <p class="text-xs text-gray-500 mt-1">{{ __('Press Enter or click "Add" to add your custom skill') }}</p>
                 </div>
 

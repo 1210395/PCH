@@ -264,7 +264,7 @@ class DesignerFollowController extends Controller
             return [
                 'id' => $user->id,
                 'name' => $user->first_name . ' ' . $user->last_name,
-                'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                'avatar' => $user->avatar ? url('media/' . $user->avatar) : null,
                 'city' => $user->city,
                 'sector' => $user->sector,
                 'title' => $user->title,
@@ -350,7 +350,7 @@ class DesignerFollowController extends Controller
             return [
                 'id' => $user->id,
                 'name' => $user->first_name . ' ' . $user->last_name,
-                'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                'avatar' => $user->avatar ? url('media/' . $user->avatar) : null,
                 'city' => $user->city,
                 'sector' => $user->sector,
                 'title' => $user->title,

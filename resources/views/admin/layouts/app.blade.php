@@ -12,18 +12,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
-    <!-- Pre-compiled Tailwind CSS + Font Awesome (inlined to bypass server static file issues) -->
-    @php
-        $manifest = @json_decode(@file_get_contents(public_path('build/manifest.json')), true) ?: [];
-        $adminCss = $manifest['resources/css/admin.css']['file'] ?? 'assets/admin-CyMh2Lim.css';
-        $adminCss = preg_replace('/[^a-zA-Z0-9\-_\.\/]/', '', $adminCss);
-        $cssPath = public_path('build/' . $adminCss);
-        $cssContent = '';
-        if (file_exists($cssPath) && str_starts_with(realpath($cssPath), realpath(public_path('build')))) {
-            $cssContent = file_get_contents($cssPath);
-        }
-    @endphp
-    <style>{!! $cssContent !!}</style>
+    <!-- Pre-compiled Tailwind CSS -->
+    <link rel="stylesheet" href="{{ asset('build/assets/admin-CyMh2Lim.css') }}">
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

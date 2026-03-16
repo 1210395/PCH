@@ -59,7 +59,7 @@
                 <!-- Avatar -->
                 <div class="flex-shrink-0">
                     @if($designer->avatar)
-                        <img src="{{ asset('storage/' . $designer->avatar) }}"
+                        <img src="{{ url('media/' . $designer->avatar) }}"
                              alt="{{ $designer->name }}"
                              class="w-24 h-24 rounded-full object-cover">
                     @else

@@ -324,7 +324,7 @@ class AdminPageController extends AdminBaseController
 
         return $this->successResponse(__('Image uploaded successfully'), [
             'path' => $path,
-            'url' => url('storage/' . $path),
+            'url' => url('media/' . $path),
         ]);
     }
 

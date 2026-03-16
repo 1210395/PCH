@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProfileRating;
+use App\Models\RatingCriteria;
+use App\Models\RatingCriteriaResponse;
 use App\Models\Designer;
 use App\Models\AdminSetting;
 use Illuminate\Http\Request;
@@ -42,16 +44,32 @@ class ProfileRatingController extends Controller
         }
 
         $validated = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|min:10|max:500',
+            'rating'       => 'required|integer|min:1|max:5',
+            'comment'      => 'required|string|min:10|max:500',
+            'criteria_ids' => 'nullable|array',
+            'criteria_ids.*' => 'integer|exists:rating_criteria,id',
         ]);
 
         $rating = ProfileRating::create([
             'designer_id' => $designerId,
-            'rater_id' => $currentDesigner->id,
-            'rating' => $validated['rating'],
-            'comment' => $validated['comment'],
+            'rater_id'    => $currentDesigner->id,
+            'rating'      => $validated['rating'],
+            'comment'     => $validated['comment'],
         ]);
+
+        // Save criteria responses
+        if (!empty($validated['criteria_ids'])) {
+            $activeCriteriaIds = RatingCriteria::active()
+                ->whereIn('id', $validated['criteria_ids'])
+                ->pluck('id');
+
+            foreach ($activeCriteriaIds as $criteriaId) {
+                RatingCriteriaResponse::create([
+                    'profile_rating_id' => $rating->id,
+                    'rating_criteria_id' => $criteriaId,
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -59,13 +77,13 @@ class ProfileRatingController extends Controller
                 ? 'Your rating has been submitted!'
                 : 'Your rating has been submitted and is pending approval.',
             'rating' => [
-                'id' => $rating->id,
-                'rating' => $rating->rating,
+                'id'      => $rating->id,
+                'rating'  => $rating->rating,
                 'comment' => $rating->comment,
-                'status' => $rating->status,
-                'rater' => [
-                    'id' => $currentDesigner->id,
-                    'name' => $currentDesigner->name,
+                'status'  => $rating->status,
+                'rater'   => [
+                    'id'     => $currentDesigner->id,
+                    'name'   => $currentDesigner->name,
                     'avatar' => $currentDesigner->avatar,
                 ],
                 'created_at' => $rating->created_at->diffForHumans(),
@@ -87,7 +105,7 @@ class ProfileRatingController extends Controller
             ->paginate(10);
 
         $averageRating = ProfileRating::getAverageRating($designerId);
-        $ratingCount = ProfileRating::getRatingCount($designerId);
+        $ratingCount   = ProfileRating::getRatingCount($designerId);
 
         // Check if current user has already rated
         $hasRated = false;
@@ -97,16 +115,16 @@ class ProfileRatingController extends Controller
         }
 
         return response()->json([
-            'success' => true,
+            'success'        => true,
             'average_rating' => round($averageRating, 1),
-            'rating_count' => $ratingCount,
-            'has_rated' => $hasRated,
-            'ratings' => $ratings->items(),
-            'pagination' => [
+            'rating_count'   => $ratingCount,
+            'has_rated'      => $hasRated,
+            'ratings'        => $ratings->items(),
+            'pagination'     => [
                 'current_page' => $ratings->currentPage(),
-                'last_page' => $ratings->lastPage(),
-                'per_page' => $ratings->perPage(),
-                'total' => $ratings->total(),
+                'last_page'    => $ratings->lastPage(),
+                'per_page'     => $ratings->perPage(),
+                'total'        => $ratings->total(),
             ]
         ]);
     }
@@ -125,7 +143,7 @@ class ProfileRatingController extends Controller
             ], 401);
         }
 
-        $rating = ProfileRating::with('designer:id,name')
+        $rating = ProfileRating::with(['designer:id,name', 'criteria:id'])
             ->where('designer_id', $designerId)
             ->where('rater_id', $currentDesigner->id)
             ->first();
@@ -139,13 +157,14 @@ class ProfileRatingController extends Controller
 
         return response()->json([
             'success' => true,
-            'rating' => [
-                'id' => $rating->id,
-                'rating' => $rating->rating,
-                'comment' => $rating->comment,
-                'status' => $rating->status,
+            'rating'  => [
+                'id'               => $rating->id,
+                'rating'           => $rating->rating,
+                'comment'          => $rating->comment,
+                'status'           => $rating->status,
                 'rejection_reason' => $rating->rejection_reason,
-                'created_at' => $rating->created_at->diffForHumans(),
+                'criteria_ids'     => $rating->criteria->pluck('id')->toArray(),
+                'created_at'       => $rating->created_at->diffForHumans(),
             ]
         ]);
     }
@@ -176,8 +195,10 @@ class ProfileRatingController extends Controller
         }
 
         $validated = $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|min:10|max:500',
+            'rating'         => 'required|integer|min:1|max:5',
+            'comment'        => 'required|string|min:10|max:500',
+            'criteria_ids'   => 'nullable|array',
+            'criteria_ids.*' => 'integer|exists:rating_criteria,id',
         ]);
 
         // Reset to pending if auto-accept is disabled
@@ -187,20 +208,35 @@ class ProfileRatingController extends Controller
         }
 
         $rating->update([
-            'rating' => $validated['rating'],
-            'comment' => $validated['comment'],
-            'status' => $status,
+            'rating'           => $validated['rating'],
+            'comment'          => $validated['comment'],
+            'status'           => $status,
             'rejection_reason' => null,
         ]);
+
+        // Replace criteria responses
+        $rating->criteriaResponses()->delete();
+        if (!empty($validated['criteria_ids'])) {
+            $activeCriteriaIds = RatingCriteria::active()
+                ->whereIn('id', $validated['criteria_ids'])
+                ->pluck('id');
+
+            foreach ($activeCriteriaIds as $criteriaId) {
+                RatingCriteriaResponse::create([
+                    'profile_rating_id'  => $rating->id,
+                    'rating_criteria_id' => $criteriaId,
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Your rating has been updated!',
-            'rating' => [
-                'id' => $rating->id,
-                'rating' => $rating->rating,
+            'rating'  => [
+                'id'      => $rating->id,
+                'rating'  => $rating->rating,
                 'comment' => $rating->comment,
-                'status' => $rating->status,
+                'status'  => $rating->status,
             ]
         ]);
     }

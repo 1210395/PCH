@@ -290,7 +290,7 @@ class MarketplaceCommentController extends Controller
                 'id' => $comment->designer->id,
                 'name' => $comment->designer->name,
                 'avatar' => $comment->designer->avatar
-                    ? asset('storage/' . $comment->designer->avatar)
+                    ? url('media/' . $comment->designer->avatar)
                     : null,
             ],
             'is_owner' => auth('designer')->check() && auth('designer')->id() === $comment->designer_id,
@@ -310,7 +310,7 @@ class MarketplaceCommentController extends Controller
                         'id' => $reply->designer->id,
                         'name' => $reply->designer->name,
                         'avatar' => $reply->designer->avatar
-                            ? asset('storage/' . $reply->designer->avatar)
+                            ? url('media/' . $reply->designer->avatar)
                             : null,
                     ],
                     'is_owner' => auth('designer')->check() && auth('designer')->id() === $reply->designer_id,

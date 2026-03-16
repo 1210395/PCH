@@ -29,6 +29,26 @@
                 {{ __('View Site') }}
             </a>
 
+            <!-- Language Switch -->
+            @php
+                $currentLocale = app()->getLocale();
+                $otherLocale   = $currentLocale === 'en' ? 'ar' : 'en';
+                $currentPath   = request()->getPathInfo();
+                $switchedPath  = preg_replace('/^\/' . preg_quote($currentLocale, '/') . '\//', '/' . $otherLocale . '/', $currentPath);
+                $langSwitchUrl = url($switchedPath) . (request()->getQueryString() ? '?' . request()->getQueryString() : '');
+            @endphp
+            <a href="{{ $langSwitchUrl }}"
+               class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+               title="{{ $currentLocale === 'en' ? 'Switch to Arabic' : 'التبديل إلى الإنجليزية' }}">
+                @if($currentLocale === 'en')
+                    <span class="text-base leading-none">🇵🇸</span>
+                    <span>العربية</span>
+                @else
+                    <span class="text-base leading-none">🇬🇧</span>
+                    <span>English</span>
+                @endif
+            </a>
+
             <!-- Pending Approvals Quick Access -->
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open"

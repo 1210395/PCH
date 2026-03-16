@@ -19,17 +19,18 @@ class SitemapController extends Controller
         $sitemap = Cache::remember('sitemap_xml', 3600, function () {
             $urls = collect();
 
-            // Static pages
             foreach (['en', 'ar'] as $locale) {
-                $urls->push(['url' => url("$locale"), 'priority' => '1.0', 'changefreq' => 'daily']);
-                $urls->push(['url' => url("$locale/designers"), 'priority' => '0.9', 'changefreq' => 'daily']);
-                $urls->push(['url' => url("$locale/products"), 'priority' => '0.9', 'changefreq' => 'daily']);
-                $urls->push(['url' => url("$locale/projects"), 'priority' => '0.9', 'changefreq' => 'daily']);
-                $urls->push(['url' => url("$locale/services"), 'priority' => '0.8', 'changefreq' => 'daily']);
-                $urls->push(['url' => url("$locale/marketplace"), 'priority' => '0.8', 'changefreq' => 'daily']);
-                $urls->push(['url' => url("$locale/fab-labs"), 'priority' => '0.7', 'changefreq' => 'weekly']);
-                $urls->push(['url' => url("$locale/trainings"), 'priority' => '0.7', 'changefreq' => 'weekly']);
-                $urls->push(['url' => url("$locale/tenders"), 'priority' => '0.7', 'changefreq' => 'daily']);
+                // Static listing pages
+                $urls->push(['url' => route('home',              ['locale' => $locale]), 'priority' => '1.0', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('designers',         ['locale' => $locale]), 'priority' => '0.9', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('products',          ['locale' => $locale]), 'priority' => '0.9', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('projects',          ['locale' => $locale]), 'priority' => '0.9', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('services',          ['locale' => $locale]), 'priority' => '0.8', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('marketplace.index', ['locale' => $locale]), 'priority' => '0.8', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('fab-labs',          ['locale' => $locale]), 'priority' => '0.7', 'changefreq' => 'weekly']);
+                $urls->push(['url' => route('trainings.index',   ['locale' => $locale]), 'priority' => '0.7', 'changefreq' => 'weekly']);
+                $urls->push(['url' => route('tenders.index',     ['locale' => $locale]), 'priority' => '0.7', 'changefreq' => 'daily']);
+                $urls->push(['url' => route('academic-tevets',   ['locale' => $locale]), 'priority' => '0.6', 'changefreq' => 'weekly']);
             }
 
             // Designers (active, non-admin)
@@ -40,9 +41,9 @@ class SitemapController extends Controller
                     foreach ($designers as $designer) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/designer/{$designer->id}"),
-                                'lastmod' => $designer->updated_at->toW3cString(),
-                                'priority' => '0.8',
+                                'url'        => route('designer.portfolio', ['locale' => $locale, 'id' => $designer->id]),
+                                'lastmod'    => $designer->updated_at->toW3cString(),
+                                'priority'   => '0.8',
                                 'changefreq' => 'weekly',
                             ]);
                         }
@@ -57,9 +58,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/products/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.7',
+                                'url'        => route('product.detail', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.7',
                                 'changefreq' => 'weekly',
                             ]);
                         }
@@ -74,9 +75,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/projects/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.7',
+                                'url'        => route('project.detail', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.7',
                                 'changefreq' => 'weekly',
                             ]);
                         }
@@ -91,9 +92,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/services/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.6',
+                                'url'        => route('services.show', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.6',
                                 'changefreq' => 'weekly',
                             ]);
                         }
@@ -108,9 +109,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/marketplace/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.6',
+                                'url'        => route('marketplace.show', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.6',
                                 'changefreq' => 'weekly',
                             ]);
                         }
@@ -124,9 +125,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/fab-labs/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.5',
+                                'url'        => route('fab-lab.detail', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.5',
                                 'changefreq' => 'monthly',
                             ]);
                         }
@@ -140,9 +141,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/trainings/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.5',
+                                'url'        => route('trainings.show', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.5',
                                 'changefreq' => 'monthly',
                             ]);
                         }
@@ -156,9 +157,9 @@ class SitemapController extends Controller
                     foreach ($items as $item) {
                         foreach (['en', 'ar'] as $locale) {
                             $urls->push([
-                                'url' => url("$locale/tenders/{$item->id}"),
-                                'lastmod' => $item->updated_at->toW3cString(),
-                                'priority' => '0.5',
+                                'url'        => route('tenders.show', ['locale' => $locale, 'id' => $item->id]),
+                                'lastmod'    => $item->updated_at->toW3cString(),
+                                'priority'   => '0.5',
                                 'changefreq' => 'weekly',
                             ]);
                         }
@@ -168,12 +169,15 @@ class SitemapController extends Controller
             return $urls;
         });
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' . "\n";
+        $xml .= '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
+        $xml .= '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9' . "\n";
+        $xml .= '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">' . "\n";
 
         foreach ($sitemap as $entry) {
             $xml .= "  <url>\n";
-            $xml .= "    <loc>" . htmlspecialchars($entry['url']) . "</loc>\n";
+            $xml .= "    <loc>" . htmlspecialchars($entry['url'], ENT_XML1) . "</loc>\n";
             if (!empty($entry['lastmod'])) {
                 $xml .= "    <lastmod>{$entry['lastmod']}</lastmod>\n";
             }
@@ -184,6 +188,7 @@ class SitemapController extends Controller
 
         $xml .= '</urlset>';
 
-        return response($xml, 200)->header('Content-Type', 'application/xml');
+        return response($xml, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8');
     }
 }

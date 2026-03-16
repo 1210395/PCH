@@ -5,15 +5,15 @@
     if (is_object($product->images) && method_exists($product->images, 'first')) {
         // It's a relationship collection
         $firstImageModel = $product->images->first();
-        $firstImage = $firstImageModel && $firstImageModel->image_path ? asset('storage/' . $firstImageModel->image_path) : null;
+        $firstImage = $firstImageModel && $firstImageModel->image_path ? url('media/' . $firstImageModel->image_path) : null;
     } else {
         // It's JSON string or array (legacy)
         $images = is_string($product->images) ? json_decode($product->images, true) : (is_array($product->images) ? $product->images : []);
-        $firstImage = !empty($images) ? asset('storage/' . $images[0]) : null;
+        $firstImage = !empty($images) ? url('media/' . $images[0]) : null;
     }
 
     $designer = $product->designer;
-    $designerAvatar = $designer && $designer->avatar ? asset('storage/' . $designer->avatar) : null;
+    $designerAvatar = $designer && $designer->avatar ? url('media/' . $designer->avatar) : null;
 @endphp
 
 <a href="{{ route('product.detail', ['locale' => app()->getLocale(), 'id' => $product->id]) }}" class="group bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full">

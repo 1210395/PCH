@@ -281,6 +281,40 @@ class DropdownOption extends Model
         return $result;
     }
 
+    /**
+     * Get key=>label pairs for a type (English key stored in DB, localized label for display)
+     * Returns: ['English Value' => 'Localized Display Label']
+     */
+    public static function getKeyLabelPairs(string $type): array
+    {
+        $locale = app()->getLocale();
+        $cacheKey = "dropdown_options_{$type}_pairs_{$locale}";
+
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null && !empty($cached)) {
+            return $cached;
+        }
+
+        $items = static::ofType($type)
+            ->active()
+            ->rootLevel()
+            ->orderBy('sort_order')
+            ->get(['label', 'label_ar']);
+
+        $result = [];
+        foreach ($items as $item) {
+            $key = $item->label;
+            $display = ($locale === 'ar' && !empty($item->label_ar)) ? $item->label_ar : $item->label;
+            $result[$key] = $display;
+        }
+
+        if (!empty($result)) {
+            Cache::put($cacheKey, $result, self::CACHE_TTL);
+        }
+
+        return $result;
+    }
+
     // =====================
     // Cache Management
     // =====================

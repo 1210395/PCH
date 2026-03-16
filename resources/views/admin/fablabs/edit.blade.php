@@ -44,15 +44,15 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Location') }}</label>
-                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Full address')">
+                    <input type="text" x-model="form.location" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('Full address') }}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Short Description') }}</label>
-                    <input type="text" x-model="form.short_description" maxlength="500" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Brief description (max 500 characters)')">
+                    <input type="text" x-model="form.short_description" maxlength="500" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('Brief description (max 500 characters)') }}">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Description') }}</label>
-                    <textarea x-model="form.description" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('Detailed description')"></textarea>
+                    <textarea x-model="form.description" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('Detailed description') }}"></textarea>
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('FabLab Image') }}</label>
                 @if($fablab->image)
                     <div class="mb-2">
-                        <img src="{{ url('storage/' . $fablab->image) }}" class="w-48 h-32 object-cover rounded-lg">
+                        <img src="{{ url('media/' . $fablab->image) }}" class="w-48 h-32 object-cover rounded-lg">
                         <p class="text-xs text-gray-400 mt-1">{{ __('Current image') }}</p>
                     </div>
                 @endif
@@ -97,7 +97,7 @@
                 </div>
                 <div class="md:col-span-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Opening Hours') }}</label>
-                    <input type="text" x-model="form.opening_hours" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('e.g., Mon-Fri: 9AM-6PM, Sat: 10AM-4PM')">
+                    <input type="text" x-model="form.opening_hours" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('e.g., Mon-Fri: 9AM-6PM, Sat: 10AM-4PM') }}">
                 </div>
             </div>
         </div>
@@ -127,15 +127,15 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Equipment') }} <span class="text-gray-400 text-xs">({{ __('comma separated') }})</span></label>
-                    <input type="text" x-model="equipmentInput" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('3D Printer, Laser Cutter, CNC Router')">
+                    <input type="text" x-model="equipmentInput" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('3D Printer, Laser Cutter, CNC Router') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Services') }} <span class="text-gray-400 text-xs">({{ __('comma separated') }})</span></label>
-                    <input type="text" x-model="servicesInput" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('3D Printing, Prototyping, Training')">
+                    <input type="text" x-model="servicesInput" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('3D Printing, Prototyping, Training') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Features') }} <span class="text-gray-400 text-xs">({{ __('comma separated') }})</span></label>
-                    <input type="text" x-model="featuresInput" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :placeholder="__('WiFi, Parking, 24/7 Access')">
+                    <input type="text" x-model="featuresInput" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="{{ __('WiFi, Parking, 24/7 Access') }}">
                 </div>
             </div>
         </div>

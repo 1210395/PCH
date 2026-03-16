@@ -43,7 +43,7 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" name="search" value="{{ request('search') }}"
-                           :placeholder="__('Search by title, description, or designer...')"
+                           placeholder="{{ __('Search by title, description, or designer...') }}"
                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
@@ -102,7 +102,7 @@
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
                                         @if($project->images->first())
-                                            <img src="{{ asset('storage/' . $project->images->first()->image_path) }}" class="w-full h-full object-cover" alt="">
+                                            <img src="{{ url('media/' . $project->images->first()->image_path) }}" class="w-full h-full object-cover" alt="">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center"><i class="fas fa-folder text-gray-400"></i></div>
                                         @endif
@@ -148,7 +148,7 @@
     <div x-show="showRejectModal" x-cloak @click.self="showRejectModal = false" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div @click.stop class="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div class="p-6 border-b"><h3 class="text-lg font-semibold">{{ __('Reject Project') }}</h3></div>
-            <div class="p-6"><textarea x-model="rejectReason" :placeholder="__('Rejection reason (optional)...')" rows="3" class="w-full px-4 py-3 border rounded-lg"></textarea></div>
+            <div class="p-6"><textarea x-model="rejectReason" placeholder="{{ __('Rejection reason (optional)...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg"></textarea></div>
             <div class="p-6 border-t flex justify-end gap-3">
                 <button @click="showRejectModal = false" class="px-4 py-2 text-gray-600">{{ __('Cancel') }}</button>
                 <button @click="submitReject()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg">{{ __('Reject') }}</button>

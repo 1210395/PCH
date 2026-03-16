@@ -627,15 +627,29 @@
             <p class="text-white/80 text-sm">{{ __('Upload up to 5 hero images per page. Images auto-rotate every 5 seconds. (Recommended: 1920x600px)') }}</p>
         </div>
 
-        <div class="p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                @foreach($heroImages as $page => $data)
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200" x-data="{
+        {{-- Hero image data passed safely via script tag to avoid breaking x-data HTML attribute --}}
+        <script>
+            window.__heroImagesData = @json(collect($heroImages)->map(fn($data, $page) => $data['images'] ?? []));
+            window.__heroUploadUrl = '{{ route('admin.settings.hero.update', ['locale' => app()->getLocale()]) }}';
+            window.__heroRemoveUrl = '{{ route('admin.settings.hero.remove', ['locale' => app()->getLocale()]) }}';
+            window.__heroMessages = {
+                maxImages: '{{ __('Maximum 5 images allowed. Please remove an image first.') }}',
+                invalidType: '{{ __('Invalid file type. Please upload a JPG, PNG, GIF, or WebP image.') }}',
+                fileTooLarge: '{{ __('File too large. Maximum size is 10MB.') }}',
+                uploadFailed: '{{ __('Failed to upload image. Please try again.') }}',
+                removeFailed: '{{ __('Failed to remove image. Please try again.') }}',
+                failedGeneric: '{{ __('Failed to upload image') }}',
+                confirmRemove: '{{ __('Are you sure you want to remove this image from the carousel?') }}'
+            };
+
+            function heroImageCarousel(page) {
+                return {
                     uploading: false,
                     removing: false,
-                    images: @json($data['images'] ?? []),
+                    images: window.__heroImagesData[page] || [],
                     currentIndex: 0,
                     maxImages: 5,
+                    page: page,
 
                     get canAddMore() {
                         return this.images.length < this.maxImages;
@@ -646,31 +660,30 @@
                         if (!file) return;
 
                         if (!this.canAddMore) {
-                            showToast('{{ __('Maximum 5 images allowed. Please remove an image first.') }}', 'error');
+                            showToast(window.__heroMessages.maxImages, 'error');
                             event.target.value = '';
                             return;
                         }
 
-                        // Client-side validation
                         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
                         if (!validTypes.includes(file.type)) {
-                            showToast('{{ __('Invalid file type. Please upload a JPG, PNG, GIF, or WebP image.') }}', 'error');
+                            showToast(window.__heroMessages.invalidType, 'error');
                             event.target.value = '';
                             return;
                         }
                         if (file.size > 10 * 1024 * 1024) {
-                            showToast('{{ __('File too large. Maximum size is 10MB.') }}', 'error');
+                            showToast(window.__heroMessages.fileTooLarge, 'error');
                             event.target.value = '';
                             return;
                         }
 
                         this.uploading = true;
                         const formData = new FormData();
-                        formData.append('page', '{{ $page }}');
+                        formData.append('page', this.page);
                         formData.append('image', file);
 
                         try {
-                            const response = await fetch('{{ route('admin.settings.hero.update', ['locale' => app()->getLocale()]) }}', {
+                            const response = await fetch(window.__heroUploadUrl, {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
@@ -685,34 +698,33 @@
                                 this.currentIndex = this.images.length - 1;
                                 showToast(result.message, 'success');
                             } else {
-                                // Show validation errors if present
                                 if (result.errors) {
                                     const firstError = Object.values(result.errors).flat()[0];
-                                    showToast(firstError || result.message || '{{ __('Failed to upload image') }}', 'error');
+                                    showToast(firstError || result.message || window.__heroMessages.failedGeneric, 'error');
                                 } else {
-                                    showToast(result.message || '{{ __('Failed to upload image') }}', 'error');
+                                    showToast(result.message || window.__heroMessages.failedGeneric, 'error');
                                 }
                             }
                         } catch (error) {
-                            showToast('{{ __('Failed to upload image. Please try again.') }}', 'error');
+                            showToast(window.__heroMessages.uploadFailed, 'error');
                         }
                         this.uploading = false;
                         event.target.value = '';
                     },
 
                     async removeImage(index) {
-                        if (!confirm('{{ __('Are you sure you want to remove this image from the carousel?') }}')) return;
+                        if (!confirm(window.__heroMessages.confirmRemove)) return;
 
                         this.removing = true;
                         try {
-                            const response = await fetch('{{ route('admin.settings.hero.remove', ['locale' => app()->getLocale()]) }}', {
+                            const response = await fetch(window.__heroRemoveUrl, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Accept': 'application/json',
                                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
                                 },
-                                body: JSON.stringify({ page: '{{ $page }}', index: index })
+                                body: JSON.stringify({ page: this.page, index: index })
                             });
 
                             const result = await response.json();
@@ -723,10 +735,10 @@
                                 }
                                 showToast(result.message, 'success');
                             } else {
-                                showToast(result.message || '{{ __('Failed to remove image') }}', 'error');
+                                showToast(result.message || window.__heroMessages.removeFailed, 'error');
                             }
                         } catch (error) {
-                            showToast('{{ __('Failed to remove image. Please try again.') }}', 'error');
+                            showToast(window.__heroMessages.removeFailed, 'error');
                         }
                         this.removing = false;
                     },
@@ -734,7 +746,14 @@
                     selectImage(index) {
                         this.currentIndex = index;
                     }
-                }">
+                };
+            }
+        </script>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                @foreach($heroImages as $page => $data)
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200" x-data="heroImageCarousel('{{ $page }}')">
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <h3 class="font-medium text-gray-900">{{ $data['label'] }}</h3>

@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\ProfileRating;
+use App\Models\RatingCriteria;
+use App\Models\RatingCriteriaResponse;
+use App\Models\Designer;
 use App\Models\AdminSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminProfileRatingController extends AdminBaseController
 {
@@ -79,7 +83,7 @@ class AdminProfileRatingController extends AdminBaseController
             return $this->errorResponse('Invalid rating ID', 400);
         }
 
-        $rating = ProfileRating::with(['designer', 'rater', 'approver'])->findOrFail($id);
+        $rating = ProfileRating::with(['designer', 'rater', 'approver', 'criteria:id,en_label,ar_label'])->findOrFail($id);
 
         if ($request->expectsJson()) {
             return $this->jsonResponse(['rating' => $rating]);
@@ -188,5 +192,106 @@ class AdminProfileRatingController extends AdminBaseController
         ];
 
         return $this->jsonResponse($stats);
+    }
+
+    /**
+     * Analytics page — criteria response breakdown with filters
+     */
+    public function analytics(Request $request, $locale)
+    {
+        // --- Filters ---
+        $dateFrom   = $request->get('date_from');
+        $dateTo     = $request->get('date_to');
+        $designerId = $request->get('designer_id');
+        $city       = $request->get('city');
+        $starRating = $request->get('rating');
+
+        // --- Base query for approved ratings with optional filters ---
+        $ratingsQuery = ProfileRating::approved()
+            ->with('designer:id,name,city');
+
+        if ($dateFrom) {
+            $ratingsQuery->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $ratingsQuery->whereDate('created_at', '<=', $dateTo);
+        }
+        if ($starRating) {
+            $ratingsQuery->where('rating', (int) $starRating);
+        }
+        if ($designerId) {
+            $ratingsQuery->where('designer_id', (int) $designerId);
+        }
+        if ($city) {
+            $ratingsQuery->whereHas('designer', function ($q) use ($city) {
+                $q->where('city', $city);
+            });
+        }
+
+        $filteredRatingIds = $ratingsQuery->pluck('profile_ratings.id');
+        $totalFilteredRatings = $filteredRatingIds->count();
+
+        // --- Criteria breakdown ---
+        $criteria = RatingCriteria::ordered()->get();
+
+        $criteriaStats = $criteria->map(function ($criterion) use ($filteredRatingIds, $totalFilteredRatings) {
+            $count = RatingCriteriaResponse::where('rating_criteria_id', $criterion->id)
+                ->whereIn('profile_rating_id', $filteredRatingIds)
+                ->count();
+
+            return [
+                'id'         => $criterion->id,
+                'en_label'   => $criterion->en_label,
+                'ar_label'   => $criterion->ar_label,
+                'is_active'  => $criterion->is_active,
+                'count'      => $count,
+                'percentage' => $totalFilteredRatings > 0
+                    ? round(($count / $totalFilteredRatings) * 100, 1)
+                    : 0,
+            ];
+        })->sortByDesc('count')->values();
+
+        // --- Rating distribution (1–5 stars) ---
+        $ratingDistribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $q = ProfileRating::approved()->where('rating', $i);
+            if ($dateFrom) $q->whereDate('created_at', '>=', $dateFrom);
+            if ($dateTo)   $q->whereDate('created_at', '<=', $dateTo);
+            if ($designerId) $q->where('designer_id', (int) $designerId);
+            if ($city) $q->whereHas('designer', fn($dq) => $dq->where('city', $city));
+            $ratingDistribution[$i] = $q->count();
+        }
+
+        // --- Top designers by criteria response count ---
+        $topDesigners = Designer::select('designers.id', 'designers.name', 'designers.city')
+            ->join('profile_ratings', 'profile_ratings.designer_id', '=', 'designers.id')
+            ->join('rating_criteria_responses', 'rating_criteria_responses.profile_rating_id', '=', 'profile_ratings.id')
+            ->where('profile_ratings.status', 'approved')
+            ->when($dateFrom, fn($q) => $q->whereDate('profile_ratings.created_at', '>=', $dateFrom))
+            ->when($dateTo,   fn($q) => $q->whereDate('profile_ratings.created_at', '<=', $dateTo))
+            ->when($city, fn($q) => $q->where('designers.city', $city))
+            ->groupBy('designers.id', 'designers.name', 'designers.city')
+            ->selectRaw('COUNT(rating_criteria_responses.id) as criteria_count')
+            ->orderByDesc('criteria_count')
+            ->limit(10)
+            ->get();
+
+        // --- Filter options ---
+        $cities     = Designer::whereNotNull('city')->distinct()->orderBy('city')->pluck('city');
+        $designers  = Designer::select('id', 'name')->orderBy('name')->get();
+
+        return view('admin.ratings.analytics', compact(
+            'criteriaStats',
+            'ratingDistribution',
+            'topDesigners',
+            'totalFilteredRatings',
+            'cities',
+            'designers',
+            'dateFrom',
+            'dateTo',
+            'designerId',
+            'city',
+            'starRating'
+        ));
     }
 }

@@ -162,6 +162,17 @@
         text-align: right;
     }
 
+    /* Search icon: keep in same position (left side) in RTL, do NOT rotate */
+    html[dir="rtl"] .search-icon-fixed {
+        left: 0.75rem !important;
+        right: auto !important;
+        transform: translateY(-50%) !important;
+    }
+    /* fa-search icon: do NOT flip in RTL */
+    html[dir="rtl"] .fa-search::before {
+        transform: none !important;
+    }
+
     /* Ensure dropdown menus open from the correct side */
     html[dir="rtl"] .absolute.left-0 { left: auto; right: 0; }
     html[dir="rtl"] .absolute.right-0 { right: auto; left: 0; }

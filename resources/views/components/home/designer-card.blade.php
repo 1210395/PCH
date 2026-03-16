@@ -1,8 +1,8 @@
 @props(['designer'])
 
 @php
-    $avatar = $designer->avatar ? asset('storage/' . $designer->avatar) : null;
-    $coverImage = $designer->cover_image ? asset('storage/' . $designer->cover_image) : null;
+    $avatar = $designer->avatar ? url('media/' . $designer->avatar) : null;
+    $coverImage = $designer->cover_image ? url('media/' . $designer->cover_image) : null;
     $skills = is_string($designer->skills) ? json_decode($designer->skills, true) : (is_array($designer->skills) ? $designer->skills : []);
 
     // For manufacturers, showrooms, and vendors (suppliers), show products count; for others, show projects count

@@ -162,7 +162,7 @@
                                 <div class="flex items-center gap-3 pt-4 border-t border-gray-100">
                                     <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                                         @if($service->designer->profile_image)
-                                            <img src="{{ asset('storage/' . $service->designer->profile_image) }}" alt="{{ $service->designer->name }}" class="w-full h-full object-cover">
+                                            <img src="{{ url('media/' . $service->designer->profile_image) }}" alt="{{ $service->designer->name }}" class="w-full h-full object-cover">
                                         @else
                                             <div class="w-full h-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white text-xs font-bold">
                                                 {{ strtoupper(substr($service->designer->name, 0, 1)) }}

@@ -26,6 +26,12 @@
             </div>
             @endif
 
+            @if($errors->any())
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                {{ $errors->first() }}
+            </div>
+            @endif
+
             <p class="text-gray-600 mb-6">
                 {{ __('Please click the verification link in the email we sent you. If you didn\'t receive the email, you can request a new one.') }}
             </p>
@@ -36,21 +42,50 @@
                 </p>
             </div>
 
-            <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" x-data="{ sending: false }">
-                @csrf
-                @if(Auth::guard('designer')->check())
-                    <input type="hidden" name="email" value="{{ Auth::guard('designer')->user()->email }}">
-                @endif
-                <button
-                    type="submit"
-                    class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg disabled:opacity-50"
-                    :disabled="sending"
-                    @click="sending = true"
-                >
-                    <span x-show="!sending">{{ __('Resend Verification Email') }}</span>
-                    <span x-show="sending">{{ __('Sending...') }}</span>
-                </button>
-            </form>
+            @php
+                $userEmail = Auth::guard('designer')->check()
+                    ? Auth::guard('designer')->user()->email
+                    : (request('email') ?? session('verification_email') ?? old('email') ?? '');
+            @endphp
+
+            @if($userEmail)
+                {{-- Email known - show resend button --}}
+                <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" x-data="{ sending: false, sent: false, cooldown: 0 }">
+                    @csrf
+                    <input type="hidden" name="email" value="{{ $userEmail }}">
+                    <p class="text-sm text-gray-500 mb-4">{{ __('Sending to') }}: <strong>{{ $userEmail }}</strong></p>
+                    <button
+                        type="submit"
+                        class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg disabled:opacity-50"
+                        :disabled="sending || cooldown > 0"
+                        @click="sending = true; setTimeout(() => { sending = false; sent = true; cooldown = 60; let iv = setInterval(() => { cooldown--; if(cooldown <= 0) clearInterval(iv); }, 1000); }, 100)"
+                    >
+                        <span x-show="!sending && !sent && cooldown <= 0">{{ __('Resend Verification Email') }}</span>
+                        <span x-show="sending">{{ __('Sending...') }}</span>
+                        <span x-show="!sending && cooldown > 0">{{ __('Resend available in') }} <span x-text="cooldown"></span>s</span>
+                    </button>
+                </form>
+            @else
+                {{-- Email unknown - show email input form --}}
+                <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" x-data="{ sending: false, cooldown: 0 }">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2 text-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}">{{ __('Email Address') }}</label>
+                        <input type="email" name="email" required placeholder="you@example.com"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    </div>
+                    <button
+                        type="submit"
+                        class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg disabled:opacity-50"
+                        :disabled="sending || cooldown > 0"
+                        @click="sending = true; setTimeout(() => { sending = false; cooldown = 60; let iv = setInterval(() => { cooldown--; if(cooldown <= 0) clearInterval(iv); }, 1000); }, 100)"
+                    >
+                        <span x-show="!sending && cooldown <= 0">{{ __('Resend Verification Email') }}</span>
+                        <span x-show="sending">{{ __('Sending...') }}</span>
+                        <span x-show="!sending && cooldown > 0">{{ __('Resend available in') }} <span x-text="cooldown"></span>s</span>
+                    </button>
+                </form>
+            @endif
         </div>
 
         <p class="mt-6 text-center text-gray-600">

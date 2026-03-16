@@ -26,6 +26,7 @@ class FabLab extends Model
         'services',
         'features',
         'opening_hours',
+        'opening_hours_ar',
         'type',
         'verified',
         'phone',
@@ -65,6 +66,17 @@ class FabLab extends Model
     public function scopeVerified($query)
     {
         return $query->where('verified', true);
+    }
+
+    /**
+     * Get locale-aware opening hours
+     */
+    public function getLocalizedOpeningHoursAttribute(): ?string
+    {
+        if (app()->getLocale() === 'ar' && !empty($this->opening_hours_ar)) {
+            return $this->opening_hours_ar;
+        }
+        return $this->opening_hours;
     }
 
     /**

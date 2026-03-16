@@ -70,7 +70,7 @@ class DesignerController extends Controller
         // Convert relative paths to full asset URLs
         $imagePaths = $images->pluck('image_path')->filter()->map(function($path) {
             if (empty($path)) return null;
-            return asset('storage/' . $path);
+            return url('media/' . $path);
         })->filter()->values()->toArray();
 
         return [
@@ -89,7 +89,7 @@ class DesignerController extends Controller
         // Convert relative paths to full asset URLs
         $imagePaths = $images->pluck('image_path')->filter()->map(function($path) {
             if (empty($path)) return null;
-            return asset('storage/' . $path);
+            return url('media/' . $path);
         })->filter()->values()->toArray();
 
         return [
@@ -121,7 +121,7 @@ class DesignerController extends Controller
                 'description' => $m->description ?? '',
                 'category' => $m->category ?? '',
                 'type' => $m->type ?? '',
-                'image' => $m->image ? asset('storage/' . $m->image) : null,
+                'image' => $m->image ? url('media/' . $m->image) : null,
                 'tags' => $m->tags ?? [],
                 'approval_status' => $m->approval_status ?? 'pending',
                 'rejection_reason' => $m->rejection_reason ?? null,

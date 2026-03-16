@@ -9,7 +9,7 @@
     $headDesignerName = $sanitize($product->designer->name ?? '');
 @endphp
 @php
-    $ogImage = $product->images->first() ? asset('storage/' . $product->images->first()->image_path) : asset('images/logo.png');
+    $ogImage = $product->images->first() ? url('media/' . $product->images->first()->image_path) : asset('images/logo.png');
 @endphp
 
 @section('head')
@@ -45,7 +45,7 @@
     $sanitize = [\App\Helpers\DropdownHelper::class, 'sanitizeUtf8'];
 
     $designer = $product->designer;
-    $designerAvatar = $designer && $designer->avatar ? asset('storage/' . $designer->avatar) : null;
+    $designerAvatar = $designer && $designer->avatar ? url('media/' . $designer->avatar) : null;
 
     // Handle images
     if (is_object($product->images) && method_exists($product->images, 'count')) {
@@ -59,7 +59,7 @@
     $imageUrls = [];
     foreach($images as $image) {
         $imagePath = is_object($image) && isset($image->image_path) ? $image->image_path : $image;
-        $imageUrls[] = asset('storage/' . $imagePath);
+        $imageUrls[] = url('media/' . $imagePath);
     }
 
     $firstImage = count($imageUrls) > 0 ? $imageUrls[0] : null;

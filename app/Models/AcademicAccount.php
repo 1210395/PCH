@@ -67,7 +67,8 @@ class AcademicAccount extends Authenticatable
     public function getLogoUrlAttribute()
     {
         if ($this->logo) {
-            return asset('storage/' . $this->logo);
+            $path = str_starts_with($this->logo, 'academic-accounts/') ? $this->logo : 'academic-accounts/' . $this->logo;
+            return url('media/' . $path);
         }
         return null;
     }
@@ -75,7 +76,8 @@ class AcademicAccount extends Authenticatable
     public function getBannerUrlAttribute()
     {
         if ($this->banner) {
-            return asset('storage/' . $this->banner);
+            $path = str_starts_with($this->banner, 'academic-accounts/') ? $this->banner : 'academic-accounts/' . $this->banner;
+            return url('media/' . $path);
         }
         return null;
     }

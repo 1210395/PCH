@@ -130,7 +130,7 @@
                         <div class="relative flex-shrink-0">
                             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
                                 @if($otherDesigner->avatar)
-                                    <img src="{{ asset('storage/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
+                                    <img src="{{ url('media/' . $otherDesigner->avatar) }}" alt="{{ $otherDesigner->name }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-white text-lg sm:text-xl font-bold">
                                         {{ strtoupper(substr($otherDesigner->name, 0, 2)) }}

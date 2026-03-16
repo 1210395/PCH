@@ -96,7 +96,7 @@ class SiteSetting extends Model
             $images = is_array($setting->value) ? $setting->value : json_decode($setting->value, true);
             if (is_array($images) && !empty($images)) {
                 return array_map(function($path) {
-                    return url('storage/' . $path);
+                    return url('media/' . $path);
                 }, array_filter($images));
             }
         }
@@ -104,7 +104,7 @@ class SiteSetting extends Model
         // Fallback to legacy single image
         $legacySetting = static::where('key', "hero_image_{$page}")->first();
         if ($legacySetting && $legacySetting->value) {
-            return [url('storage/' . $legacySetting->value)];
+            return [url('media/' . $legacySetting->value)];
         }
 
         return [];

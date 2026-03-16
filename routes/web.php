@@ -36,20 +36,26 @@ require __DIR__ . '/admin.php';
 // ============================================================
 
 // Image serving route - serves images from storage/app/public without symlinks
-Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+// Uses /media/ prefix to avoid Apache blocking /storage/ paths on shared hosting
+// Supports any nested path depth (e.g., /media/logos/image.jpg or /media/trainings/2024/image.jpg)
+Route::get('/media/{path}', function ($path) {
     // Prevent path traversal attacks
     $basePath = realpath(storage_path('app/public'));
-    $path = realpath(storage_path("app/public/{$folder}/{$filename}"));
+    $filePath = realpath(storage_path("app/public/{$path}"));
 
     // Ensure the resolved path is within the allowed base directory
-    if (!$path || !$basePath || !str_starts_with($path, $basePath . DIRECTORY_SEPARATOR)) {
+    if (!$filePath || !$basePath || !str_starts_with($filePath, $basePath . DIRECTORY_SEPARATOR)) {
         abort(404);
     }
 
-    return response()->file($path, [
+    // Determine content type
+    $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
         'Cache-Control' => 'public, max-age=31536000',
     ]);
-})->where('folder', '[a-zA-Z0-9_/-]+')->where('filename', '[a-zA-Z0-9._-]+')->middleware('throttle:200,1');
+})->where('path', '[a-zA-Z0-9._\-/]+')->middleware('throttle:200,1');
 
 // XML Sitemap for search engines
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
@@ -121,7 +127,7 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Progressive image upload endpoint
     Route::post('/upload-registration-image', [\App\Http\Controllers\Auth\ImageUploadController::class, 'uploadRegistrationImage'])
-        ->middleware('throttle:10,1')
+        ->middleware('throttle:60,1')
         ->name('upload.registration.image');
 
     // Progressive PDF upload endpoint (certifications)
@@ -150,7 +156,7 @@ Route::group(['prefix' => '{locale}'], function () {
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
-        ->middleware('throttle:3,1')
+        ->middleware('throttle:10,1')
         ->name('verification.send');
 
     // ============================================================
@@ -273,10 +279,10 @@ Route::group(['prefix' => '{locale}'], function () {
             ->middleware('throttle:60,1')
             ->name('messages.getMessages');
         Route::post('/messages/requests/{requestId}/accept', [MessageRequestController::class, 'accept'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('messages.acceptRequest');
         Route::post('/messages/requests/{requestId}/decline', [MessageRequestController::class, 'decline'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('messages.declineRequest');
 
         // Chat panel routes (for popup chat)
