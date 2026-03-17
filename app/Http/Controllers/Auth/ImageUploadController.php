@@ -26,7 +26,7 @@ class ImageUploadController extends Controller
         $allInput = $request->all();
         $allFiles = $request->allFiles();
 
-        Log::info('Image upload request received - FULL DEBUG', [
+        Log::debug('Image upload request received - FULL DEBUG', [
             'method' => $request->method(),
             'url' => $request->url(),
             'type' => $request->input('type'),
@@ -67,13 +67,13 @@ class ImageUploadController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'No file received by server. Possible causes: File too large for PHP settings (upload_max_filesize=' . $phpUploadMaxSize . ', post_max_size=' . $phpPostMaxSize . '), or server upload limit exceeded.',
-                'debug_info' => [
+                'message' => 'No file received by server. The file may be too large.',
+                'debug_info' => config('app.debug') ? [
                     'php_upload_max_filesize' => $phpUploadMaxSize,
                     'php_post_max_size' => $phpPostMaxSize,
                     'content_length_header' => $request->header('Content-Length'),
                     'file_received' => false,
-                ]
+                ] : null,
             ], 422);
         }
 
@@ -96,13 +96,13 @@ class ImageUploadController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $errorMsg . ' (upload_max_filesize=' . $phpUploadMaxSize . ', post_max_size=' . $phpPostMaxSize . ')',
-                'debug_info' => [
+                'message' => $errorMsg,
+                'debug_info' => config('app.debug') ? [
                     'error_code' => $uploadError,
                     'php_upload_max_filesize' => $phpUploadMaxSize,
                     'php_post_max_size' => $phpPostMaxSize,
                     'file_size_bytes' => $file->getSize(),
-                ]
+                ] : null,
             ], 422);
         }
 
@@ -119,7 +119,7 @@ class ImageUploadController extends Controller
                     'file_hash' => 'nullable|string',
                 ]);
 
-                Log::info('Validation passed', ['validated_data' => array_keys($validated)]);
+                Log::debug('Validation passed', ['validated_data' => array_keys($validated)]);
             } catch (ValidationException $e) {
                 $fileInfo = [];
                 if ($request->hasFile('image')) {
@@ -156,7 +156,7 @@ class ImageUploadController extends Controller
                     'success' => false,
                     'message' => implode(' ', $errorMessages),
                     'errors' => $e->errors(),
-                    'debug_info' => $fileInfo
+                    'debug_info' => config('app.debug') ? $fileInfo : null,
                 ], 422);
             }
 
@@ -165,7 +165,7 @@ class ImageUploadController extends Controller
             if ($request->has('file_hash') && !empty($request->file_hash)) {
                 $existingPath = $this->findImageByHash($request->file_hash, $request->session_id, $request->type);
                 if ($existingPath) {
-                    Log::info('Duplicate image detected (same type)', [
+                    Log::debug('Duplicate image detected (same type)', [
                         'path' => $existingPath,
                         'type' => $request->type
                     ]);
@@ -187,7 +187,7 @@ class ImageUploadController extends Controller
             $type = $request->type;
             $sessionId = $request->session_id;
 
-            Log::info('Processing file upload', [
+            Log::debug('Processing file upload', [
                 'original_name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
                 'mime' => $file->getMimeType(),
@@ -213,7 +213,7 @@ class ImageUploadController extends Controller
             $fullPath = storage_path('app/public/' . $folder);
 
             if (!file_exists($fullPath)) {
-                Log::info('Creating upload directory', ['path' => $fullPath]);
+                Log::debug('Creating upload directory', ['path' => $fullPath]);
 
                 if (!mkdir($fullPath, 0755, true)) {
                     $error = error_get_last();
@@ -234,9 +234,9 @@ class ImageUploadController extends Controller
                     throw new \Exception('Directory is not writable: ' . $fullPath);
                 }
 
-                Log::info('Directory created successfully', ['path' => $fullPath]);
+                Log::debug('Directory created successfully', ['path' => $fullPath]);
             } else {
-                Log::info('Directory already exists', ['path' => $fullPath]);
+                Log::debug('Directory already exists', ['path' => $fullPath]);
             }
 
             // Step 7: Generate unique filename
@@ -246,7 +246,7 @@ class ImageUploadController extends Controller
             }
             $filename = Str::uuid() . '.' . strtolower($extension);
 
-            Log::info('Generated filename', ['filename' => $filename]);
+            Log::debug('Generated filename', ['filename' => $filename]);
 
             // Step 8: Store file
             try {
@@ -263,7 +263,7 @@ class ImageUploadController extends Controller
                 }
 
                 $fileSize = filesize($storedFilePath);
-                Log::info('File stored successfully', [
+                Log::debug('File stored successfully', [
                     'path' => $path,
                     'full_path' => $storedFilePath,
                     'size' => $fileSize
@@ -282,7 +282,7 @@ class ImageUploadController extends Controller
             // Include type in metadata to prevent cross-type reuse
             try {
                 $this->storeUploadMetadata($path, $request->file_hash, $sessionId, $type);
-                Log::info('Metadata stored successfully', ['type' => $type]);
+                Log::debug('Metadata stored successfully', ['type' => $type]);
             } catch (\Exception $e) {
                 // Don't fail the upload if metadata storage fails
                 Log::warning('Metadata storage failed', ['error' => $e->getMessage()]);
@@ -294,14 +294,14 @@ class ImageUploadController extends Controller
                 'path' => $path,
                 'message' => 'Image uploaded successfully',
                 'duplicate' => false,
-                'debug_info' => [
+                'debug_info' => config('app.debug') ? [
                     'filename' => $filename,
                     'size' => $file->getSize(),
-                    'type' => $type
-                ]
+                    'type' => $type,
+                ] : null,
             ];
 
-            Log::info('Upload completed successfully', $response);
+            Log::debug('Upload completed successfully', ['path' => $path, 'type' => $type]);
 
             return response()->json($response);
 
@@ -359,12 +359,12 @@ class ImageUploadController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-                'debug_info' => [
+                'message' => config('app.debug') ? $e->getMessage() : 'An error occurred while uploading the file.',
+                'debug_info' => config('app.debug') ? [
                     'storage_path' => storage_path('app/public'),
                     'storage_exists' => is_dir(storage_path('app/public')),
                     'storage_writable' => is_writable(storage_path('app/public')),
-                ]
+                ] : null,
             ], 500);
         }
     }
@@ -388,7 +388,7 @@ class ImageUploadController extends Controller
             throw new \Exception('Storage directory is not writable: ' . $storagePath);
         }
 
-        Log::info('Storage directory verified', [
+        Log::debug('Storage directory verified', [
             'path' => $storagePath,
             'exists' => true,
             'writable' => true
@@ -406,7 +406,7 @@ class ImageUploadController extends Controller
             return '';
         }
 
-        Log::info('moveToPermStorage called', [
+        Log::debug('moveToPermStorage called', [
             'temp_path' => $tempPath,
             'type' => $type,
             'user_id' => $userId,
@@ -417,7 +417,7 @@ class ImageUploadController extends Controller
 
         $tempExists = Storage::disk('public')->exists($tempPath);
 
-        Log::info('moveToPermStorage - file existence check', [
+        Log::debug('moveToPermStorage - file existence check', [
             'temp_path' => $tempPath,
             'exists' => $tempExists,
             'storage_disk_path' => Storage::disk('public')->path($tempPath)
@@ -431,7 +431,7 @@ class ImageUploadController extends Controller
             $cleanedPath = str_replace('\\', '/', $cleanedPath);
 
             if ($cleanedPath !== $tempPath) {
-                Log::info('moveToPermStorage - trying cleaned path', [
+                Log::debug('moveToPermStorage - trying cleaned path', [
                     'original' => $tempPath,
                     'cleaned' => $cleanedPath
                 ]);
@@ -484,7 +484,7 @@ class ImageUploadController extends Controller
             $oldPermanentPath = "{$folderName}/{$oldFilename}";
 
             if (Storage::disk('public')->exists($oldPermanentPath)) {
-                Log::info('Duplicate image detected - file already in permanent storage, creating copy', [
+                Log::debug('Duplicate image detected - file already in permanent storage, creating copy', [
                     'original_temp_path' => $tempPath,
                     'existing_permanent_path' => $oldPermanentPath,
                     'new_structured_path' => $permanentPath,
@@ -495,7 +495,7 @@ class ImageUploadController extends Controller
                     // Copy the existing file with structured name
                     Storage::disk('public')->copy($oldPermanentPath, $permanentPath);
 
-                    Log::info('Duplicate image copied with structured name', [
+                    Log::debug('Duplicate image copied with structured name', [
                         'from' => $oldPermanentPath,
                         'to' => $permanentPath,
                         'user_id' => $userId
@@ -544,7 +544,7 @@ class ImageUploadController extends Controller
             // Move file from temp to permanent with structured name
             Storage::disk('public')->move($tempPath, $permanentPath);
 
-            Log::info('Image moved to permanent storage with structured name', [
+            Log::debug('Image moved to permanent storage with structured name', [
                 'from' => $tempPath,
                 'to' => $permanentPath,
                 'entity_id' => $entityId,
@@ -586,7 +586,7 @@ class ImageUploadController extends Controller
 
                 // If type is specified, it must match
                 if ($type !== null && $storedType !== null && $type !== $storedType) {
-                    Log::info('Duplicate hash found but type mismatch', [
+                    Log::debug('Duplicate hash found but type mismatch', [
                         'hash' => $hash,
                         'requested_type' => $type,
                         'stored_type' => $storedType,
@@ -732,7 +732,7 @@ class ImageUploadController extends Controller
                 ], 500);
             }
 
-            Log::info('PDF uploaded successfully', [
+            Log::debug('PDF uploaded successfully', [
                 'path' => $storedPath,
                 'type' => $type,
                 'session_id' => $sessionId,

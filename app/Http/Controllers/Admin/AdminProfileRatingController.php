@@ -254,15 +254,19 @@ class AdminProfileRatingController extends AdminBaseController
             ];
         })->sortByDesc('count')->values();
 
-        // --- Rating distribution (1–5 stars) ---
+        // --- Rating distribution (1–5 stars, single grouped query) ---
+        $distributionCounts = ProfileRating::approved()
+            ->when($dateFrom, fn($q) => $q->whereDate('created_at', '>=', $dateFrom))
+            ->when($dateTo, fn($q) => $q->whereDate('created_at', '<=', $dateTo))
+            ->when($designerId, fn($q) => $q->where('designer_id', (int) $designerId))
+            ->when($city, fn($q) => $q->whereHas('designer', fn($dq) => $dq->where('city', $city)))
+            ->groupBy('rating')
+            ->selectRaw('rating, COUNT(*) as count')
+            ->pluck('count', 'rating');
+
         $ratingDistribution = [];
         for ($i = 1; $i <= 5; $i++) {
-            $q = ProfileRating::approved()->where('rating', $i);
-            if ($dateFrom) $q->whereDate('created_at', '>=', $dateFrom);
-            if ($dateTo)   $q->whereDate('created_at', '<=', $dateTo);
-            if ($designerId) $q->where('designer_id', (int) $designerId);
-            if ($city) $q->whereHas('designer', fn($dq) => $dq->where('city', $city));
-            $ratingDistribution[$i] = $q->count();
+            $ratingDistribution[$i] = $distributionCounts->get($i, 0);
         }
 
         // --- Top designers by criteria response count ---

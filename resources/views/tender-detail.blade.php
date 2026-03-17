@@ -77,13 +77,7 @@
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">{{ __('Overview') }}</h2>
                     <div class="prose prose-sm max-w-none text-gray-600" dir="{{ $descDir }}" style="text-align: {{ $descDir == 'rtl' ? 'right' : 'left' }};">
-                        @if(strip_tags($tender->description) !== $tender->description)
-                            {{-- Contains HTML formatting - allow only safe tags and strip event handlers --}}
-                            {!! preg_replace('/\s+on\w+\s*=\s*(["\']).*?\1|\s+on\w+\s*=\s*\S+/i', '', strip_tags($tender->description, '<p><br><ul><ol><li><strong><em><b><i><h1><h2><h3><h4><h5><h6><a><table><thead><tbody><tr><th><td><span><div>')) !!}
-                        @else
-                            {{-- Plain text, preserve whitespace --}}
-                            <p class="whitespace-pre-line">{{ $tender->description }}</p>
-                        @endif
+                        <p class="whitespace-pre-line">{!! nl2br(e($tender->description)) !!}</p>
                     </div>
                 </div>
 
