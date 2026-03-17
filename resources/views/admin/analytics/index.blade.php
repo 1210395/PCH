@@ -441,7 +441,6 @@
                         <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{{ __('Sector') }}</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase">{{ __('Followers') }}</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase">{{ __('Profile Views') }}</th>
-                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase">{{ __('Profile Likes') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -460,7 +459,6 @@
                             </span>
                         </td>
                         <td class="px-5 py-3 text-center text-sm text-gray-600">{{ number_format($d->views_count) }}</td>
-                        <td class="px-5 py-3 text-center text-sm text-gray-600">{{ number_format($d->likes_count) }}</td>
                     </tr>
                     @endforeach
                 </tbody>

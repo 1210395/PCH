@@ -13,7 +13,6 @@ use App\Models\MarketplacePost;
 use App\Models\ProfileRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AnalyticsExport;
@@ -353,7 +352,7 @@ class AdminAnalyticsController extends AdminBaseController
             ->where('sector', '!=', 'guest')
             ->when($sector, fn($q) => $q->where('sector', $sector))
             ->when($city,   fn($q) => $q->where('city', $city))
-            ->select('id', 'name', 'city', 'sector', 'followers_count', 'views_count', 'likes_count')
+            ->select('id', 'name', 'city', 'sector', 'followers_count', 'views_count')
             ->orderByDesc('followers_count')
             ->limit(15)
             ->get();
@@ -437,17 +436,18 @@ class AdminAnalyticsController extends AdminBaseController
             ->where('is_active', true)
             ->when($sector, fn($q) => $q->where('sector', $sector))
             ->when($city,   fn($q) => $q->where('city', $city))
+            ->select('id', 'name', 'city', 'sector', 'created_at')
             ->withCount([
                 'products as products_count'   => fn($q) => $q->where('approval_status', 'approved'),
                 'projects as projects_count'   => fn($q) => $q->where('approval_status', 'approved'),
                 'services as services_count'   => fn($q) => $q->where('approval_status', 'approved'),
                 'marketplacePosts as marketplace_count' => fn($q) => $q->where('approval_status', 'approved'),
             ])
-            ->having(DB::raw('products_count + projects_count + services_count + marketplace_count'), '=', 0)
-            ->select('id', 'name', 'city', 'sector', 'created_at')
             ->orderBy('created_at')
-            ->limit(30)
-            ->get();
+            ->get()
+            ->filter(fn($d) => ($d->products_count + $d->projects_count + $d->services_count + $d->marketplace_count) === 0)
+            ->take(30)
+            ->values();
 
         return compact(
             'totalDesigners', 'activeDesigners', 'pendingTotal',
