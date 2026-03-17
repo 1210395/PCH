@@ -697,6 +697,17 @@ class ImageUploadController extends Controller
             $type = $validated['type'];
             $file = $request->file('file');
 
+            // Verify PDF magic bytes (%PDF-) to prevent spoofed files
+            $handle = fopen($file->getRealPath(), 'rb');
+            $magic = fread($handle, 5);
+            fclose($handle);
+            if ($magic !== '%PDF-') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The uploaded file is not a valid PDF.',
+                ], 422);
+            }
+
             // Create temp folder
             $folderName = 'certifications';
             $folder = "uploads/temp/{$folderName}/{$sessionId}";

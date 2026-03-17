@@ -78,12 +78,12 @@ class PageController extends Controller
         return [
             __('Main Pages') => [
                 ['title' => __('Home'), 'url' => route('home', $locale)],
-                ['title' => __('Products'), 'url' => route('products.index', $locale)],
-                ['title' => __('Projects'), 'url' => route('projects.index', $locale)],
-                ['title' => __('Services'), 'url' => route('services.index', $locale)],
-                ['title' => __('Designers'), 'url' => route('designers.index', $locale)],
+                ['title' => __('Products'), 'url' => route('products', $locale)],
+                ['title' => __('Projects'), 'url' => route('projects', $locale)],
+                ['title' => __('Services'), 'url' => route('services', $locale)],
+                ['title' => __('Designers'), 'url' => route('designers', $locale)],
                 ['title' => __('Marketplace'), 'url' => route('marketplace.index', $locale)],
-                ['title' => __('Fab Labs'), 'url' => route('fablabs.index', $locale)],
+                ['title' => __('Fab Labs'), 'url' => route('fab-labs', $locale)],
                 ['title' => __('Trainings'), 'url' => route('trainings.index', $locale)],
                 ['title' => __('Tenders'), 'url' => route('tenders.index', $locale)],
             ],
