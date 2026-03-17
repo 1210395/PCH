@@ -38,8 +38,25 @@ Route::prefix('{locale}/admin')
 
         // Advanced Analytics
         Route::prefix('analytics')->name('admin.analytics.')->group(function () {
-            Route::get('/',       [AdminAnalyticsController::class, 'index'])->name('index');
-            Route::get('/export', [AdminAnalyticsController::class, 'export'])->name('export');
+            // Legacy index → redirect to overview
+            Route::get('/', fn($locale) => redirect()->route('admin.analytics.overview', ['locale' => $locale]))->name('index');
+
+            // Sub-pages
+            Route::get('/overview',    [AdminAnalyticsController::class, 'show'])->name('overview')->defaults('analyticsPage', 'overview');
+            Route::get('/engagement',  [AdminAnalyticsController::class, 'show'])->name('engagement')->defaults('analyticsPage', 'engagement');
+            Route::get('/traffic',     [AdminAnalyticsController::class, 'show'])->name('traffic')->defaults('analyticsPage', 'traffic');
+            Route::get('/geographic',  [AdminAnalyticsController::class, 'show'])->name('geographic')->defaults('analyticsPage', 'geographic');
+            Route::get('/workflow',    [AdminAnalyticsController::class, 'show'])->name('workflow')->defaults('analyticsPage', 'workflow');
+            Route::get('/improvement', [AdminAnalyticsController::class, 'show'])->name('improvement')->defaults('analyticsPage', 'improvement');
+
+            // Per-page exports
+            Route::get('/overview/export',    [AdminAnalyticsController::class, 'exportPage'])->name('overview.export')->defaults('analyticsPage', 'overview');
+            Route::get('/engagement/export',  [AdminAnalyticsController::class, 'exportPage'])->name('engagement.export')->defaults('analyticsPage', 'engagement');
+            Route::get('/traffic/export',     [AdminAnalyticsController::class, 'exportPage'])->name('traffic.export')->defaults('analyticsPage', 'traffic');
+            Route::get('/geographic/export',  [AdminAnalyticsController::class, 'exportPage'])->name('geographic.export')->defaults('analyticsPage', 'geographic');
+            Route::get('/workflow/export',    [AdminAnalyticsController::class, 'exportPage'])->name('workflow.export')->defaults('analyticsPage', 'workflow');
+            Route::get('/improvement/export', [AdminAnalyticsController::class, 'exportPage'])->name('improvement.export')->defaults('analyticsPage', 'improvement');
+
             Route::post('/refresh', [AdminAnalyticsController::class, 'refresh'])->name('refresh');
         });
 

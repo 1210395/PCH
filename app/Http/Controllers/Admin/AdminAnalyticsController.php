@@ -15,29 +15,88 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\AnalyticsExport;
+use App\Exports\AnalyticsPageExport;
 
-/**
- * Provides advanced platform analytics for admin users.
- *
- * Computes designer growth, content trends, approval workflow stats,
- * geographic distribution, ratings trends, and top contributors.
- * Results are cached under a versioned key and can be exported to Excel.
- */
+/** Provides multi-page advanced platform analytics for admin users. */
 class AdminAnalyticsController extends AdminBaseController
 {
+    /** The valid page names and their view/title mapping. */
+    private const PAGES = [
+        'overview'    => 'Overview',
+        'engagement'  => 'Engagement',
+        'traffic'     => 'Page Traffic',
+        'geographic'  => 'Geographic',
+        'workflow'    => 'Workflow',
+        'improvement' => 'Improvement',
+    ];
+
     /**
-     * Display the analytics dashboard with optional date, sector, and city filters.
-     *
-     * Preset shortcuts (7d, 30d, 90d, 1y, all) are converted to concrete date
-     * ranges. Results are cached for 5 minutes under a version-stamped key so
-     * that refreshing the cache invalidates all filter combinations at once.
-     *
-     * @param  Request  $request
-     * @param  string   $locale  Active locale (en|ar)
-     * @return \Illuminate\View\View
+     * Display a specific analytics sub-page.
      */
-    public function index(Request $request, $locale)
+    public function show(Request $request, $locale)
+    {
+        $page = $request->route('analyticsPage', 'overview');
+        if (! array_key_exists($page, self::PAGES)) {
+            $page = 'overview';
+        }
+
+        [$filters, $data, $cachedAt, $sectors, $cities] = $this->resolveData($request);
+
+        return view("admin.analytics.{$page}", compact(
+            'data', 'cachedAt', 'filters', 'sectors', 'cities', 'page'
+        ));
+    }
+
+    /**
+     * Export a specific analytics sub-page as an Excel file.
+     */
+    public function exportPage(Request $request, $locale)
+    {
+        $page = $request->route('analyticsPage', 'overview');
+        if (! array_key_exists($page, self::PAGES)) {
+            $page = 'overview';
+        }
+
+        $preset   = $request->get('preset', '30d');
+        $dateFrom = $request->get('date_from');
+        $dateTo   = $request->get('date_to');
+        $sector   = $request->get('sector');
+        $city     = $request->get('city');
+
+        if ($preset !== 'custom') {
+            [$dateFrom, $dateTo] = $this->presetToDates($preset);
+        }
+
+        $filters  = compact('preset', 'dateFrom', 'dateTo', 'sector', 'city');
+        $data     = $this->computeAnalytics($filters);
+        $filename = "analytics-{$page}-" . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(new AnalyticsPageExport($page, $data, $filters), $filename);
+    }
+
+    /**
+     * Invalidate all analytics caches and redirect back to the same page.
+     */
+    public function refresh(Request $request, $locale)
+    {
+        Cache::increment('admin:analytics:version');
+
+        $page = $request->get('page', 'overview');
+        if (! array_key_exists($page, self::PAGES)) {
+            $page = 'overview';
+        }
+
+        return redirect()
+            ->route("admin.analytics.{$page}", array_merge(['locale' => $locale], $request->except(['_token', '_method', 'page'])))
+            ->with('success', 'Analytics cache refreshed.');
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    /** Resolve filters, load cached data, and fetch filter dropdown options. */
+    private function resolveData(Request $request): array
     {
         $preset   = $request->get('preset', '30d');
         $dateFrom = $request->get('date_from');
@@ -51,21 +110,16 @@ class AdminAnalyticsController extends AdminBaseController
 
         $filters = compact('preset', 'dateFrom', 'dateTo', 'sector', 'city');
 
-        // Version-based cache key – incrementing the version invalidates all analytics caches at once
         $version  = Cache::get('admin:analytics:version', 1);
         $cacheKey = "admin:analytics:{$version}:" . md5(json_encode($filters));
 
         $cached = Cache::remember($cacheKey, 300, function () use ($filters) {
-            return [
-                'data'      => $this->computeAnalytics($filters),
-                'cached_at' => now()->toISOString(),
-            ];
+            return ['data' => $this->computeAnalytics($filters), 'cached_at' => now()->toISOString()];
         });
 
         $data     = $cached['data'];
         $cachedAt = Carbon::parse($cached['cached_at']);
 
-        // Dropdown options for filter UI
         $sectors = Designer::where('is_admin', false)
             ->whereNotNull('sector')->where('sector', '!=', '')->where('sector', '!=', 'guest')
             ->distinct()->orderBy('sector')->pluck('sector');
@@ -74,56 +128,7 @@ class AdminAnalyticsController extends AdminBaseController
             ->whereNotNull('city')->where('city', '!=', '')
             ->distinct()->orderBy('city')->pluck('city');
 
-        return view('admin.analytics.index', compact(
-            'data', 'cachedAt', 'filters', 'sectors', 'cities'
-        ));
-    }
-
-    /**
-     * Export the current analytics dataset as a multi-sheet Excel file.
-     *
-     * Applies the same filter logic as `index()` but skips the cache and
-     * streams the file directly using `AnalyticsExport`.
-     *
-     * @param  Request  $request
-     * @param  string   $locale
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    public function export(Request $request, $locale)
-    {
-        $preset   = $request->get('preset', '30d');
-        $dateFrom = $request->get('date_from');
-        $dateTo   = $request->get('date_to');
-        $sector   = $request->get('sector');
-        $city     = $request->get('city');
-
-        if ($preset !== 'custom') {
-            [$dateFrom, $dateTo] = $this->presetToDates($preset);
-        }
-
-        $filters  = compact('preset', 'dateFrom', 'dateTo', 'sector', 'city');
-        $data     = $this->computeAnalytics($filters);
-        $filename = 'analytics-' . now()->format('Y-m-d') . '.xlsx';
-
-        return Excel::download(new AnalyticsExport($data, $filters), $filename);
-    }
-
-    /**
-     * Invalidate all analytics caches by incrementing the global version counter.
-     *
-     * Redirects back to the analytics index with the current filters preserved.
-     *
-     * @param  Request  $request
-     * @param  string   $locale
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function refresh(Request $request, $locale)
-    {
-        Cache::increment('admin:analytics:version');
-
-        return redirect()
-            ->route('admin.analytics.index', array_merge(['locale' => $locale], $request->except(['_token', '_method'])))
-            ->with('success', 'Analytics cache refreshed.');
+        return [$filters, $data, $cachedAt, $sectors, $cities];
     }
 
     // -------------------------------------------------------------------------
