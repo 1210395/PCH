@@ -5,10 +5,18 @@ namespace App\Http\Controllers\Academic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Handles login and logout for academic institution accounts using the dedicated 'academic' auth guard.
+ * Supports both standard HTML redirects and JSON responses for AJAX callers.
+ */
 class AcademicAuthController extends AcademicBaseController
 {
     /**
      * Show the academic login form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showLoginForm(Request $request, $locale)
     {
@@ -20,7 +28,11 @@ class AcademicAuthController extends AcademicBaseController
     }
 
     /**
-     * Handle academic login request.
+     * Handle academic login request, enforcing account active status.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function login(Request $request, $locale)
     {
@@ -63,7 +75,11 @@ class AcademicAuthController extends AcademicBaseController
     }
 
     /**
-     * Handle academic logout request.
+     * Handle academic logout request, clearing the session and intended URL.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function logout(Request $request, $locale)
     {

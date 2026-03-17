@@ -8,8 +8,17 @@ use App\Models\SiteSetting;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
 
+/**
+ * Renders the homepage and handles the global search (full-page and AJAX autocomplete).
+ * Relies on CacheService for homepage stats and featured content to avoid per-request queries.
+ */
 class HomeController extends Controller
 {
+    /**
+     * Display the homepage with featured content, stats, and configurable counters.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         // Get cached homepage stats (single query for all counts)
@@ -109,6 +118,12 @@ class HomeController extends Controller
         };
     }
 
+    /**
+     * Execute a full-page search across designers, projects, and products.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function search(Request $request)
     {
         $query = $request->input('q', '');

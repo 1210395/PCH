@@ -11,6 +11,14 @@ use App\Models\ProductImage;
 use App\Models\ProjectImage;
 use App\Models\Service;
 
+/**
+ * Artisan command that renames existing images to a structured naming convention.
+ *
+ * Renames files across profiles/, products/, projects/, and services/ from random
+ * upload names (e.g., abc123.jpg) to predictable identifiers (e.g., product_42_1.jpg).
+ * Updates corresponding database records to reflect new paths. Supports --dry-run.
+ * This command is a one-time data migration; running it on already-migrated data is safe.
+ */
 class MigrateImageNames extends Command
 {
     /**
@@ -29,6 +37,11 @@ class MigrateImageNames extends Command
 
     /**
      * Execute the console command.
+     *
+     * Prompts for confirmation when not in dry-run mode, then migrates all four
+     * image categories in sequence. Returns Command::SUCCESS.
+     *
+     * @return int
      */
     public function handle()
     {
@@ -86,7 +99,13 @@ class MigrateImageNames extends Command
     }
 
     /**
-     * Migrate profile images to structured naming
+     * Migrate designer profile images to the profile_{id}.{ext} naming convention.
+     *
+     * Skips images already matching the structured pattern and files that no longer
+     * exist on disk. Updates the designer's avatar column on success.
+     *
+     * @param  bool  $dryRun
+     * @return int  Number of images renamed (or that would be renamed)
      */
     private function migrateProfileImages($dryRun)
     {
@@ -142,7 +161,13 @@ class MigrateImageNames extends Command
     }
 
     /**
-     * Migrate product images to structured naming
+     * Migrate product images to the product_{productId}_{imageNumber}.{ext} naming convention.
+     *
+     * Groups images by product_id and assigns sequential image numbers based on
+     * display_order. Updates the image_path column in product_images on success.
+     *
+     * @param  bool  $dryRun
+     * @return int  Number of images renamed (or that would be renamed)
      */
     private function migrateProductImages($dryRun)
     {
@@ -209,7 +234,13 @@ class MigrateImageNames extends Command
     }
 
     /**
-     * Migrate project images to structured naming
+     * Migrate project images to the project_{projectId}_{imageNumber}.{ext} naming convention.
+     *
+     * Groups images by project_id and assigns sequential image numbers based on
+     * display_order. Updates the image_path column in project_images on success.
+     *
+     * @param  bool  $dryRun
+     * @return int  Number of images renamed (or that would be renamed)
      */
     private function migrateProjectImages($dryRun)
     {
@@ -276,7 +307,12 @@ class MigrateImageNames extends Command
     }
 
     /**
-     * Migrate service images to structured naming
+     * Migrate service images to the service_{id}.{ext} naming convention.
+     *
+     * Updates the image column on the services table for each renamed file.
+     *
+     * @param  bool  $dryRun
+     * @return int  Number of images renamed (or that would be renamed)
      */
     private function migrateServiceImages($dryRun)
     {
@@ -332,7 +368,14 @@ class MigrateImageNames extends Command
     }
 
     /**
-     * Rename an image file in storage
+     * Atomically rename an image file on the public storage disk.
+     *
+     * Returns false (without throwing) if the target path already exists or if
+     * the Storage move operation fails, logging the error for later review.
+     *
+     * @param  string  $oldPath  Current storage-relative path
+     * @param  string  $newPath  Desired storage-relative path
+     * @return bool
      */
     private function renameImage($oldPath, $newPath)
     {

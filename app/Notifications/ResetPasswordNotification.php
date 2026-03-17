@@ -6,6 +6,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
+/**
+ * Sends a locale-aware password reset email to a designer.
+ *
+ * Constructs the reset URL including the locale prefix and the notifiable's email
+ * address, then renders the 'emails.reset-password' view.
+ */
 class ResetPasswordNotification extends Notification
 {
     use Queueable;

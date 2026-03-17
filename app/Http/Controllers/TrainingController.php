@@ -8,8 +8,18 @@ use App\Models\AcademicAnnouncement;
 use App\Helpers\DropdownHelper;
 use Illuminate\Http\Request;
 
+/**
+ * Aggregates and displays approved academic trainings, workshops, and announcements on a single public page.
+ * Content from all three models is merged in PHP and manually paginated, filtered, and sorted.
+ */
 class TrainingController extends Controller
 {
+    /**
+     * Show the combined training/workshop/announcement listing with filtering and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         // Validate and sanitize input
@@ -164,6 +174,13 @@ class TrainingController extends Controller
         return view('trainings', compact('trainings', 'categories', 'totalTrainings', 'totalStudents'));
     }
 
+    /**
+     * Show a detail page for a training, workshop, or announcement identified by type + ID.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         // Validate ID parameter

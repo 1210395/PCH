@@ -8,10 +8,19 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Manages CRUD operations for academic trainings belonging to the authenticated institution.
+ * New trainings are submitted as pending and must be approved by an admin before appearing publicly,
+ * unless the admin auto-accept setting is enabled. Rejected items revert to pending on edit.
+ */
 class AcademicTrainingController extends AcademicBaseController
 {
     /**
-     * Display a listing of trainings.
+     * Display a paginated, filtered, and sortable listing of the account's trainings.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function index(Request $request, $locale)
     {
@@ -61,6 +70,10 @@ class AcademicTrainingController extends AcademicBaseController
 
     /**
      * Show the form for creating a new training.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function create(Request $request, $locale)
     {
@@ -68,7 +81,11 @@ class AcademicTrainingController extends AcademicBaseController
     }
 
     /**
-     * Store a newly created training.
+     * Store a newly created training; fires subscription notifications if auto-approved.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $locale)
     {
@@ -146,7 +163,12 @@ class AcademicTrainingController extends AcademicBaseController
     }
 
     /**
-     * Display the specified training.
+     * Display the specified training (scoped to the authenticated account).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function show(Request $request, $locale, $id)
     {
@@ -158,6 +180,11 @@ class AcademicTrainingController extends AcademicBaseController
 
     /**
      * Show the form for editing the specified training.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function edit(Request $request, $locale, $id)
     {
@@ -168,7 +195,12 @@ class AcademicTrainingController extends AcademicBaseController
     }
 
     /**
-     * Update the specified training.
+     * Update the specified training; resets approval_status to pending if previously rejected.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale, $id)
     {
@@ -241,7 +273,12 @@ class AcademicTrainingController extends AcademicBaseController
     }
 
     /**
-     * Remove the specified training.
+     * Remove the specified training and its associated image from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, $locale, $id)
     {

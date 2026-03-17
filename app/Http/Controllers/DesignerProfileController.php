@@ -32,6 +32,11 @@ use Illuminate\Support\Facades\Log;
  */
 class DesignerProfileController extends Controller
 {
+    /**
+     * Display the authenticated designer's portfolio (same view as public portfolio).
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function showProfile()
     {
         // Get authenticated designer with relationships
@@ -136,6 +141,11 @@ class DesignerProfileController extends Controller
         ));
     }
 
+    /**
+     * Show the profile editing form for the authenticated designer.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function editProfile()
     {
         // Get authenticated designer with relationships
@@ -230,6 +240,12 @@ class DesignerProfileController extends Controller
         return view('profile-edit', compact('designer', 'projectsData', 'productsData', 'servicesData', 'marketplaceData'));
     }
 
+    /**
+     * Persist updated profile data (name, bio, social links, avatar, cover image, skills).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateProfile(Request $request)
     {
         try {
@@ -398,6 +414,12 @@ class DesignerProfileController extends Controller
         }
     }
 
+    /**
+     * Update only the bio field for the authenticated designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateBio(Request $request)
     {
         try {
@@ -442,6 +464,12 @@ class DesignerProfileController extends Controller
         }
     }
 
+    /**
+     * Replace the authenticated designer's skills list (comma-separated, max 20, sanitized).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateSkills(Request $request)
     {
         try {
@@ -517,6 +545,12 @@ class DesignerProfileController extends Controller
         }
     }
 
+    /**
+     * Stub for certification updates (not yet implemented; maintained for route compatibility).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateCertifications(Request $request)
     {
         // Note: This method is referenced in routes but was not implemented
@@ -527,6 +561,11 @@ class DesignerProfileController extends Controller
         ], 501);
     }
 
+    /**
+     * Show the account settings page (password, privacy, email preferences).
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function accountSettings()
     {
         $designer = auth('designer')->user();
@@ -545,6 +584,12 @@ class DesignerProfileController extends Controller
         ]);
     }
 
+    /**
+     * Validate and update the authenticated designer's password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updatePassword(Request $request)
     {
         try {

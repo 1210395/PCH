@@ -8,10 +8,18 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Manages profile settings for academic institution accounts, including
+ * basic info editing, logo uploads/deletions, and password changes.
+ */
 class AcademicProfileController extends AcademicBaseController
 {
     /**
      * Show the profile edit form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function edit(Request $request, $locale)
     {
@@ -21,7 +29,11 @@ class AcademicProfileController extends AcademicBaseController
     }
 
     /**
-     * Update the profile information.
+     * Update the profile information (name, description, contact details, city).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale)
     {
@@ -46,7 +58,11 @@ class AcademicProfileController extends AcademicBaseController
     }
 
     /**
-     * Upload a new logo.
+     * Upload a new logo image, replacing any existing one.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function uploadLogo(Request $request, $locale)
     {
@@ -78,7 +94,11 @@ class AcademicProfileController extends AcademicBaseController
     }
 
     /**
-     * Delete the current logo.
+     * Delete the current logo from storage and clear the logo field.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function deleteLogo(Request $request, $locale)
     {
@@ -98,7 +118,11 @@ class AcademicProfileController extends AcademicBaseController
     }
 
     /**
-     * Update the password.
+     * Update the account password after verifying the current one.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function updatePassword(Request $request, $locale)
     {

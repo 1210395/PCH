@@ -5,15 +5,33 @@ namespace App\View\Components\Profile;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Wrapper layout component for the authenticated profile edit page.
+ *
+ * Provides the outer HTML scaffold and exposes a UUID generator used by Alpine.js
+ * upload sessions within profile sub-components.
+ */
 class Layout extends Component
 {
+    /** @var mixed|null The authenticated designer model. */
     public $designer;
+
+    /** @var array Paginated projects data for the portfolio tab. */
     public $projectsData;
+
+    /** @var array Paginated products data for the portfolio tab. */
     public $productsData;
+
+    /** @var array Paginated services data for the portfolio tab. */
     public $servicesData;
 
     /**
      * Create a new component instance.
+     *
+     * @param  mixed|null  $designer
+     * @param  array       $projectsData
+     * @param  array       $productsData
+     * @param  array       $servicesData
      */
     public function __construct($designer = null, $projectsData = [], $productsData = [], $servicesData = [])
     {
@@ -32,8 +50,12 @@ class Layout extends Component
     }
 
     /**
-     * Generate a UUID for upload sessions.
-     * Moved from inline Alpine.js to be reusable.
+     * Generate a UUID v4 string for upload sessions.
+     *
+     * Originally inlined in Alpine.js; centralised here so both Profile and Portfolio
+     * layout components produce consistent session identifiers.
+     *
+     * @return string
      */
     public static function generateUUID(): string
     {

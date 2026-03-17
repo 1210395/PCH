@@ -6,10 +6,19 @@ use App\Models\Conversation;
 use App\Models\ConversationRating;
 use Illuminate\Http\Request;
 
+/**
+ * Handles rating of conversations between designers.
+ * Enforces a 24-hour waiting period after a conversation is accepted before a rating can be submitted,
+ * and prevents duplicate ratings from the same participant.
+ */
 class ConversationRatingController extends Controller
 {
     /**
-     * Get rating status for a conversation
+     * Get rating status for a conversation.
+     *
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function status($locale, $conversationId)
     {
@@ -51,7 +60,12 @@ class ConversationRatingController extends Controller
     }
 
     /**
-     * Submit a rating for a conversation
+     * Submit a rating for a conversation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $locale, $conversationId)
     {
@@ -120,7 +134,12 @@ class ConversationRatingController extends Controller
     }
 
     /**
-     * Update a rating for a conversation
+     * Update a rating for a conversation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale, $conversationId)
     {

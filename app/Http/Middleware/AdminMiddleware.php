@@ -6,12 +6,19 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Protects routes that require an authenticated designer with admin privileges.
+ *
+ * Checks authentication via the 'designer' guard, verifies the is_admin flag,
+ * and ensures the account is active. Returns JSON error responses for API requests.
+ */
 class AdminMiddleware
 {
     /**
      * Handle an incoming request.
      *
      * Checks if the authenticated designer has admin privileges.
+     * Returns a 401 if unauthenticated, 403 if not an admin or account is deactivated.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */

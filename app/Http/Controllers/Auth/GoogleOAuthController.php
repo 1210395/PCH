@@ -6,11 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Services\GmailOAuthService;
 use Illuminate\Http\Request;
 
+/**
+ * Handles the Google OAuth2 flow used to authorize the application's Gmail account for sending emails.
+ * This is an admin-only utility: the redirect/callback pair exchanges an auth code for a refresh token
+ * that is then stored in config to power the GmailOAuthService.
+ */
 class GoogleOAuthController extends Controller
 {
     /**
      * Redirect to Google OAuth2 consent screen.
      * Only accessible by admin users.
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function redirect()
     {
@@ -30,6 +37,9 @@ class GoogleOAuthController extends Controller
 
     /**
      * Handle the OAuth2 callback from Google.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\View\View
      */
     public function callback(Request $request)
     {

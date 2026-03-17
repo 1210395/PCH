@@ -6,10 +6,17 @@ use App\Models\Notification;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
 
+/**
+ * Manages in-app notifications for designers: listing, unread count, mark-as-read, and a static creation helper.
+ * The static createNotification() method is called by other controllers to create notifications without triggering duplicate entries within 5 minutes.
+ */
 class NotificationController extends Controller
 {
     /**
-     * Get notifications for the current user (last 10)
+     * Return the 10 most recent notifications for the authenticated designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -43,7 +50,10 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get unread notification count
+     * Return the cached count of unread notifications for the authenticated designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function unreadCount(Request $request)
     {
@@ -62,7 +72,12 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark a notification as read
+     * Mark a single notification as read and clear the cached unread count.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function markAsRead(Request $request, $locale, $id)
     {
@@ -89,7 +104,10 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark all notifications as read
+     * Mark all unread notifications as read for the authenticated designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function markAllAsRead(Request $request)
     {
@@ -110,7 +128,14 @@ class NotificationController extends Controller
     }
 
     /**
-     * Create a notification (internal helper - can be called from other controllers)
+     * Create a notification, skipping duplicates of the same type within the last 5 minutes.
+     *
+     * @param  int         $designerId   Recipient designer ID
+     * @param  string      $type         Notification type identifier (e.g. 'profile_view')
+     * @param  string      $title        Short notification title
+     * @param  string      $message      Notification body text
+     * @param  array|null  $data         Optional structured data (e.g. URL, related IDs)
+     * @return \App\Models\Notification
      */
     public static function createNotification($designerId, $type, $title, $message, $data = null)
     {

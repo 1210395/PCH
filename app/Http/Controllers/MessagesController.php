@@ -9,10 +9,18 @@ use App\Models\Designer;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
+/**
+ * Handles real-time messaging between designers: conversation listing, chat view, message sending, and unread counts.
+ * All chat-related operations verify the current user is a participant in the conversation before acting.
+ */
 class MessagesController extends Controller
 {
     /**
-     * Show all conversations list
+     * Show the list of all conversations for the current user, with optional search and unread filter.
+     *
+     * @param  string  $locale
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function index($locale, Request $request)
     {
@@ -68,7 +76,11 @@ class MessagesController extends Controller
     }
 
     /**
-     * Show message composer for a specific designer
+     * Show the compose page for initiating a message to a designer (redirects to chat if conversation exists).
+     *
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function compose($locale, $designerId)
     {
@@ -110,7 +122,12 @@ class MessagesController extends Controller
     }
 
     /**
-     * Send a new message or message request
+     * Send a message; routes to an existing conversation or creates a new message request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function send(Request $request, $locale, $designerId)
     {
@@ -161,7 +178,11 @@ class MessagesController extends Controller
     }
 
     /**
-     * Show live chat interface with a designer
+     * Show the live chat interface for a conversation with a specific designer.
+     *
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function chat($locale, $designerId)
     {
@@ -189,7 +210,12 @@ class MessagesController extends Controller
     }
 
     /**
-     * Send a message in an existing conversation (AJAX)
+     * Post a new message into an existing conversation via AJAX.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function sendInChat(Request $request, $locale, $conversationId)
     {
@@ -221,7 +247,12 @@ class MessagesController extends Controller
     }
 
     /**
-     * Get new messages (AJAX polling)
+     * Return messages newer than a given ID for polling-based chat updates.
+     *
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getMessages($locale, $conversationId, Request $request)
     {
@@ -255,7 +286,11 @@ class MessagesController extends Controller
     }
 
     /**
-     * Fetch all messages for a conversation (for chat panel)
+     * Fetch all messages in a conversation (used when opening the chat panel from any page).
+     *
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function fetchMessages($locale, $conversationId)
     {
@@ -287,7 +322,11 @@ class MessagesController extends Controller
     }
 
     /**
-     * Mark messages as read in a conversation (for chat panel)
+     * Mark all messages in a conversation as read for the current user.
+     *
+     * @param  string  $locale
+     * @param  int     $conversationId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function markAsRead($locale, $conversationId)
     {
@@ -316,7 +355,10 @@ class MessagesController extends Controller
     }
 
     /**
-     * Get unread message count for current user (API endpoint)
+     * Return the total unread message count across all conversations for the current user.
+     *
+     * @param  string  $locale
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getUnreadCount($locale)
     {

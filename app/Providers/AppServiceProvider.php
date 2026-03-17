@@ -8,10 +8,21 @@ use Illuminate\Support\ServiceProvider;
 use App\Mail\GmailApiTransport;
 use App\Services\GmailOAuthService;
 
+/**
+ * The primary application service provider for Palestine Creative Hub.
+ *
+ * Registers the GmailOAuthService singleton, extends the Mailer with the custom
+ * Gmail API transport, and registers Blade directives for versioned asset URLs.
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
+     *
+     * Binds GmailOAuthService as a singleton so the same OAuth token instance
+     * is reused across the request lifecycle.
+     *
+     * @return void
      */
     public function register(): void
     {
@@ -20,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
+     *
+     * Forces HTTPS scheme for all generated URLs, registers the 'gmail' mail transport
+     * driver, and defines the @versionedAsset / @autoVersionedAsset Blade directives.
+     *
+     * @return void
      */
     public function boot(): void
     {

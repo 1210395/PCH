@@ -6,10 +6,18 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Protects routes that require an authenticated and active academic account.
+ *
+ * Uses the 'academic' guard and redirects deactivated accounts to the login page.
+ */
 class AcademicMiddleware
 {
     /**
      * Handle an incoming request.
+     *
+     * Verifies the user is authenticated via the 'academic' guard and that the
+     * account is active. Deactivated accounts are logged out before redirecting.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */

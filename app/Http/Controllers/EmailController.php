@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Handles direct email composition and delivery between authenticated designers.
+ * Only allows contact with designers who have enabled the "show email" privacy setting.
+ */
 class EmailController extends Controller
 {
     /**

@@ -9,8 +9,19 @@ use App\Models\AcademicAnnouncement;
 use App\Models\Designer;
 use Illuminate\Http\Request;
 
+/**
+ * Displays the public directory of academic institutions, TVETs, and private-sector training providers.
+ * Aggregates three distinct data sources (AcademicAccount for academic/TVET and Designer for private sector)
+ * into a unified listing filterable by city and institution type.
+ */
 class AcademicTevetsController extends Controller
 {
+    /**
+     * Show the combined academic/TVET/private-sector directory with city and type filters.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         // Validate and sanitize input
@@ -121,7 +132,12 @@ class AcademicTevetsController extends Controller
     }
 
     /**
-     * Show academic institution detail page (works for both academic and TVET)
+     * Show an academic institution detail page with its trainings, workshops, and announcements.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function showAcademic(Request $request, $locale, $id)
     {

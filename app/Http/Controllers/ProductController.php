@@ -7,8 +7,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\NotificationController;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Manages public product listings, detail pages, CRUD for authenticated designers, and likes.
+ * Logged-in owners can view their own pending/rejected products alongside the approved public feed.
+ */
 class ProductController extends Controller
 {
+    /**
+     * Show the paginated product listing with filtering, search, and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         // Validate and sanitize input
@@ -75,6 +85,13 @@ class ProductController extends Controller
         return view('products', compact('products', 'categories'));
     }
 
+    /**
+     * Show a single product detail page; returns JSON for AJAX requests.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         // Validate ID parameter
@@ -164,6 +181,12 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Create a new product with optional multiple images (moved from temp to permanent storage).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         // Validate request - allowing Unicode characters for multilingual support
@@ -236,6 +259,14 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Update a product's details and reconcile the image set (deletes removed, moves new temp images).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, $locale, $id)
     {
         // Validate ID parameter
@@ -388,6 +419,13 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Delete a product and all associated image files from storage.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($locale, $id)
     {
         // Validate ID parameter

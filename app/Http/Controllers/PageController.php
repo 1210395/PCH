@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 
+/**
+ * Renders static CMS pages (About, Terms, Privacy, etc.) whose content is stored in SiteSettings.
+ * Falls back to default content arrays when the database has no entry for the requested page key.
+ */
 class PageController extends Controller
 {
     /**

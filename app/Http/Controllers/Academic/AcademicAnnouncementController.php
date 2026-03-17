@@ -8,10 +8,19 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Manages CRUD operations for academic announcements (admissions, events, scholarships, etc.)
+ * belonging to the authenticated institution. Follows the same pending/approved/rejected
+ * approval workflow as trainings and workshops; expired items are filtered by expiry_date.
+ */
 class AcademicAnnouncementController extends AcademicBaseController
 {
     /**
-     * Display a listing of announcements.
+     * Display a paginated, filtered, and sortable listing of the account's announcements.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function index(Request $request, $locale)
     {
@@ -65,6 +74,10 @@ class AcademicAnnouncementController extends AcademicBaseController
 
     /**
      * Show the form for creating a new announcement.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function create(Request $request, $locale)
     {
@@ -72,7 +85,11 @@ class AcademicAnnouncementController extends AcademicBaseController
     }
 
     /**
-     * Store a newly created announcement.
+     * Store a newly created announcement; fires subscription notifications if auto-approved.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $locale)
     {
@@ -127,7 +144,12 @@ class AcademicAnnouncementController extends AcademicBaseController
     }
 
     /**
-     * Display the specified announcement.
+     * Display the specified announcement (scoped to the authenticated account).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function show(Request $request, $locale, $id)
     {
@@ -139,6 +161,11 @@ class AcademicAnnouncementController extends AcademicBaseController
 
     /**
      * Show the form for editing the specified announcement.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function edit(Request $request, $locale, $id)
     {
@@ -149,7 +176,12 @@ class AcademicAnnouncementController extends AcademicBaseController
     }
 
     /**
-     * Update the specified announcement.
+     * Update the specified announcement; resets approval_status to pending if previously rejected.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale, $id)
     {
@@ -196,7 +228,12 @@ class AcademicAnnouncementController extends AcademicBaseController
     }
 
     /**
-     * Remove the specified announcement.
+     * Remove the specified announcement and its associated image from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, $locale, $id)
     {

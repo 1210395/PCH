@@ -5,10 +5,21 @@ namespace App\Models\Traits;
 use App\Models\ProfileSubscription;
 use App\Models\CategorySubscription;
 
+/**
+ * Provides profile and category subscription capabilities to Designer and Academic models.
+ *
+ * Profile subscriptions track who a user follows (and who follows them) via a polymorphic
+ * morph-many relationship. Category subscriptions store per-content-type filter preferences
+ * (categories, tags, types, levels) used to personalise notification feeds.
+ */
 trait HasSubscriptions
 {
     /**
-     * Get the subscriber type string for this model
+     * Get the subscriber type string for this model.
+     *
+     * Returns 'designer' for Designer instances and 'academic' for all others.
+     *
+     * @return string
      */
     public function getSubscriberType(): string
     {
@@ -16,7 +27,9 @@ trait HasSubscriptions
     }
 
     /**
-     * Profile subscriptions this user has made (who they're subscribed to)
+     * Profile subscriptions this user has made (who they're subscribed to).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function profileSubscriptions()
     {
@@ -24,7 +37,9 @@ trait HasSubscriptions
     }
 
     /**
-     * People subscribed to this profile
+     * People subscribed to this profile.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function profileSubscribers()
     {
@@ -32,7 +47,9 @@ trait HasSubscriptions
     }
 
     /**
-     * Category subscriptions
+     * Category subscriptions belonging to this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function categorySubscriptions()
     {
@@ -40,7 +57,11 @@ trait HasSubscriptions
     }
 
     /**
-     * Check if subscribed to a profile
+     * Check if this user is subscribed to the given profile.
+     *
+     * @param  string  $subscribableType  Morph type string (e.g. 'designer')
+     * @param  int     $subscribableId
+     * @return bool
      */
     public function isSubscribedTo(string $subscribableType, int $subscribableId): bool
     {
@@ -53,8 +74,11 @@ trait HasSubscriptions
     }
 
     /**
-     * Toggle profile subscription
-     * Returns true if now subscribed, false if unsubscribed
+     * Toggle profile subscription on or off.
+     *
+     * @param  string  $subscribableType  Morph type string (e.g. 'designer')
+     * @param  int     $subscribableId
+     * @return bool  True if the user is now subscribed, false if unsubscribed
      */
     public function toggleProfileSubscription(string $subscribableType, int $subscribableId): bool
     {
@@ -67,7 +91,11 @@ trait HasSubscriptions
     }
 
     /**
-     * Subscribe to a profile
+     * Subscribe this user to a profile (no-op if already subscribed).
+     *
+     * @param  string  $subscribableType  Morph type string
+     * @param  int     $subscribableId
+     * @return void
      */
     public function subscribeTo(string $subscribableType, int $subscribableId): void
     {
@@ -82,7 +110,11 @@ trait HasSubscriptions
     }
 
     /**
-     * Unsubscribe from a profile
+     * Remove this user's subscription from a profile.
+     *
+     * @param  string  $subscribableType  Morph type string
+     * @param  int     $subscribableId
+     * @return void
      */
     public function unsubscribeFrom(string $subscribableType, int $subscribableId): void
     {
@@ -94,7 +126,9 @@ trait HasSubscriptions
     }
 
     /**
-     * Get the number of profile subscribers
+     * Get the total number of users subscribed to this profile.
+     *
+     * @return int
      */
     public function getProfileSubscriberCount(): int
     {
@@ -102,7 +136,10 @@ trait HasSubscriptions
     }
 
     /**
-     * Get or create category subscription for a content type
+     * Get the active category subscription record for a given content type, if any.
+     *
+     * @param  string  $contentType  e.g. 'marketplace', 'training', 'tender'
+     * @return \App\Models\CategorySubscription|null
      */
     public function getCategorySubscription(string $contentType): ?CategorySubscription
     {
@@ -113,7 +150,18 @@ trait HasSubscriptions
     }
 
     /**
-     * Save category subscription preferences
+     * Create or update a category subscription with the given filter preferences.
+     *
+     * Uses updateOrCreate keyed on subscriber + content_type so calling this method
+     * repeatedly is idempotent for the same content type.
+     *
+     * @param  string       $contentType
+     * @param  array|null   $categories
+     * @param  array|null   $tags
+     * @param  array|null   $types
+     * @param  array|null   $levels
+     * @param  bool         $isActive
+     * @return \App\Models\CategorySubscription
      */
     public function saveCategorySubscription(
         string $contentType,
@@ -140,7 +188,10 @@ trait HasSubscriptions
     }
 
     /**
-     * Remove category subscription
+     * Delete the category subscription for the given content type.
+     *
+     * @param  string  $contentType
+     * @return void
      */
     public function removeCategorySubscription(string $contentType): void
     {
@@ -151,7 +202,10 @@ trait HasSubscriptions
     }
 
     /**
-     * Check if has an active category subscription for a content type
+     * Check whether this user has an active category subscription for the given content type.
+     *
+     * @param  string  $contentType
+     * @return bool
      */
     public function hasCategorySubscription(string $contentType): bool
     {

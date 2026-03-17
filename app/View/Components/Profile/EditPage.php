@@ -5,6 +5,12 @@ namespace App\View\Components\Profile;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Root component for the authenticated designer profile edit page.
+ *
+ * Orchestrates all editable profile sub-components (Tabs, Modals, SkillsSection, etc.),
+ * and resolves avatar and cover image asset URLs for form pre-population.
+ */
 class EditPage extends Component
 {
     public $designer;

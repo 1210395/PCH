@@ -10,8 +10,18 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\NotificationController;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Manages public project listings, detail pages, CRUD for authenticated designers, and likes.
+ * Mirrors ProductController's approval-aware visibility: owners see all their projects; guests see only approved.
+ */
 class ProjectController extends Controller
 {
+    /**
+     * Show the paginated project listing with filtering, search, and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         // Validate and sanitize input
@@ -75,6 +85,13 @@ class ProjectController extends Controller
         return view('projects', compact('projects', 'categories'));
     }
 
+    /**
+     * Show a single project detail page; returns JSON for AJAX requests.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         // Validate ID parameter
@@ -165,12 +182,23 @@ class ProjectController extends Controller
         ]);
     }
 
+    /**
+     * Show the project creation form with all design categories.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         $categories = DesignCategory::all();
         return view('projects.create', compact('categories'));
     }
 
+    /**
+     * Create a new project with optional multiple images.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         // Validate request - allowing Unicode characters for multilingual support
@@ -249,6 +277,14 @@ class ProjectController extends Controller
         ]);
     }
 
+    /**
+     * Update a project's details and reconcile the image set.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, $locale, $id)
     {
         // Validate ID parameter
@@ -406,6 +442,13 @@ class ProjectController extends Controller
         ]);
     }
 
+    /**
+     * Delete a project and all associated image files from storage.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($locale, $id)
     {
         // Validate ID parameter

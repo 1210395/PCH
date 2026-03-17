@@ -21,8 +21,19 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Handles designer and academic account login/logout and the multi-step registration wizard.
+ * Registration is wrapped in a DB transaction; temp images are moved to permanent storage on success.
+ * Supports both designer and academic guards; directs admins to the admin dashboard on login.
+ */
 class AuthController extends Controller
 {
+    /**
+     * Display the login form, preserving the intended redirect URL.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function showLoginForm(Request $request)
     {
         // If user is already logged in, redirect appropriately
@@ -52,6 +63,12 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    /**
+     * Authenticate the user against both designer and academic guards, enforcing email verification and active status.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function login(Request $request)
     {
         // Validate email and password
@@ -130,6 +147,11 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
+    /**
+     * Display the multi-step registration form for new designer accounts.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function showRegistrationForm()
     {
         // If user is already logged in, redirect to their profile
@@ -140,6 +162,13 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
+    /**
+     * Process the multi-step registration wizard, creating a Designer with optional products, projects, services, and certifications.
+     * The entire operation runs inside a DB transaction; temp images are moved to permanent storage on success and cleaned up on failure.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function register(Request $request)
     {
         // DEBUG: Log incoming request details
@@ -845,11 +874,22 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Display the registration success page after a new account is created and the verification email is sent.
+     *
+     * @return \Illuminate\View\View
+     */
     public function showRegistrationSuccess()
     {
         return view('auth.register-success');
     }
 
+    /**
+     * Log out the authenticated designer, clear the intended URL, and invalidate the session.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function logout(Request $request)
     {
         Auth::guard('designer')->logout();

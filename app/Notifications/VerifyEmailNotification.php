@@ -9,6 +9,12 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 
+/**
+ * Sends a locale-aware email verification notification to a designer.
+ *
+ * Generates a signed, time-limited verification URL valid for 24 hours and
+ * renders the 'emails.verify-email' view with both English and Arabic subject support.
+ */
 class VerifyEmailNotification extends Notification
 {
     use Queueable;

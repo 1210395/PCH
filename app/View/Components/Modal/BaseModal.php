@@ -4,6 +4,12 @@ namespace App\View\Components\Modal;
 
 use Illuminate\View\Component;
 
+/**
+ * Abstract base class for all modal dialog components.
+ *
+ * Concrete subclasses must implement the contract methods that supply the modal's
+ * title, description, form fields, save/delete URLs, and header icon path.
+ */
 abstract class BaseModal extends Component
 {
     /**

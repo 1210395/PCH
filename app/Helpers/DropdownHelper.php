@@ -71,8 +71,12 @@ class DropdownHelper
     }
 
     /**
-     * Get sectors formatted for JavaScript (with subsectors array)
-     * Used in registration and profile edit forms
+     * Get sectors formatted for JavaScript (with subsectors array).
+     *
+     * Returns an array of sector objects each containing 'value', 'label', and
+     * 'subSectors'. Falls back to hardcoded defaults if the table is unavailable.
+     *
+     * @return array
      */
     public static function sectorsForJs(): array
     {
@@ -89,7 +93,12 @@ class DropdownHelper
     }
 
     /**
-     * Get simple sector list for searchable select
+     * Get simple sector list for searchable select dropdowns.
+     *
+     * Returns an array of ['value' => ..., 'label' => ...] pairs, localised to the
+     * current application locale.
+     *
+     * @return array
      */
     public static function sectorOptions(): array
     {
@@ -116,8 +125,12 @@ class DropdownHelper
     }
 
     /**
-     * Get subsectors grouped by sector value
-     * Used in subsector dropdowns that depend on selected sector
+     * Get subsectors grouped by parent sector value.
+     *
+     * Returns a map of sector_value => string[] used to populate dependent
+     * subsector dropdowns when the user selects a sector.
+     *
+     * @return array
      */
     public static function subsectorsByType(): array
     {
@@ -134,7 +147,12 @@ class DropdownHelper
     }
 
     /**
-     * Get skills list
+     * Get the full list of available skill labels.
+     *
+     * Clears stale empty-array cache entries before fetching to guard against
+     * a known race condition during cache warm-up. Falls back to defaults.
+     *
+     * @return array  Flat list of skill label strings
      */
     public static function skills(): array
     {
@@ -158,7 +176,11 @@ class DropdownHelper
     }
 
     /**
-     * Get cities/governorates list (localized labels)
+     * Get the list of Palestinian cities/governorates with localized labels.
+     *
+     * Returns labels in Arabic when the application locale is 'ar', otherwise English.
+     *
+     * @return array  Flat list of city label strings
      */
     public static function cities(): array
     {
@@ -182,8 +204,12 @@ class DropdownHelper
     }
 
     /**
-     * Get cities as [english_key => localized_label] pairs
-     * Use this for <select> dropdowns where the stored value must be consistent across locales
+     * Get cities as [english_value => localized_label] key-value pairs.
+     *
+     * Use this for select dropdowns where the option value stored in the database
+     * must remain the English key regardless of the current locale.
+     *
+     * @return array
      */
     public static function citiesKeyValue(): array
     {
@@ -204,7 +230,9 @@ class DropdownHelper
     }
 
     /**
-     * Get product categories
+     * Get the list of product category labels.
+     *
+     * @return array  Flat list of category label strings
      */
     public static function productCategories(): array
     {
@@ -228,7 +256,9 @@ class DropdownHelper
     }
 
     /**
-     * Get project categories
+     * Get the list of project category labels.
+     *
+     * @return array  Flat list of category label strings
      */
     public static function projectCategories(): array
     {
@@ -252,7 +282,9 @@ class DropdownHelper
     }
 
     /**
-     * Get project roles
+     * Get the list of project role labels.
+     *
+     * @return array  Flat list of role label strings
      */
     public static function projectRoles(): array
     {
@@ -276,7 +308,9 @@ class DropdownHelper
     }
 
     /**
-     * Get service categories
+     * Get the list of service category labels.
+     *
+     * @return array  Flat list of category label strings
      */
     public static function serviceCategories(): array
     {
@@ -300,7 +334,9 @@ class DropdownHelper
     }
 
     /**
-     * Get years of experience options
+     * Get the list of years-of-experience range option labels.
+     *
+     * @return array  Flat list of label strings (e.g. '1-3 years')
      */
     public static function yearsOfExperience(): array
     {
@@ -326,7 +362,11 @@ class DropdownHelper
     }
 
     /**
-     * Get fablab types
+     * Get the list of FabLab type options with localized labels.
+     *
+     * Returns ['value' => ..., 'label' => ...] pairs suitable for a select dropdown.
+     *
+     * @return array
      */
     public static function fablabTypes(): array
     {
@@ -358,7 +398,11 @@ class DropdownHelper
     }
 
     /**
-     * Get marketplace types
+     * Get the list of marketplace post type options with localized labels.
+     *
+     * Returns ['value' => ..., 'label' => ...] pairs (e.g. service, collaboration).
+     *
+     * @return array
      */
     public static function marketplaceTypes(): array
     {
@@ -389,7 +433,12 @@ class DropdownHelper
     }
 
     /**
-     * Get marketplace categories
+     * Get the list of marketplace category labels for the current locale.
+     *
+     * Clears both locale-specific and legacy non-locale cache keys before fetching
+     * to ensure up-to-date results after admin changes.
+     *
+     * @return array  Flat list of category label strings
      */
     public static function marketplaceCategories(): array
     {
@@ -416,7 +465,9 @@ class DropdownHelper
     }
 
     /**
-     * Get marketplace tags
+     * Get the list of marketplace tag labels for the current locale.
+     *
+     * @return array  Flat list of tag label strings
      */
     public static function marketplaceTags(): array
     {
@@ -443,7 +494,9 @@ class DropdownHelper
     }
 
     /**
-     * Get training categories
+     * Get the list of training/workshop category labels.
+     *
+     * @return array  Flat list of category label strings
      */
     public static function trainingCategories(): array
     {
@@ -467,7 +520,9 @@ class DropdownHelper
     }
 
     /**
-     * Get tender categories
+     * Get the list of tender category labels.
+     *
+     * @return array  Flat list of category label strings
      */
     public static function tenderCategories(): array
     {
@@ -559,6 +614,11 @@ class DropdownHelper
     // Default Fallback Data
     // =====================
 
+    /**
+     * Hardcoded sector data used when the dropdown_options table is unavailable.
+     *
+     * @return array
+     */
     private static function getDefaultSectors(): array
     {
         return [
@@ -571,6 +631,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultSectorOptions(): array
     {
         return [
@@ -583,6 +644,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultSubsectors(): array
     {
         return [
@@ -595,6 +657,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultSkills(): array
     {
         return [
@@ -615,6 +678,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultCities(): array
     {
         return [
@@ -624,6 +688,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultProductCategories(): array
     {
         return [
@@ -635,6 +700,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultProjectCategories(): array
     {
         return [
@@ -644,6 +710,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultProjectRoles(): array
     {
         return [
@@ -656,6 +723,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultServiceCategories(): array
     {
         return [
@@ -665,6 +733,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultMarketplaceCategories(): array
     {
         return [
@@ -679,6 +748,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultMarketplaceTags(): array
     {
         return [
@@ -691,6 +761,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultTrainingCategories(): array
     {
         return [
@@ -699,6 +770,7 @@ class DropdownHelper
         ];
     }
 
+    /** @return array */
     private static function getDefaultTenderCategories(): array
     {
         return [

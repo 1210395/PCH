@@ -6,13 +6,24 @@ use App\Helpers\DropdownHelper;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Renders the interactive skills selection section on the profile edit page.
+ *
+ * Loads available skill options from DropdownHelper and exposes them alongside
+ * the designer's currently selected skills for the Blade view.
+ */
 class SkillsSection extends Component
 {
+    /** @var mixed The designer's current skills (array or collection). */
     public $skills;
+
+    /** @var array Full list of available skill options from DropdownHelper. */
     public $skillOptions;
 
     /**
      * Create a new component instance.
+     *
+     * @param  mixed  $skills  The designer's currently selected skills
      */
     public function __construct($skills)
     {

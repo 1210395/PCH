@@ -8,10 +8,18 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Manages CRUD operations for academic workshops belonging to the authenticated institution.
+ * Follows the same pending/approved/rejected approval workflow as trainings and announcements.
+ */
 class AcademicWorkshopController extends AcademicBaseController
 {
     /**
-     * Display a listing of workshops.
+     * Display a paginated, filtered, and sortable listing of the account's workshops.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function index(Request $request, $locale)
     {
@@ -58,6 +66,10 @@ class AcademicWorkshopController extends AcademicBaseController
 
     /**
      * Show the form for creating a new workshop.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function create(Request $request, $locale)
     {
@@ -65,7 +77,11 @@ class AcademicWorkshopController extends AcademicBaseController
     }
 
     /**
-     * Store a newly created workshop.
+     * Store a newly created workshop; fires subscription notifications if auto-approved.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $locale)
     {
@@ -127,7 +143,12 @@ class AcademicWorkshopController extends AcademicBaseController
     }
 
     /**
-     * Display the specified workshop.
+     * Display the specified workshop (scoped to the authenticated account).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function show(Request $request, $locale, $id)
     {
@@ -139,6 +160,11 @@ class AcademicWorkshopController extends AcademicBaseController
 
     /**
      * Show the form for editing the specified workshop.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
      */
     public function edit(Request $request, $locale, $id)
     {
@@ -149,7 +175,12 @@ class AcademicWorkshopController extends AcademicBaseController
     }
 
     /**
-     * Update the specified workshop.
+     * Update the specified workshop; resets approval_status to pending if previously rejected.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale, $id)
     {
@@ -206,7 +237,12 @@ class AcademicWorkshopController extends AcademicBaseController
     }
 
     /**
-     * Remove the specified workshop.
+     * Remove the specified workshop and its associated image from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, $locale, $id)
     {

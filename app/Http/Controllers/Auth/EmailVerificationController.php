@@ -7,10 +7,17 @@ use App\Models\Designer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Handles email address verification for designer accounts.
+ * Provides the verification notice page, processes signed verification links, and resends verification emails.
+ */
 class EmailVerificationController extends Controller
 {
     /**
      * Show the email verification notice page.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function notice(Request $request)
     {
@@ -24,6 +31,12 @@ class EmailVerificationController extends Controller
 
     /**
      * Handle email verification link click.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @param  string  $hash
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function verify(Request $request, $locale, $id, $hash)
     {
@@ -50,6 +63,9 @@ class EmailVerificationController extends Controller
 
     /**
      * Resend verification email.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function resend(Request $request)
     {

@@ -12,8 +12,17 @@ use App\Models\Training;
 use App\Models\Tender;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Generates the XML sitemap for both Arabic and English locales.
+ * The sitemap is cached for one hour to avoid repeated database queries on every crawl.
+ */
 class SitemapController extends Controller
 {
+    /**
+     * Build and return the sitemap.xml response, cached for 1 hour.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $sitemap = Cache::remember('sitemap_xml', 3600, function () {

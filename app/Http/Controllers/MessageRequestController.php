@@ -8,10 +8,17 @@ use App\Models\Designer;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
+/**
+ * Manages message requests between designers before a conversation is established.
+ * A request must be accepted before real-time chat becomes available; acceptance creates a Conversation record.
+ */
 class MessageRequestController extends Controller
 {
     /**
-     * Show message requests
+     * Show the inbox of received and sent message requests for the current user.
+     *
+     * @param  string  $locale
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function index($locale)
     {
@@ -39,7 +46,12 @@ class MessageRequestController extends Controller
     }
 
     /**
-     * Send a message request to another designer
+     * Send a new message request to another designer (enforces no duplicates and no existing conversation).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function send(Request $request, $locale, $designerId)
     {
@@ -133,7 +145,11 @@ class MessageRequestController extends Controller
     }
 
     /**
-     * Accept a message request
+     * Accept a message request, creating a Conversation and notifying the requester.
+     *
+     * @param  string  $locale
+     * @param  int     $requestId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function accept($locale, $requestId)
     {
@@ -170,7 +186,11 @@ class MessageRequestController extends Controller
     }
 
     /**
-     * Decline a message request
+     * Decline and mark a message request as rejected.
+     *
+     * @param  string  $locale
+     * @param  int     $requestId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function decline($locale, $requestId)
     {
@@ -195,7 +215,11 @@ class MessageRequestController extends Controller
     }
 
     /**
-     * Check if a pending message request exists
+     * Check whether the current user has a pending outgoing request to a given designer.
+     *
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function checkPending($locale, $designerId)
     {
@@ -220,7 +244,10 @@ class MessageRequestController extends Controller
     }
 
     /**
-     * Get pending message requests count (API endpoint)
+     * Return the count of pending message requests received by the current user.
+     *
+     * @param  string  $locale
+     * @return \Illuminate\Http\JsonResponse
      */
     public function pendingCount($locale)
     {

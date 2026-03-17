@@ -6,8 +6,18 @@ use App\Models\MarketplacePost;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
 
+/**
+ * Handles the public marketplace listing and post detail views.
+ * Logged-in users can also see their own pending/rejected posts alongside approved content.
+ */
 class MarketplaceController extends Controller
 {
+    /**
+     * Show the paginated marketplace listing with filters, search, and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function index(Request $request)
     {
 		$designer = auth('designer')->user();
@@ -94,6 +104,13 @@ class MarketplaceController extends Controller
         return view('marketplace', compact('posts', 'categories', 'allTags'));
     }
 
+    /**
+     * Show a single marketplace post detail page; returns JSON for AJAX requests.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         // Validate ID parameter

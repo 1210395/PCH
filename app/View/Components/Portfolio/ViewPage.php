@@ -5,6 +5,12 @@ namespace App\View\Components\Portfolio;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Root component for the public designer portfolio view page.
+ *
+ * Orchestrates all portfolio sub-components (Header, BioSection, Tabs, etc.),
+ * resolves asset URLs, and determines whether the viewer is the profile owner.
+ */
 class ViewPage extends Component
 {
     public $designer;

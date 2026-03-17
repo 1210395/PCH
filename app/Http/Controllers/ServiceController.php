@@ -6,8 +6,18 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Manages public service listings, detail pages, and CRUD for authenticated designers.
+ * Services have no image gallery; only text fields (name, description, category) are stored.
+ */
 class ServiceController extends Controller
 {
+    /**
+     * Show the paginated service listing with filtering, search, and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         $query = Service::with('designer');
@@ -62,6 +72,13 @@ class ServiceController extends Controller
         return view('services', compact('services', 'categories'));
     }
 
+    /**
+     * Show a single service detail page; returns JSON for AJAX requests.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         $service = Service::with('designer')->findOrFail($id);
@@ -94,6 +111,12 @@ class ServiceController extends Controller
         return view('service-detail', compact('service', 'relatedServices'));
     }
 
+    /**
+     * Create a new service for the authenticated designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         // Validate request - allowing Unicode characters for multilingual support
@@ -141,6 +164,14 @@ class ServiceController extends Controller
         ]);
     }
 
+    /**
+     * Update an existing service owned by the authenticated designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, $locale, $id)
     {
         $service = Service::findOrFail($id);
@@ -179,6 +210,13 @@ class ServiceController extends Controller
         ]);
     }
 
+    /**
+     * Delete a service owned by the authenticated designer.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($locale, $id)
     {
         $service = Service::findOrFail($id);

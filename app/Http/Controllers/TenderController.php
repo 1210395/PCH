@@ -5,8 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Tender;
 use Illuminate\Http\Request;
 
+/**
+ * Displays admin-managed tender listings and detail pages.
+ * Tenders do not require designer approval; they are managed directly through the admin panel.
+ */
 class TenderController extends Controller
 {
+    /**
+     * Show the paginated tender listing with status/publisher-type filters, search, and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         // Validate and sanitize input
@@ -58,6 +68,13 @@ class TenderController extends Controller
         return view('tenders', compact('tenders', 'openTenders', 'closingSoon'));
     }
 
+    /**
+     * Show a single tender detail page; returns JSON for AJAX requests.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         // Validate ID parameter

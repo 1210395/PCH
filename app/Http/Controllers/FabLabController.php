@@ -5,8 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\FabLab;
 use Illuminate\Http\Request;
 
+/**
+ * Displays the directory of Fab Labs across Palestine.
+ * Supports filtering by city and type, full-text search, and sorting by rating, members, or name.
+ */
 class FabLabController extends Controller
 {
+    /**
+     * Show the paginated Fab Lab listing with filters applied.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         // Validate and sanitize input
@@ -57,6 +67,13 @@ class FabLabController extends Controller
         return view('fab-labs', compact('fabLabs', 'cities'));
     }
 
+    /**
+     * Show a single Fab Lab detail page; returns JSON for AJAX requests.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+     */
     public function show($locale, $id)
     {
         // Validate ID parameter

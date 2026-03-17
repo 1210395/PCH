@@ -21,6 +21,13 @@ use App\Services\CacheService;
  */
 class DesignerController extends Controller
 {
+    /**
+     * Display a designer's public portfolio page.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\View\View
+     */
     public function show($locale, $id)
     {
         // Allow designers to view their own portfolio via the public route
@@ -147,6 +154,13 @@ class DesignerController extends Controller
     ));
 }
 
+    /**
+     * Display the public designers listing with filtering and sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request, $locale)
     {
         $query = Designer::query()
@@ -235,7 +249,11 @@ class DesignerController extends Controller
     }
 
     /**
-     * Track profile view
+     * Increment the view count for a designer profile via AJAX (skips self-views).
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function trackView($locale, $id)
     {

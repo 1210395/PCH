@@ -9,10 +9,19 @@ use App\Models\Designer;
 use App\Models\AdminSetting;
 use Illuminate\Http\Request;
 
+/**
+ * Handles profile ratings (star rating + comment + optional criteria tags) between designers.
+ * Ratings may require admin approval depending on the auto-accept setting; guest profiles cannot be rated.
+ */
 class ProfileRatingController extends Controller
 {
     /**
-     * Store a new rating
+     * Submit a new rating with comment and optional criteria tags for a designer's profile.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $locale, $designerId)
     {
@@ -100,7 +109,11 @@ class ProfileRatingController extends Controller
     }
 
     /**
-     * Get ratings for a designer profile (public endpoint)
+     * Return approved ratings, aggregate stats, and whether the current user has already rated.
+     *
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index($locale, $designerId)
     {
@@ -138,7 +151,11 @@ class ProfileRatingController extends Controller
     }
 
     /**
-     * Get user's rating for a specific designer
+     * Return the current user's own rating for a designer, including criteria selections.
+     *
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($locale, $designerId)
     {
@@ -178,7 +195,12 @@ class ProfileRatingController extends Controller
     }
 
     /**
-     * Update user's rating for a specific designer
+     * Update the current user's existing rating and replace criteria responses.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale, $designerId)
     {
@@ -250,7 +272,11 @@ class ProfileRatingController extends Controller
     }
 
     /**
-     * Delete user's rating for a specific designer
+     * Delete the current user's rating for a specific designer.
+     *
+     * @param  string  $locale
+     * @param  int     $designerId
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($locale, $designerId)
     {

@@ -6,6 +6,10 @@ use App\Models\MarketplaceComment;
 use App\Models\MarketplacePost;
 use Illuminate\Http\Request;
 
+/**
+ * Manages threaded comments on approved marketplace posts.
+ * Supports top-level comments, single-level replies, edit, and delete (by comment owner or post owner).
+ */
 class MarketplaceCommentController extends Controller
 {
     /**

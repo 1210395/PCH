@@ -9,11 +9,19 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Handles temporary and permanent file storage for the registration wizard.
+ * Images and PDFs are first uploaded to a session-scoped temp folder; after successful registration
+ * moveToPermStorage() renames and relocates each file to its final structured path under storage/app/public.
+ */
 class ImageUploadController extends Controller
 {
     /**
      * Upload image during registration wizard
      * ULTIMATE SOLUTION with comprehensive error handling
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function uploadRegistrationImage(Request $request)
     {
@@ -396,7 +404,16 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Move images from temp to permanent storage after successful registration
+     * Move images from temp to permanent storage after successful registration.
+     * Generates a structured filename (e.g., product_123_1.jpg) and moves the file
+     * from its session-scoped temp folder to the appropriate permanent folder.
+     *
+     * @param  string       $tempPath    Relative path inside storage/app/public (e.g. uploads/temp/profiles/…/uuid.jpg)
+     * @param  string       $type        Asset type: profile, cover, product, project, service, certification, etc.
+     * @param  int          $userId      ID of the owning Designer
+     * @param  int|null     $entityId    ID of the specific entity (product, project, service) for naming; null falls back to filename
+     * @param  int|null     $imageNumber Sequential image index for multi-image entities
+     * @return string                    Final permanent path relative to storage/app/public, or empty string on failure
      */
     public function moveToPermStorage($tempPath, $type, $userId, $entityId = null, $imageNumber = null)
     {
@@ -682,7 +699,11 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Upload PDF during registration wizard (for certifications)
+     * Upload PDF during registration wizard (for certifications).
+     * Validates magic bytes to confirm a real PDF before storing in a session-scoped temp folder.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function uploadRegistrationPdf(Request $request)
     {
@@ -804,6 +825,9 @@ class ImageUploadController extends Controller
     /**
      * Get thumbnail path for an image.
      * Returns thumbnail if exists, otherwise returns original.
+     *
+     * @param  string  $imagePath  Path relative to the public storage disk
+     * @return string
      */
     public static function getThumbnailPath($imagePath)
     {
@@ -822,7 +846,10 @@ class ImageUploadController extends Controller
     }
 
     /**
-     * Cleanup orphaned uploads (called from scheduled task)
+     * Cleanup orphaned uploads (called from scheduled task).
+     * Deletes any temp files older than 24 hours to reclaim storage.
+     *
+     * @return array{deleted: int, errors: string[]}
      */
     public function cleanupOrphanedUploads(): array
     {

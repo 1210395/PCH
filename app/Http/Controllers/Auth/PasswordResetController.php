@@ -10,10 +10,16 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 
+/**
+ * Handles the forgot-password and password-reset flows for designer accounts.
+ * Uses Laravel's built-in "designers" password broker to send signed reset links and validate reset tokens.
+ */
 class PasswordResetController extends Controller
 {
     /**
      * Show the forgot password form.
+     *
+     * @return \Illuminate\View\View
      */
     public function showForgotForm()
     {
@@ -22,6 +28,9 @@ class PasswordResetController extends Controller
 
     /**
      * Send password reset link email.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function sendResetLink(Request $request)
     {
@@ -53,6 +62,11 @@ class PasswordResetController extends Controller
 
     /**
      * Show the password reset form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  string  $token
+     * @return \Illuminate\View\View
      */
     public function showResetForm(Request $request, $locale, $token)
     {
@@ -64,6 +78,9 @@ class PasswordResetController extends Controller
 
     /**
      * Handle the password reset.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function reset(Request $request)
     {

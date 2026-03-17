@@ -10,6 +10,11 @@ use App\Helpers\DropdownHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * Manages notification subscriptions for both designers and academic accounts.
+ * Supports two subscription types: profile subscriptions (follow a specific creator) and
+ * category subscriptions (receive notifications when new content matches selected filters).
+ */
 class SubscriptionController extends Controller
 {
     // ==========================================

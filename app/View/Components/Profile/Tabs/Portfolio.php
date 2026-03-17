@@ -5,6 +5,12 @@ namespace App\View\Components\Profile\Tabs;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+/**
+ * Renders a single portfolio item tab panel (projects, products, or services) on the profile edit page.
+ *
+ * Dynamically derives Alpine.js function names from the $type property so the same
+ * component handles all three item types without duplication.
+ */
 class Portfolio extends Component
 {
     public $type;
@@ -29,7 +35,9 @@ class Portfolio extends Component
     }
 
     /**
-     * Get the modal function name based on type.
+     * Get the Alpine.js function name used to open the add modal for this item type.
+     *
+     * @return string  e.g. 'openProjectModal'
      */
     public function modalFunction(): string
     {
@@ -37,7 +45,9 @@ class Portfolio extends Component
     }
 
     /**
-     * Get the edit function name based on type.
+     * Get the Alpine.js function name used to open the edit modal for an existing item.
+     *
+     * @return string  e.g. 'editProject'
      */
     public function editFunction(): string
     {
@@ -45,7 +55,9 @@ class Portfolio extends Component
     }
 
     /**
-     * Get the delete function name based on type.
+     * Get the Alpine.js function name used to delete an item.
+     *
+     * @return string  e.g. 'deleteProject'
      */
     public function deleteFunction(): string
     {
@@ -53,7 +65,9 @@ class Portfolio extends Component
     }
 
     /**
-     * Get the items array name based on type.
+     * Get the Alpine.js reactive array name that holds this type's items.
+     *
+     * @return string  e.g. 'projects', 'products', or 'services'
      */
     public function itemsArrayName(): string
     {

@@ -11,6 +11,13 @@ use App\Models\ProductImage;
 use App\Models\ProjectImage;
 use App\Models\Service;
 
+/**
+ * Artisan command that removes permanently stored images not referenced in the database.
+ *
+ * Scans the profiles/, products/, projects/, and services/ directories on the public disk
+ * and deletes any file whose path does not appear in the corresponding database table.
+ * Supports a --dry-run flag to preview deletions without making changes.
+ */
 class CleanupOrphanedImages extends Command
 {
     /**
@@ -29,6 +36,11 @@ class CleanupOrphanedImages extends Command
 
     /**
      * Execute the console command.
+     *
+     * Iterates through all four image categories, tallies deleted file counts
+     * and total freed bytes, then prints a summary. Returns Command::SUCCESS.
+     *
+     * @return int
      */
     public function handle()
     {
@@ -86,7 +98,10 @@ class CleanupOrphanedImages extends Command
     }
 
     /**
-     * Cleanup orphaned profile images
+     * Cleanup orphaned profile images from the profiles/ storage directory.
+     *
+     * @param  bool  $dryRun  When true, only reports files without deleting them
+     * @return array{count: int, size: int}
      */
     private function cleanupProfileImages($dryRun)
     {
@@ -130,7 +145,10 @@ class CleanupOrphanedImages extends Command
     }
 
     /**
-     * Cleanup orphaned product images
+     * Cleanup orphaned product images from the products/ storage directory.
+     *
+     * @param  bool  $dryRun  When true, only reports files without deleting them
+     * @return array{count: int, size: int}
      */
     private function cleanupProductImages($dryRun)
     {
@@ -171,7 +189,10 @@ class CleanupOrphanedImages extends Command
     }
 
     /**
-     * Cleanup orphaned project images
+     * Cleanup orphaned project images from the projects/ storage directory.
+     *
+     * @param  bool  $dryRun  When true, only reports files without deleting them
+     * @return array{count: int, size: int}
      */
     private function cleanupProjectImages($dryRun)
     {
@@ -212,7 +233,10 @@ class CleanupOrphanedImages extends Command
     }
 
     /**
-     * Cleanup orphaned service images
+     * Cleanup orphaned service images from the services/ storage directory.
+     *
+     * @param  bool  $dryRun  When true, only reports files without deleting them
+     * @return array{count: int, size: int}
      */
     private function cleanupServiceImages($dryRun)
     {

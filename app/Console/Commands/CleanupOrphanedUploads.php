@@ -5,6 +5,13 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Http\Controllers\Auth\ImageUploadController;
 
+/**
+ * Artisan command that removes stale temporary upload sessions older than 12 hours.
+ *
+ * Delegates to ImageUploadController::cleanupOrphanedUploads() which scans the
+ * temporary upload directory and removes session folders that have expired.
+ * Intended to be run on a scheduled basis (e.g., nightly via the scheduler).
+ */
 class CleanupOrphanedUploads extends Command
 {
     /**
@@ -23,6 +30,11 @@ class CleanupOrphanedUploads extends Command
 
     /**
      * Execute the console command.
+     *
+     * Calls the static cleanup helper and reports how many orphaned upload
+     * sessions were removed. Returns Command::SUCCESS in all cases.
+     *
+     * @return int
      */
     public function handle()
     {

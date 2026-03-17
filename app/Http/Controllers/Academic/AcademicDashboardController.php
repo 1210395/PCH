@@ -7,10 +7,19 @@ use App\Models\AcademicWorkshop;
 use App\Models\AcademicAnnouncement;
 use Illuminate\Http\Request;
 
+/**
+ * Renders the academic institution's main dashboard.
+ * Aggregates pending/approved/rejected/active/expired counts and recent items for
+ * trainings, workshops, and announcements owned by the authenticated account.
+ */
 class AcademicDashboardController extends AcademicBaseController
 {
     /**
-     * Display the academic dashboard.
+     * Display the academic dashboard with content counts, recent items, and upcoming events.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\View\View
      */
     public function index(Request $request, $locale)
     {

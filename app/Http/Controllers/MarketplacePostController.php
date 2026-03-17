@@ -10,10 +10,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Handles CRUD operations for marketplace posts created by authenticated designers.
+ * Supports trusted-user auto-approval, temp-to-permanent image migration, and share-to-user notifications.
+ */
 class MarketplacePostController extends Controller
 {
     /**
-     * Store a newly created marketplace post
+     * Store a newly created marketplace post.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -124,7 +131,12 @@ class MarketplacePostController extends Controller
     }
 
     /**
-     * Update the specified marketplace post
+     * Update the specified marketplace post (resets approval status to pending unless trusted).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $locale, $id)
     {
@@ -234,7 +246,11 @@ class MarketplacePostController extends Controller
     }
 
     /**
-     * Remove the specified marketplace post
+     * Remove the specified marketplace post and its associated image file.
+     *
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($locale, $id)
     {
@@ -284,7 +300,11 @@ class MarketplacePostController extends Controller
     }
 
     /**
-     * Get data from a product or project to pre-fill marketplace post form
+     * Get data from a product or project to pre-fill the marketplace post creation form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getSourceData(Request $request, $locale)
     {
@@ -370,7 +390,12 @@ class MarketplacePostController extends Controller
     }
 
     /**
-     * Share a marketplace post with platform users (sends notifications)
+     * Send in-platform share notifications to a list of user IDs (max 10).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function shareToUsers(Request $request, $locale, $id)
     {

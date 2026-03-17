@@ -18,7 +18,12 @@ use App\Http\Controllers\NotificationController;
 class DesignerFollowController extends Controller
 {
     /**
-     * Follow a designer
+     * Follow a designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id  Designer ID to follow
+     * @return \Illuminate\Http\JsonResponse
      */
     public function follow(Request $request, $locale, $id)
     {
@@ -89,7 +94,12 @@ class DesignerFollowController extends Controller
     }
 
     /**
-     * Unfollow a designer
+     * Unfollow a designer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @param  int     $id  Designer ID to unfollow
+     * @return \Illuminate\Http\JsonResponse
      */
     public function unfollow(Request $request, $locale, $id)
     {
@@ -141,7 +151,11 @@ class DesignerFollowController extends Controller
     }
 
     /**
-     * Check if current user is following a designer
+     * Check if current user is following a designer.
+     *
+     * @param  string  $locale
+     * @param  int     $id  Designer ID to check
+     * @return \Illuminate\Http\JsonResponse
      */
     public function checkFollowing($locale, $id)
     {
@@ -177,7 +191,11 @@ class DesignerFollowController extends Controller
     }
 
     /**
-     * Toggle like on a designer profile
+     * Toggle like on a designer profile.
+     *
+     * @param  string  $locale
+     * @param  int     $id  Designer ID to like/unlike
+     * @return \Illuminate\Http\JsonResponse
      */
     public function toggleLike($locale, $id)
     {
@@ -231,7 +249,11 @@ class DesignerFollowController extends Controller
     }
 
     /**
-     * Search users by name, sector, or city (for sharing marketplace posts)
+     * Search users by name, sector, or city (for sharing marketplace posts).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\JsonResponse
      */
     public function searchUsers(Request $request, $locale)
     {
@@ -277,7 +299,12 @@ class DesignerFollowController extends Controller
     }
 
     /**
-     * Get suggested users for sharing (followers, same sector/city, recently interacted)
+     * Get suggested users for sharing (followers, same sector/city, recently interacted).
+     * Prioritises: followers of the current user, users the current user follows, same sector, same city.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $locale
+     * @return \Illuminate\Http\JsonResponse
      */
     public function suggestedUsers(Request $request, $locale)
     {

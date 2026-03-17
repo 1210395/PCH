@@ -6,10 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Designer;
 use Illuminate\Http\Request;
 
+/**
+ * Provides live-validation endpoints used by the registration wizard front-end.
+ * Checks uniqueness constraints without exposing sensitive data.
+ */
 class ValidationController extends Controller
 {
     /**
-     * Check if email is already taken
+     * Check if email is already taken.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function checkEmail(Request $request)
     {
