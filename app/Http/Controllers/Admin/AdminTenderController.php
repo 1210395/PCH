@@ -5,6 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Tender;
 use Illuminate\Http\Request;
 
+/**
+ * Admin full CRUD management for tender / opportunity entries.
+ *
+ * Tenders can be created manually by admins or ingested via the Jobs.ps webhook.
+ * Supports listing, create, read, update, delete, toggle visibility, and bulk actions.
+ */
 class AdminTenderController extends AdminBaseController
 {
     /**

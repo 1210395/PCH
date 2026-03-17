@@ -5,6 +5,13 @@ namespace App\Services;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Manages Gmail API OAuth2 access tokens for sending transactional email.
+ *
+ * Exchanges a stored refresh token (from config services.google.refresh_token)
+ * for a short-lived access token, caching it until expiry to avoid repeated
+ * token refresh requests. Used alongside PHPMailer or Laravel Mail.
+ */
 class GmailOAuthService
 {
     private string $clientId;

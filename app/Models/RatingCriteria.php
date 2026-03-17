@@ -4,6 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * An admin-configurable dimension used when rating a designer's profile.
+ *
+ * Examples: professionalism, communication, quality, timeliness.
+ * Stores bilingual labels (en_label, ar_label), an active flag, and
+ * a sort order for display. Individual responses are stored in RatingCriteriaResponse.
+ */
 class RatingCriteria extends Model
 {
     protected $table = 'rating_criteria';

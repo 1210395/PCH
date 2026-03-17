@@ -10,6 +10,15 @@ use App\Models\MarketplacePost;
 use App\Models\Traits\HasSubscriptions;
 use App\Models\ConversationRating;
 
+/**
+ * The primary user model for creative professionals on the platform.
+ *
+ * Represents designers, manufacturers, and showrooms. Implements
+ * MustVerifyEmail and uses the HasSubscriptions trait. The `is_admin`
+ * flag grants access to the admin panel. The `sector` field distinguishes
+ * user types (designer, manufacturer, showroom, supplier). Auto-sets
+ * `is_active` on creation based on the admin auto-accept setting.
+ */
 class Designer extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasSubscriptions;

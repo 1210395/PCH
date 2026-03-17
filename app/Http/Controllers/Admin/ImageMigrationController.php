@@ -11,6 +11,13 @@ use App\Models\ProductImage;
 use App\Models\ProjectImage;
 use App\Models\Service;
 
+/**
+ * One-off utility controller for migrating image file paths between storage layouts.
+ *
+ * Used after changing the storage directory structure to update paths stored in
+ * the database (designer avatars, product images, project images, service images)
+ * so they point to the new locations. Protected by auth:designer + admin middleware.
+ */
 class ImageMigrationController extends Controller
 {
     /**

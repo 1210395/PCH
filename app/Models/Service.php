@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\HasApprovalStatus;
 
+/**
+ * Service listing submitted by a designer.
+ *
+ * Text-only (no images). Supports approval workflow via HasApprovalStatus.
+ * Cache is invalidated on save/delete via CacheService.
+ */
 class Service extends Model
 {
     use HasFactory, HasApprovalStatus;

@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\HasApprovalStatus;
 
+/**
+ * Community marketplace post submitted by a designer.
+ *
+ * Supports four post types: service, collaboration, showcase, and opportunity.
+ * Uses HasApprovalStatus for moderation, stores tags as a JSON array,
+ * and supports likes and comments.
+ */
 class MarketplacePost extends Model
 {
     use HasFactory, HasApprovalStatus;

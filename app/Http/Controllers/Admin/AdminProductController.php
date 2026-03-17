@@ -6,6 +6,13 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Admin management for product catalogue entries.
+ *
+ * Provides list, detail, edit, image delete, approve, reject, destroy,
+ * and bulk-action endpoints for the products submitted by designers.
+ * Uses the HasApprovalStatus workflow via AdminBaseController helpers.
+ */
 class AdminProductController extends AdminBaseController
 {
     /**

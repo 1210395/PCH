@@ -13,6 +13,14 @@ use App\Models\Training;
 use App\Models\Tender;
 use App\Models\Notification;
 
+/**
+ * Centralised cache management for the Palestine Creative Hub.
+ *
+ * All methods are static so they can be called from model event hooks,
+ * controllers, and middleware without dependency injection. Each method wraps
+ * an expensive query set in a Cache::remember() call using one of the TTL
+ * constants defined below.
+ */
 class CacheService
 {
     // Cache TTL constants (in seconds)

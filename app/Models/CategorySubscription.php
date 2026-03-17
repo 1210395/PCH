@@ -4,6 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A user's subscription to a content type/category combination.
+ *
+ * Stores filter preferences as JSON arrays (categories, tags, types, levels)
+ * so notifications can be sent for only the content slices the subscriber
+ * is interested in. The `getMatchingSubscriptions()` scope finds all
+ * subscriptions that match a given piece of content.
+ */
 class CategorySubscription extends Model
 {
     protected $fillable = [

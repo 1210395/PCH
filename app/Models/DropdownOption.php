@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * CMS-managed dropdown option for any select/radio field on the platform.
+ *
+ * Each option has a `type` slug (e.g., sector, city, skill_category),
+ * a `value` (machine key), bilingual `name` / `name_ar` labels, a sort
+ * order, an active flag, and an optional parent_id for hierarchical options.
+ * Values are cached to reduce database reads on every page load.
+ */
 class DropdownOption extends Model
 {
     use HasFactory;

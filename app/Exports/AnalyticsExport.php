@@ -4,13 +4,30 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
+/**
+ * Multi-sheet Excel export for admin analytics.
+ *
+ * Produces an .xlsx file with five sheets: Overview (KPIs + filter context),
+ * Designer Growth, Content Trends, Approval Workflow, and Ratings Trend.
+ * Each sheet is an anonymous class implementing the appropriate Maatwebsite
+ * Excel concerns to keep the export self-contained.
+ */
 class AnalyticsExport implements WithMultipleSheets
 {
+    /**
+     * @param  array<string, mixed>  $data     Analytics data array from AdminAnalyticsController::computeAnalytics()
+     * @param  array<string, mixed>  $filters  Active filters (preset, dateFrom, dateTo, sector, city)
+     */
     public function __construct(
         private array $data,
         private array $filters
     ) {}
 
+    /**
+     * Return the ordered list of sheet objects for the workbook.
+     *
+     * @return array<int, \Maatwebsite\Excel\Concerns\FromArray>
+     */
     public function sheets(): array
     {
         $data    = $this->data;

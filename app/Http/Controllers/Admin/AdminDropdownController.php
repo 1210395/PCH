@@ -5,6 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Models\DropdownOption;
 use Illuminate\Http\Request;
 
+/**
+ * Admin CRUD management for site-wide dropdown options.
+ *
+ * Manages all dropdown option types (sectors, cities, skills, categories, etc.)
+ * stored in the dropdown_options table. Supports create, update, delete,
+ * toggle active, drag-to-reorder, and alphabetical sorting.
+ * Options include Arabic translations (name_ar).
+ */
 class AdminDropdownController extends AdminBaseController
 {
     /**

@@ -6,6 +6,12 @@ use App\Models\MarketplacePost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Admin management for marketplace post listings.
+ *
+ * Provides list, detail, edit, approve, reject, destroy, and bulk-action
+ * endpoints for the community posts submitted by designers.
+ */
 class AdminMarketplaceController extends AdminBaseController
 {
     /**

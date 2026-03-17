@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Records a like from a designer on a Project.
+ *
+ * Stores the designer ID and the project ID. Used to display like counts
+ * and to toggle the liked state on project cards.
+ */
 class ProjectLike extends Model
 {
     use HasFactory;

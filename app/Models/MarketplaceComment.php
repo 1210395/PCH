@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A comment posted by a designer on a MarketplacePost.
+ *
+ * Stores the commenter's designer ID, the post ID, the comment body,
+ * and an optional parent_id for threaded replies.
+ */
 class MarketplaceComment extends Model
 {
     use HasFactory;

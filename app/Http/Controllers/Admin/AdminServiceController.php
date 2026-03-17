@@ -5,6 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
+/**
+ * Admin management for service listings.
+ *
+ * Provides list, detail, edit, approve, reject, destroy, and bulk-action
+ * endpoints for the services submitted by designers. Services are text-only
+ * and do not have associated images.
+ */
 class AdminServiceController extends AdminBaseController
 {
     /**

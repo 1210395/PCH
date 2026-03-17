@@ -7,6 +7,12 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Workshop event submitted by an academic institution.
+ *
+ * Requires admin approval via HasApprovalStatus before becoming publicly
+ * visible. Displayed on the public trainings listing page.
+ */
 class AcademicWorkshop extends Model
 {
     use HasFactory, HasApprovalStatus;

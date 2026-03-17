@@ -5,6 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 
+/**
+ * Admin settings for public-facing layout text sections.
+ *
+ * Manages footer, header, and subheader text (bilingual) stored in SiteSetting.
+ * Provides update and reset-to-defaults endpoints for each section.
+ */
 class AdminLayoutSettingsController extends AdminBaseController
 {
     /**

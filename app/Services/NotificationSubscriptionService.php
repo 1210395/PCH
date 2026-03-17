@@ -10,6 +10,14 @@ use App\Models\Designer;
 use App\Models\AcademicAccount;
 use App\Http\Controllers\NotificationController;
 
+/**
+ * Dispatches in-app notifications to profile and category subscribers
+ * when content is approved on the Palestine Creative Hub.
+ *
+ * All methods are static. Notifications are bulk-inserted in chunks of 100
+ * to stay within MySQL packet size limits. Supports both designer and
+ * academic account recipients via separate Notification models.
+ */
 class NotificationSubscriptionService
 {
     /**
@@ -174,10 +182,14 @@ class NotificationSubscriptionService
     }
 
     /**
-     * Notify all subscribers when new content is approved
-     * Accepts a model instance and extracts the necessary information
+     * Convenience wrapper: notifies both profile and category subscribers
+     * when a content item is approved.
      *
-     * @param mixed $content The content model (Product, Project, Service, MarketplacePost)
+     * Accepts any approvable model instance and extracts the creator type,
+     * creator ID, content type, category, tags, and level automatically.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $content  Product, Project, Service, MarketplacePost, AcademicTraining, AcademicWorkshop, or AcademicAnnouncement
+     * @return void
      */
     public static function notifyOnContentApproved($content): void
     {

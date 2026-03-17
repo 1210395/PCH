@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Key/value store for public-facing site configuration.
+ *
+ * Stores hero image paths, hero text, counter labels, footer/header/subheader
+ * text, and CMS page content. Values are keyed by a dot-notation string
+ * (e.g., "hero.image", "footer.en.text") and stored as text.
+ */
 class SiteSetting extends Model
 {
     use HasFactory;

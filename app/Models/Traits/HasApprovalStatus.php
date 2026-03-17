@@ -8,6 +8,16 @@ use App\Models\AcademicNotification;
 use App\Models\AdminSetting;
 use App\Services\NotificationSubscriptionService;
 
+/**
+ * Provides approval workflow functionality for content models.
+ *
+ * Applied to Product, Project, Service, MarketplacePost, ProfileRating,
+ * AcademicTraining, AcademicWorkshop, and AcademicAnnouncement.
+ *
+ * Manages the `approval_status` column (pending|approved|rejected),
+ * exposes query scopes, state-transition methods (approve/reject/reset),
+ * and sends notifications to content owners on rejection.
+ */
 trait HasApprovalStatus
 {
     /**
@@ -122,7 +132,10 @@ trait HasApprovalStatus
     }
 
     /**
-     * Approve the item
+     * Approve the item, record the approving admin, and notify subscribers.
+     *
+     * @param  int  $adminId  ID of the admin performing the action
+     * @return void
      */
     public function approve($adminId): void
     {
@@ -154,7 +167,11 @@ trait HasApprovalStatus
     }
 
     /**
-     * Reject the item with optional reason
+     * Reject the item, record the admin and reason, and notify the content owner.
+     *
+     * @param  int         $adminId  ID of the admin performing the action
+     * @param  string|null $reason   Optional human-readable rejection reason
+     * @return void
      */
     public function reject($adminId, $reason = null): void
     {
@@ -239,7 +256,9 @@ trait HasApprovalStatus
     }
 
     /**
-     * Get the admin who approved/rejected this item
+     * Relationship: the admin designer who approved or rejected this item.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function approvedByAdmin()
     {

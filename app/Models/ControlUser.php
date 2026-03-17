@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Authenticatable model for legacy CMS administrators.
+ *
+ * Uses the `users` table (legacy naming) and session-based permission flags
+ * (u_p1 through u_p20) to control access to CMS modules. Separate auth
+ * guard from the designer and academic guards.
+ */
 class ControlUser extends Authenticatable
 {
     use Notifiable;

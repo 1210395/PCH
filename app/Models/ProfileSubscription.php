@@ -4,6 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Records a subscription from one user to another user's profile.
+ *
+ * Polymorphic on both sides: subscriber can be a Designer or AcademicAccount;
+ * subscribable can also be a Designer or AcademicAccount. Subscribers receive
+ * in-app notifications when the subscribed profile publishes new approved content.
+ */
 class ProfileSubscription extends Model
 {
     protected $fillable = [

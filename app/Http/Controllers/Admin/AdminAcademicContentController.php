@@ -7,6 +7,12 @@ use App\Models\AcademicWorkshop;
 use App\Models\AcademicAnnouncement;
 use Illuminate\Http\Request;
 
+/**
+ * Admin moderation of academic content submitted by academic institutions.
+ *
+ * Handles approve/reject/delete for academic trainings, workshops,
+ * and announcements, plus a bulk-action endpoint shared across all types.
+ */
 class AdminAcademicContentController extends AdminBaseController
 {
     // ==========================================

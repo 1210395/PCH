@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\HasApprovalStatus;
 
+/**
+ * Portfolio project entry submitted by a designer.
+ *
+ * Supports multi-image upload via ProjectImage, likes (ProjectLike),
+ * view tracking (ProjectView), inline commenting (ProjectComment),
+ * and approval workflow via HasApprovalStatus.
+ */
 class Project extends Model
 {
     use HasFactory, HasApprovalStatus;

@@ -7,6 +7,12 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Announcement published by an academic institution.
+ *
+ * Requires admin approval via HasApprovalStatus before becoming publicly
+ * visible. Displayed in the academic portal and on the trainings listing page.
+ */
 class AcademicAnnouncement extends Model
 {
     use HasFactory, HasApprovalStatus;

@@ -8,6 +8,12 @@ use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Admin full CRUD management for fabrication laboratory (FabLab) entries.
+ *
+ * FabLabs are admin-managed and do not go through an approval workflow.
+ * Supports listing with filters, create, read, update, delete, and bulk actions.
+ */
 class AdminFabLabController extends AdminBaseController
 {
     /**

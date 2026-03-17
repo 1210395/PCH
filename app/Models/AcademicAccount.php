@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Authenticatable model for academic and TVET institution accounts.
+ *
+ * Separate auth guard from Designer. Types: university, college, tvet,
+ * training_center. Can submit trainings, workshops, and announcements
+ * which require admin approval before going live. Uses HasSubscriptions
+ * for profile and category notification subscriptions.
+ */
 class AcademicAccount extends Authenticatable
 {
     use HasFactory, Notifiable, HasSubscriptions;

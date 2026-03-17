@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Key/value store for admin-configurable feature flags and settings.
+ *
+ * Used primarily for auto-accept toggles (per content type: products, projects,
+ * services, marketplace, designers) and registration policy text.
+ * Values are cached to avoid repeated database lookups.
+ */
 class AdminSetting extends Model
 {
     protected $fillable = [

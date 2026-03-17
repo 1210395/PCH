@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Generic like pivot used for products and marketplace posts.
+ *
+ * Stores the designer ID (liker), the likeable model type (product or
+ * marketplace_post), and the likeable ID.
+ */
 class Like extends Model
 {
     use HasFactory;

@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * In-app notification for a designer.
+ *
+ * Stores type, title, message, a JSON data payload, and a read flag.
+ * On save/delete the per-designer unread count cache is invalidated
+ * so the navbar badge stays accurate.
+ */
 class Notification extends Model
 {
     use HasFactory;

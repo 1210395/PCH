@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * An individual message within a Conversation thread.
+ *
+ * Stores the sender ID, message body, and a read flag.
+ * Belongs to a Conversation and a sender Designer.
+ */
 class Message extends Model
 {
     use HasFactory;

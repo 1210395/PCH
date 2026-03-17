@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * A rating given by one participant after a conversation closes.
+ *
+ * Stores the rater ID, the rated designer ID, a star score, and an optional
+ * comment. Cache for the rated designer's rating stats is invalidated on save.
+ */
 class ConversationRating extends Model
 {
     use HasFactory;

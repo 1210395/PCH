@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * Admin CRUD management for academic institution accounts.
+ *
+ * Handles listing, create, read, update, delete, toggle active status,
+ * and password reset for AcademicAccount records (universities, colleges,
+ * TVET centres, and training centres).
+ */
 class AdminAcademicAccountController extends AdminBaseController
 {
     /**

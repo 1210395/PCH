@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * Admin management for designer accounts.
+ *
+ * Provides listing with search/filters, detail view, edit, toggle active/trusted/admin
+ * flags, reset password, delete, and bulk actions for designer records.
+ */
 class AdminDesignerController extends AdminBaseController
 {
     /**

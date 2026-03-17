@@ -7,6 +7,13 @@ use App\Models\AdminSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Admin site-wide settings management.
+ *
+ * Handles hero image uploads and removal, hero text editing,
+ * auto-accept toggles per content type, and registration policy text.
+ * Settings are persisted in the SiteSetting and AdminSetting key/value stores.
+ */
 class AdminSettingsController extends AdminBaseController
 {
     /**

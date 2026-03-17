@@ -6,6 +6,13 @@ use App\Models\SiteSetting;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
 
+/**
+ * Admin settings for the homepage statistics counter widget.
+ *
+ * Controls which counters appear on the homepage discover section,
+ * their labels (bilingual), order, and whether they are visible.
+ * Values are persisted in SiteSetting and cached via CacheService.
+ */
 class AdminCounterSettingsController extends AdminBaseController
 {
     /**

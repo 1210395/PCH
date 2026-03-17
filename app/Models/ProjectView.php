@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Records a single view event on a Project for analytics.
+ *
+ * Stores the viewer's IP or designer ID and the project ID.
+ * Duplicate views within a session window are typically deduplicated
+ * at the controller level.
+ */
 class ProjectView extends Model
 {
     use HasFactory;

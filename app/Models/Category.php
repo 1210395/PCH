@@ -4,6 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Hierarchical content category used for projects and products.
+ *
+ * Uses `c_id` as the primary key (legacy naming convention).
+ * Stores bilingual name (en/ar) and an optional parent category ID.
+ */
 class Category extends Model
 {
     protected $table = 'categories';

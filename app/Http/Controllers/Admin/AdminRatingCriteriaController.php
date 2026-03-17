@@ -5,6 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Models\RatingCriteria;
 use Illuminate\Http\Request;
 
+/**
+ * Admin CRUD for rating criteria dimensions.
+ *
+ * Manages the configurable criteria used in designer profile ratings
+ * (e.g., professionalism, communication quality, delivery timeliness).
+ * Supports create, update, delete, toggle active, and drag-to-reorder.
+ */
 class AdminRatingCriteriaController extends AdminBaseController
 {
     /**

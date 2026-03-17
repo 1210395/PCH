@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Admin-managed training entry (distinct from AcademicTraining).
+ *
+ * Created and maintained directly by admins; does not require an approval
+ * workflow. Displayed on the public trainings listing page alongside
+ * approved academic trainings and workshops.
+ */
 class Training extends Model
 {
     use HasFactory;

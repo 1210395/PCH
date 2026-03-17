@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Fabrication laboratory (FabLab) directory entry.
+ *
+ * Admin-managed; does not go through an approval workflow.
+ * Stores bilingual name/description, contact details, city, type,
+ * services offered, and an optional logo image.
+ */
 class FabLab extends Model
 {
     use HasFactory;

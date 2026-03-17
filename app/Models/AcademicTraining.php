@@ -7,6 +7,13 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Training programme submitted by an academic institution.
+ *
+ * Requires admin approval via HasApprovalStatus before becoming publicly
+ * visible. Displayed on the public trainings listing page alongside
+ * admin-managed trainings and AcademicWorkshops.
+ */
 class AcademicTraining extends Model
 {
     use HasFactory, HasApprovalStatus;

@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * A star rating submitted by one designer for another designer's profile.
+ *
+ * Requires admin approval before becoming publicly visible. Stores the
+ * overall star rating plus individual RatingCriteriaResponse scores.
+ * A unique index on (rater_id, designer_id) prevents duplicate ratings.
+ */
 class ProfileRating extends Model
 {
     use HasFactory;

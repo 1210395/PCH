@@ -6,6 +6,13 @@ use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Admin editor for CMS static pages (About, Terms, Privacy, etc.).
+ *
+ * Each page is stored as a set of key/value entries in SiteSetting.
+ * Supports editing text sections, uploading/removing images, and
+ * resetting a page to its default content.
+ */
 class AdminPageController extends AdminBaseController
 {
     /**

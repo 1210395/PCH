@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A request from one designer to start a conversation with another.
+ *
+ * Must be accepted by the recipient before a Conversation is created
+ * and messages can be exchanged. Stores sender ID, recipient ID,
+ * an optional message, and a status (pending|accepted|declined).
+ */
 class MessageRequest extends Model
 {
     use HasFactory;

@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\DropdownHelper;
 
+/**
+ * Admin full CRUD management for training entries.
+ *
+ * These are admin-managed trainings (not academic submissions) and do not
+ * go through an approval workflow. Supports listing, create, read, update,
+ * delete, and bulk actions.
+ */
 class AdminTrainingController extends AdminBaseController
 {
     /**

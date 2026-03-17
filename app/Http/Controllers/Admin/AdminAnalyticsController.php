@@ -14,10 +14,25 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AnalyticsExport;
 
+/**
+ * Provides advanced platform analytics for admin users.
+ *
+ * Computes designer growth, content trends, approval workflow stats,
+ * geographic distribution, ratings trends, and top contributors.
+ * Results are cached under a versioned key and can be exported to Excel.
+ */
 class AdminAnalyticsController extends AdminBaseController
 {
     /**
-     * Main analytics page
+     * Display the analytics dashboard with optional date, sector, and city filters.
+     *
+     * Preset shortcuts (7d, 30d, 90d, 1y, all) are converted to concrete date
+     * ranges. Results are cached for 5 minutes under a version-stamped key so
+     * that refreshing the cache invalidates all filter combinations at once.
+     *
+     * @param  Request  $request
+     * @param  string   $locale  Active locale (en|ar)
+     * @return \Illuminate\View\View
      */
     public function index(Request $request, $locale)
     {
@@ -62,7 +77,14 @@ class AdminAnalyticsController extends AdminBaseController
     }
 
     /**
-     * Export analytics as Excel
+     * Export the current analytics dataset as a multi-sheet Excel file.
+     *
+     * Applies the same filter logic as `index()` but skips the cache and
+     * streams the file directly using `AnalyticsExport`.
+     *
+     * @param  Request  $request
+     * @param  string   $locale
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function export(Request $request, $locale)
     {
@@ -84,7 +106,13 @@ class AdminAnalyticsController extends AdminBaseController
     }
 
     /**
-     * Refresh cache by incrementing the version key
+     * Invalidate all analytics caches by incrementing the global version counter.
+     *
+     * Redirects back to the analytics index with the current filters preserved.
+     *
+     * @param  Request  $request
+     * @param  string   $locale
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function refresh(Request $request, $locale)
     {
@@ -99,6 +127,16 @@ class AdminAnalyticsController extends AdminBaseController
     // Private helpers
     // -------------------------------------------------------------------------
 
+    /**
+     * Run all analytics queries for the given filter set and return a data array.
+     *
+     * Covers: KPIs, designer growth, content trends, approval workflow,
+     * average time-to-approve, geographic distribution, sector breakdown,
+     * ratings trend, and top 15 designers by content count.
+     *
+     * @param  array{preset: string, dateFrom: ?string, dateTo: ?string, sector: ?string, city: ?string}  $filters
+     * @return array<string, mixed>
+     */
     private function computeAnalytics(array $filters): array
     {
         $dateFrom = $filters['dateFrom'] ?? null;
@@ -297,6 +335,14 @@ class AdminAnalyticsController extends AdminBaseController
         );
     }
 
+    /**
+     * Convert a named time preset into a [dateFrom, dateTo] tuple of date strings.
+     *
+     * Returns [null, null] for the 'all' preset (no date constraint).
+     *
+     * @param  string  $preset  One of: 7d, 30d, 90d, 1y, all
+     * @return array{0: ?string, 1: ?string}
+     */
     private function presetToDates(string $preset): array
     {
         return match ($preset) {

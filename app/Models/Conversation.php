@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A direct messaging thread between two designers.
+ *
+ * Created when a MessageRequest is accepted. Holds references to
+ * both participants and an optional closed_at timestamp. Related
+ * messages are accessed via the Message model.
+ */
 class Conversation extends Model
 {
     use HasFactory;

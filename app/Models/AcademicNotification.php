@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * In-app notification for an academic account.
+ *
+ * Parallel to the Notification model but scoped to AcademicAccount recipients.
+ * Stores type, title, message, a JSON data payload, and a read flag.
+ */
 class AcademicNotification extends Model
 {
     use HasFactory;

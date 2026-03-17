@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A comment posted by a designer on a Project.
+ *
+ * Stores the commenter's designer ID, the project ID, and the comment body.
+ */
 class ProjectComment extends Model
 {
     use HasFactory;

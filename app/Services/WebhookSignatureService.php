@@ -4,6 +4,13 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Verifies RSA-SHA256 signatures on incoming Jobs.ps webhook requests.
+ *
+ * The public key is loaded from the filesystem path configured in
+ * JOBS_PS_PUBLIC_KEY_PATH. Signature verification can be bypassed for
+ * development by setting JOBS_PS_SKIP_VERIFICATION=true (logs a warning).
+ */
 class WebhookSignatureService
 {
     protected ?string $publicKey = null;

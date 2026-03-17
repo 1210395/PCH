@@ -10,6 +10,13 @@ use App\Models\AdminSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Admin management for profile ratings submitted by designers.
+ *
+ * Provides list, detail, stats, analytics, approve, reject,
+ * bulk actions, and a toggle for the auto-accept setting.
+ * Uses the HasApprovalStatus workflow on ProfileRating.
+ */
 class AdminProfileRatingController extends AdminBaseController
 {
     /**

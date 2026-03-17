@@ -5,6 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Tender / opportunity listing.
+ *
+ * Can be created manually by admins or ingested automatically via the
+ * Jobs.ps webhook. External tenders are identified by `external_id` and
+ * `external_source` for idempotent upserts.
+ */
 class Tender extends Model
 {
     use HasFactory;

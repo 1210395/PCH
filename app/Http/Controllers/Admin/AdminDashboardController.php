@@ -17,10 +17,24 @@ use App\Models\ProfileRating;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
 
+/**
+ * Renders the admin dashboard and serves the AJAX pending-counts endpoint.
+ *
+ * Aggregates platform KPIs, pending approval queues, designer statistics,
+ * sector/city breakdowns, and top contributors. Most data is fetched from
+ * CacheService to avoid expensive queries on every page load.
+ */
 class AdminDashboardController extends AdminBaseController
 {
     /**
-     * Display the admin dashboard
+     * Display the admin dashboard.
+     *
+     * Returns a Blade view with all statistics, or a JSON response when the
+     * request expects JSON (used by AJAX dashboard refresh calls).
+     *
+     * @param  Request  $request
+     * @param  string   $locale
+     * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request, $locale)
     {
@@ -164,9 +178,14 @@ class AdminDashboardController extends AdminBaseController
     }
 
     /**
-     * Get pending counts for badges (AJAX endpoint)
-     * Note: Trainings and Tenders are admin-managed, no approval needed
-     * Academic content (trainings, workshops, announcements) need approval
+     * Return pending approval counts for all content types as JSON.
+     *
+     * Used by the admin navbar to update badge counts without a full page reload.
+     * Note: admin-managed Trainings and Tenders have no approval workflow.
+     *
+     * @param  Request  $request
+     * @param  string   $locale
+     * @return \Illuminate\Http\JsonResponse
      */
     public function pendingCounts(Request $request, $locale)
     {

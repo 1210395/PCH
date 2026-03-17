@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\HasApprovalStatus;
 
+/**
+ * Product catalogue entry submitted by a designer.
+ *
+ * Supports multi-image upload via ProductImage, approval workflow
+ * via HasApprovalStatus, and like tracking via the Like pivot.
+ * Cache is invalidated on save/delete via CacheService.
+ */
 class Product extends Model
 {
     use HasFactory, HasApprovalStatus;
