@@ -212,6 +212,14 @@
         <!-- Divider -->
         <div class="my-4 border-t border-gray-700"></div>
 
+        <!-- Analytics -->
+        <a href="{{ route('admin.analytics.index', ['locale' => $locale]) }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200
+                  {{ str_starts_with($currentRoute, 'admin.analytics') ? 'sidebar-item active text-white' : 'text-gray-300 hover:bg-gray-700' }}">
+            <i class="fas fa-chart-area w-5 text-center"></i>
+            <span x-show="sidebarOpen" x-transition class="flex-1">{{ __('Analytics') }}</span>
+        </a>
+
         <!-- Settings -->
         <a href="{{ route('admin.settings.index', ['locale' => $locale]) }}"
            class="flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200

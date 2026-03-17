@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AdminAcademicContentController;
 use App\Http\Controllers\Admin\AdminProfileRatingController;
 use App\Http\Controllers\Admin\AdminRatingCriteriaController;
 use App\Http\Controllers\Admin\AdminPageController;
+use App\Http\Controllers\Admin\AdminAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,13 @@ use App\Http\Controllers\Admin\AdminPageController;
 Route::prefix('{locale}/admin')
     ->middleware(['auth:designer', 'admin'])
     ->group(function () {
+
+        // Advanced Analytics
+        Route::prefix('analytics')->name('admin.analytics.')->group(function () {
+            Route::get('/',       [AdminAnalyticsController::class, 'index'])->name('index');
+            Route::get('/export', [AdminAnalyticsController::class, 'export'])->name('export');
+            Route::post('/refresh', [AdminAnalyticsController::class, 'refresh'])->name('refresh');
+        });
 
         // Dashboard
         Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
