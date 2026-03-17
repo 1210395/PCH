@@ -76,7 +76,7 @@ class CleanupOrphanedImages extends Command
                 $this->info("DRY RUN: Would delete {$totalDeleted} orphaned image(s) totaling {$sizeMB} MB");
             } else {
                 $this->info("Successfully deleted {$totalDeleted} orphaned image(s) totaling {$sizeMB} MB");
-                Log::info("Cleaned up {$totalDeleted} orphaned images ({$sizeMB} MB)");
+                og::debug("Cleaned up {$totalDeleted} orphaned images ({$sizeMB} MB)");
             }
         } else {
             $this->info('No orphaned images found.');

@@ -330,7 +330,7 @@ class ProjectController extends Controller
             // Filter out invalid paths
             $incomingPaths = array_filter($incomingPaths);
 
-            \Log::info('Project update - processing images', [
+            \og::debug('Project update - processing images', [
                 'project_id' => $project->id,
                 'existing_paths' => $existingPaths,
                 'incoming_paths' => array_values($incomingPaths)
@@ -364,7 +364,7 @@ class ProjectController extends Controller
                     }
                 } else {
                     // This is a new temporary upload - move to permanent storage
-                    \Log::info('Project update - moving temp image', [
+                    \og::debug('Project update - moving temp image', [
                         'project_id' => $project->id,
                         'temp_path' => $path,
                         'file_exists' => \Storage::disk('public')->exists($path)
@@ -385,7 +385,7 @@ class ProjectController extends Controller
                             'is_primary' => $displayOrder === 0 ? 1 : 0
                         ]);
                         $displayOrder++;
-                        \Log::info('Project image saved successfully', [
+                        \og::debug('Project image saved successfully', [
                             'project_id' => $project->id,
                             'permanent_path' => $permanentPath
                         ]);

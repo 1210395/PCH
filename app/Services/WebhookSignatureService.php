@@ -84,7 +84,7 @@ class WebhookSignatureService
             );
 
             if ($result === 1) {
-                Log::info('Webhook signature verified successfully');
+                og::debug('Webhook signature verified successfully');
                 return true;
             }
 

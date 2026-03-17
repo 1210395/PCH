@@ -76,7 +76,7 @@ class MigrateImageNames extends Command
                 $this->info("DRY RUN: Would rename {$totalRenamed} image(s)");
             } else {
                 $this->info("✅ Successfully renamed {$totalRenamed} image(s)");
-                Log::info("Image name migration completed: {$totalRenamed} images renamed");
+                og::debug("Image name migration completed: {$totalRenamed} images renamed");
             }
         } else {
             $this->info('No images needed migration (all already using structured names).');
