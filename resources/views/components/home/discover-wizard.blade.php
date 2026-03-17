@@ -26,16 +26,16 @@
     </div>
 
     {{-- Bottom Sheet --}}
-    <div class="absolute bottom-0 inset-x-0 flex justify-center"
+    <div class="absolute inset-0 flex items-center justify-center p-4"
          x-show="show"
          x-transition:enter="transition ease-out duration-400 transform"
-         x-transition:enter-start="translate-y-full"
-         x-transition:enter-end="translate-y-0"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
          x-transition:leave="transition ease-in duration-300 transform"
-         x-transition:leave-start="translate-y-0"
-         x-transition:leave-end="translate-y-full">
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95">
 
-        <div class="bg-white rounded-t-3xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
             {{-- Handle bar --}}
             <div class="flex justify-center pt-3 pb-1">
                 <div class="w-12 h-1.5 bg-gray-200 rounded-full"></div>

@@ -25,6 +25,7 @@ use App\Http\Controllers\AcademicTevetsController;
 use App\Http\Controllers\ProfileRatingController;
 use App\Http\Controllers\ConversationRatingController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Auth\GoogleOAuthController;
 
 // Include Admin Panel routes
 require __DIR__ . '/admin.php';
@@ -56,6 +57,12 @@ Route::get('/media/{path}', function ($path) {
         'Cache-Control' => 'public, max-age=31536000',
     ]);
 })->where('path', '[a-zA-Z0-9._\-/]+')->middleware('throttle:200,1');
+
+// Google OAuth2 callback for Gmail API (no locale prefix needed)
+Route::get('/oauth2/setup', [GoogleOAuthController::class, 'redirect'])
+    ->name('oauth2.setup');
+Route::get('/oauth2/callback', [GoogleOAuthController::class, 'callback'])
+    ->name('oauth2.callback');
 
 // XML Sitemap for search engines
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
@@ -153,10 +160,10 @@ Route::group(['prefix' => '{locale}'], function () {
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
         ->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
+        ->middleware(['signed', 'throttle:20,1'])
         ->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
-        ->middleware('throttle:10,1')
+        ->middleware('throttle:10,5')
         ->name('verification.send');
 
     // ============================================================
@@ -229,6 +236,10 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::post('/account/password/update', [DesignerProfileController::class, 'updatePassword'])->name('account.password.update');
         Route::post('/account/privacy/update', [DesignerProfileController::class, 'updatePrivacySettings'])->name('account.privacy.update');
         Route::post('/account/email/update', [DesignerProfileController::class, 'updateEmailPreferences'])->name('account.email.update');
+        Route::post('/account/delete/send-code', [DesignerProfileController::class, 'sendDeleteCode'])->name('account.delete.send-code');
+        Route::post('/account/delete/confirm', [DesignerProfileController::class, 'confirmDelete'])->name('account.delete.confirm');
+        Route::get('/account/upgrade', [DesignerProfileController::class, 'upgradeForm'])->name('account.upgrade');
+        Route::post('/account/upgrade', [DesignerProfileController::class, 'upgradeSubmit'])->name('account.upgrade.submit');
 
         // Notification routes (authenticated only, rate limited)
         Route::get('/notifications', [NotificationController::class, 'index'])

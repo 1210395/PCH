@@ -215,7 +215,7 @@
             </div>
 
             {{-- Danger Zone Card --}}
-            <div class="bg-white rounded-lg shadow-sm border-2 border-red-200">
+            <div class="bg-white rounded-lg shadow-sm border-2 border-red-200" x-data="dangerZone()">
                 <div class="p-6 border-b border-red-200 bg-red-50">
                     <h2 class="text-lg font-semibold text-red-900">{{ __('Danger Zone') }}</h2>
                     <p class="text-sm text-red-700 mt-1">{{ __('Irreversible actions') }}</p>
@@ -226,9 +226,59 @@
                             <p class="font-medium text-gray-900">{{ __('Delete Account') }}</p>
                             <p class="text-sm text-gray-600">{{ __('Permanently delete your account and all associated data') }}</p>
                         </div>
-                        <button type="button" onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <button type="button" @click="showModal = true" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                             {{ __('Delete Account') }}
                         </button>
+                    </div>
+                </div>
+
+                {{-- Delete Account Modal --}}
+                <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5)">
+                    <div @click.away="showModal = false" class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                        <div class="text-center mb-4">
+                            <div class="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.27 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">{{ __('Delete Account') }}</h3>
+                        </div>
+
+                        {{-- Step 1: Password confirmation --}}
+                        <div x-show="step === 1">
+                            <p class="text-sm text-gray-600 mb-4">{{ __('Enter your password to confirm account deletion. A verification code will be sent to your email.') }}</p>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
+                                <input type="password" x-model="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" :class="error ? 'border-red-500' : ''">
+                                <p x-show="error" x-text="error" class="text-red-600 text-sm mt-1"></p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button @click="showModal = false; error = ''" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">{{ __('Cancel') }}</button>
+                                <button @click="sendCode()" :disabled="loading" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
+                                    <span x-show="!loading">{{ __('Send Verification Code') }}</span>
+                                    <span x-show="loading">{{ __('Sending...') }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Step 2: Email verification code --}}
+                        <div x-show="step === 2">
+                            <p class="text-sm text-gray-600 mb-4">{{ __('A 6-digit verification code has been sent to your email. Enter it below to confirm deletion.') }}</p>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Verification Code') }}</label>
+                                <input type="text" x-model="code" maxlength="6" pattern="[0-9]*" inputmode="numeric"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-center text-2xl tracking-widest font-mono" :class="error ? 'border-red-500' : ''">
+                                <p x-show="error" x-text="error" class="text-red-600 text-sm mt-1"></p>
+                                <p class="text-xs text-gray-500 mt-2">{{ __('Code expires in 10 minutes') }}</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button @click="step = 1; error = ''; code = ''" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">{{ __('Back') }}</button>
+                                <button @click="confirmDelete()" :disabled="loading || code.length !== 6" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
+                                    <span x-show="!loading">{{ __('Delete My Account') }}</span>
+                                    <span x-show="loading">{{ __('Deleting...') }}</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,11 +295,68 @@
 
 @push('scripts')
 <script>
-function confirmDelete() {
-    if (confirm('{{ __("Are you sure you want to delete your account? This action cannot be undone.\\n\\nAll your data including profile, projects, products, and services will be permanently deleted.") }}')) {
-        if (confirm('{{ __("FINAL WARNING: This will permanently delete your account. Are you absolutely sure?") }}')) {
-            // TODO: Implement account deletion
-            alert('{{ __("Account deletion feature will be implemented soon.") }}');
+function dangerZone() {
+    return {
+        showModal: false,
+        step: 1,
+        password: '',
+        code: '',
+        error: '',
+        loading: false,
+
+        async sendCode() {
+            if (!this.password) {
+                this.error = '{{ __("Password is required") }}';
+                return;
+            }
+            this.loading = true;
+            this.error = '';
+            try {
+                const res = await fetch('{{ route("account.delete.send-code", ["locale" => app()->getLocale()]) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ password: this.password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    this.step = 2;
+                } else {
+                    this.error = data.message || '{{ __("Invalid password") }}';
+                }
+            } catch (e) {
+                this.error = '{{ __("An error occurred. Please try again.") }}';
+            }
+            this.loading = false;
+        },
+
+        async confirmDelete() {
+            if (this.code.length !== 6) return;
+            this.loading = true;
+            this.error = '';
+            try {
+                const res = await fetch('{{ route("account.delete.confirm", ["locale" => app()->getLocale()]) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ code: this.code, password: this.password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.href = data.redirect || '{{ route("home", ["locale" => app()->getLocale()]) }}';
+                } else {
+                    this.error = data.message || '{{ __("Invalid verification code") }}';
+                }
+            } catch (e) {
+                this.error = '{{ __("An error occurred. Please try again.") }}';
+            }
+            this.loading = false;
         }
     }
 }

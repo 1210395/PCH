@@ -67,7 +67,11 @@ return [
 
         'sendmail' => [
             'transport' => 'sendmail',
-            'path' => '/usr/sbin/sendmail -t -i -f creativehub@technopark.ps',
+            'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -t -i'),
+        ],
+
+        'gmail' => [
+            'transport' => 'gmail',
         ],
 
         'log' => [

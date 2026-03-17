@@ -127,6 +127,32 @@ class Designer extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if designer is a guest account.
+     */
+    public function isGuest(): bool
+    {
+        return $this->sector === 'guest';
+    }
+
+    /**
+     * Scope: exclude guest accounts from public listings.
+     */
+    public function scopeNotGuest($query)
+    {
+        return $query->where('sector', '!=', 'guest');
+    }
+
+    /**
+     * Scope: public-facing queries (active, non-admin, non-guest).
+     */
+    public function scopePublicVisible($query)
+    {
+        return $query->where('is_admin', false)
+                     ->where('is_active', true)
+                     ->where('sector', '!=', 'guest');
+    }
+
+    /**
      * Check if designer is an admin
      */
     public function isAdmin(): bool

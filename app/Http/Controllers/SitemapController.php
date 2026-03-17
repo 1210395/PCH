@@ -33,8 +33,8 @@ class SitemapController extends Controller
                 $urls->push(['url' => route('academic-tevets',   ['locale' => $locale]), 'priority' => '0.6', 'changefreq' => 'weekly']);
             }
 
-            // Designers (active, non-admin)
-            Designer::where('is_active', true)->where('is_admin', false)
+            // Designers (active, non-admin, non-guest)
+            Designer::where('is_active', true)->where('is_admin', false)->where('sector', '!=', 'guest')
                 ->select('id', 'updated_at')
                 ->orderByDesc('updated_at')
                 ->chunk(500, function ($designers) use ($urls) {

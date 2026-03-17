@@ -11,3 +11,16 @@ Disallow: /Control/
 Disallow: /messages/
 Disallow: /account/
 Disallow: /storage/temp/
+
+# Disallow auth pages (login, register, password reset, verification)
+Disallow: /*/login
+Disallow: /*/register
+Disallow: /*/forgot-password
+Disallow: /*/reset-password
+Disallow: /*/email/verify
+Disallow: /oauth2/
+
+# Disallow URLs with query parameters (login redirects, etc.)
+Disallow: /*?redirect=
+Disallow: /*?expires=
+Disallow: /*?signature=

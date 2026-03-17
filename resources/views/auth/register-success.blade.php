@@ -3,6 +3,7 @@
 @section('head')
     <title>{{ config('app.name') }} - {{ __('Welcome!') }}</title>
     <meta name="description" content="{{ __('Thank you for joining Palestine Creative Hub') }}">
+    <meta name="robots" content="noindex, nofollow">
     <style>
         /* Blur navbar and footer */
         nav,

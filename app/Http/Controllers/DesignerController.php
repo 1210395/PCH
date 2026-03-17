@@ -153,8 +153,8 @@ class DesignerController extends Controller
             ->select('id', 'name', 'email', 'avatar', 'cover_image', 'sector', 'sub_sector', 'city', 'bio', 'title', 'company_name', 'followers_count', 'views_count', 'created_at', 'is_active', 'is_admin')
             ->with('skills:id,name');
 
-        // Exclude admin and inactive accounts from public listings
-        $query->where('is_admin', false)->where('is_active', true);
+        // Exclude admin, inactive, and guest accounts from public listings
+        $query->where('is_admin', false)->where('is_active', true)->where('sector', '!=', 'guest');
 
         // Filter by specific sector (e.g., manufacturer or showroom only)
         // "vendor" is a virtual sector — vendors are designers with sub_sector containing "Supplier"

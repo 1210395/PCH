@@ -161,9 +161,10 @@ class CacheService
     public static function getHomepageStats(): array
     {
         return Cache::remember('homepage_stats', self::TTL_LONG, function() {
-            // Per-sector counts for dynamic counter filtering
+            // Per-sector counts for dynamic counter filtering (exclude guests)
             $sectorCounts = Designer::where('is_admin', false)
                 ->where('is_active', true)
+                ->where('sector', '!=', 'guest')
                 ->whereNotNull('sector')
                 ->where('sector', '!=', '')
                 ->selectRaw('sector, COUNT(*) as count')
@@ -172,15 +173,15 @@ class CacheService
                 ->toArray();
 
             // Vendors = anyone with "supplier" in their sector OR sub_sector (case-insensitive)
-            $vendorCount = Designer::where('is_admin', false)->where('is_active', true)
+            $vendorCount = Designer::where('is_admin', false)->where('is_active', true)->where('sector', '!=', 'guest')
                 ->where(function($q) {
                     $q->where('sector', 'LIKE', '%supplier%')
                       ->orWhere('sub_sector', 'LIKE', '%supplier%');
                 })->count();
 
             return [
-                'designers' => Designer::where('is_admin', false)->where('is_active', true)->count(),
-                'designers_only' => Designer::where('is_admin', false)->where('is_active', true)
+                'designers' => Designer::where('is_admin', false)->where('is_active', true)->where('sector', '!=', 'guest')->count(),
+                'designers_only' => Designer::where('is_admin', false)->where('is_active', true)->where('sector', '!=', 'guest')
                     ->whereNotIn('sector', ['manufacturer', 'showroom'])
                     ->where('sector', 'NOT LIKE', '%supplier%')
                     ->where('sub_sector', 'NOT LIKE', '%supplier%')->count(),
@@ -191,7 +192,7 @@ class CacheService
                 'trainings' => Training::count(),
                 'tenders' => Tender::count(),
                 'marketplace' => MarketplacePost::where('approval_status', 'approved')->count(),
-                'companies' => Designer::where('is_admin', false)->where('is_active', true)
+                'companies' => Designer::where('is_admin', false)->where('is_active', true)->where('sector', '!=', 'guest')
                     ->where(function($q) {
                         $q->whereIn('sector', ['manufacturer', 'showroom'])
                           ->orWhere('sector', 'LIKE', '%supplier%')
@@ -213,6 +214,7 @@ class CacheService
                 'topDesigners' => Designer::select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
                     ->where('is_admin', false)
                     ->where('is_active', true)
+                    ->where('sector', '!=', 'guest')
                     ->whereNotIn('sector', ['manufacturer', 'showroom'])
                     ->where('sector', 'NOT LIKE', '%supplier%')
                     ->where('sub_sector', 'NOT LIKE', '%supplier%')

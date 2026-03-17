@@ -123,7 +123,7 @@
     <div class="wrapper">
         <div class="container">
             <div class="header">
-                <img src="{{ config('app.url') }}/public/images/logo-white.png" alt="{{ config('app.name') }}">
+                <img src="{{ asset('images/logo-white.png') }}" alt="{{ config('app.name') }}">
                 <h2>{{ config('app.name') }}</h2>
             </div>
 

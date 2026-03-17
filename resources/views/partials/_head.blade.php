@@ -26,8 +26,19 @@
 <meta name="twitter:description" content="@yield('og_description', 'Palestine Creative Hub - Empowering Palestinian creativity through technology, innovation, and collaboration.')">
 <meta name="twitter:image" content="@yield('og_image', asset('images/logo.png'))">
 
-{{-- Canonical URL --}}
-<link rel="canonical" href="{{ url()->current() }}" />
+{{-- Canonical URL (strip query params to avoid duplicate indexing) --}}
+@php
+    $currentUrl = url()->current();
+    $currentLocale = app()->getLocale();
+    $altLocale = $currentLocale === 'ar' ? 'en' : 'ar';
+    $altUrl = str_replace("/{$currentLocale}/", "/{$altLocale}/", $currentUrl);
+@endphp
+<link rel="canonical" href="{{ $currentUrl }}" />
+
+{{-- Hreflang tags for bilingual SEO --}}
+<link rel="alternate" hreflang="en" href="{{ str_replace("/{$currentLocale}/", "/en/", $currentUrl) }}" />
+<link rel="alternate" hreflang="ar" href="{{ str_replace("/{$currentLocale}/", "/ar/", $currentUrl) }}" />
+<link rel="alternate" hreflang="x-default" href="{{ str_replace("/{$currentLocale}/", "/en/", $currentUrl) }}" />
 
 {{-- Prevent favicon.ico 404 errors --}}
 <link rel="icon" href="data:;base64,=" />

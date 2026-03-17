@@ -247,6 +247,7 @@ class DesignerFollowController extends Controller
         }
 
         $users = Designer::where('is_active', true)
+            ->where('sector', '!=', 'guest')
             ->where('id', '!=', $currentDesigner->id)
             ->where(function ($q) use ($query) {
                 $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $query . '%'])
@@ -317,6 +318,7 @@ class DesignerFollowController extends Controller
         // 3. Same sector
         if ($currentDesigner->sector && $suggested->count() < 12) {
             $sameSector = Designer::where('is_active', true)
+                ->where('sector', '!=', 'guest')
                 ->where('sector', $currentDesigner->sector)
                 ->whereNotIn('id', $excludeIds)
                 ->whereNotIn('id', $suggested->pluck('id'))
@@ -332,6 +334,7 @@ class DesignerFollowController extends Controller
         // 4. Same city
         if ($currentDesigner->city && $suggested->count() < 12) {
             $sameCity = Designer::where('is_active', true)
+                ->where('sector', '!=', 'guest')
                 ->where('city', $currentDesigner->city)
                 ->whereNotIn('id', $excludeIds)
                 ->whereNotIn('id', $suggested->pluck('id'))

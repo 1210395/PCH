@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\ImageUploadController;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Services\CacheService;
+use App\Services\GmailOAuthService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 /**
  * DesignerProfileController
@@ -146,12 +151,9 @@ class DesignerProfileController extends Controller
             return redirect()->route('admin.dashboard', ['locale' => app()->getLocale()]);
         }
 
-        // Prevent guests from accessing profile edit
+        // Redirect guests to the upgrade page
         if ($designer->sector === 'guest') {
-            return redirect()->route('designer.portfolio', [
-                'locale' => app()->getLocale(),
-                'id' => $designer->id
-            ])->with('error', 'Guest accounts cannot edit their profile. Please register as a professional to access all features.');
+            return redirect()->route('account.upgrade', ['locale' => app()->getLocale()]);
         }
 
         $designer->load([
@@ -656,6 +658,171 @@ class DesignerProfileController extends Controller
 
             return redirect()->back()
                 ->with('error', 'An error occurred while updating email preferences');
+        }
+    }
+
+    /**
+     * Show the account upgrade form for guest accounts.
+     */
+    public function upgradeForm()
+    {
+        $designer = auth('designer')->user();
+
+        if ($designer->sector !== 'guest') {
+            return redirect()->route('profile.edit', ['locale' => app()->getLocale()]);
+        }
+
+        return view('account.upgrade', compact('designer'));
+    }
+
+    /**
+     * Process the account upgrade from guest to full account.
+     */
+    public function upgradeSubmit(Request $request)
+    {
+        $designer = auth('designer')->user();
+
+        if ($designer->sector !== 'guest') {
+            return response()->json(['message' => __('Account is already upgraded')], 422);
+        }
+
+        $validated = $request->validate([
+            'sector' => 'required|string|in:designer,manufacturer,showroom',
+            'sub_sector' => 'nullable|string|max:255',
+            'company_name' => 'nullable|string|max:255',
+            'position' => 'nullable|string|max:255',
+            'bio' => 'nullable|string|max:2000',
+            'city' => 'nullable|string|max:255',
+            'years_of_experience' => 'nullable|string',
+            'phone_number' => 'nullable|string|max:20',
+            'phone_country' => 'nullable|string|max:10',
+            'website' => 'nullable|url|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'facebook' => 'nullable|url|max:255',
+            'behance' => 'nullable|url|max:255',
+            'avatar' => 'nullable|string',
+            'cover_image' => 'nullable|string',
+            'skills' => 'nullable|array',
+            'skills.*' => 'string|max:100',
+        ]);
+
+        // Extract skills before update
+        $skills = $validated['skills'] ?? [];
+        unset($validated['skills']);
+
+        // Update designer
+        $designer->update($validated);
+
+        // Sync skills
+        if (!empty($skills)) {
+            $skillIds = [];
+            foreach ($skills as $skillName) {
+                $skill = \App\Models\Skill::firstOrCreate(['name' => trim($skillName)]);
+                $skillIds[] = $skill->id;
+            }
+            $designer->skills()->sync($skillIds);
+        }
+
+        // Clear caches
+        CacheService::clearDesignerCache($designer->id);
+        CacheService::clearDashboardCache();
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Account upgraded successfully!'),
+            'redirect' => route('designer.portfolio', ['locale' => app()->getLocale(), 'id' => $designer->id]),
+        ]);
+    }
+
+    /**
+     * Send a verification code for account deletion.
+     */
+    public function sendDeleteCode(Request $request)
+    {
+        $designer = auth('designer')->user();
+
+        if (!Hash::check($request->password, $designer->password)) {
+            return response()->json(['message' => __('Invalid password')], 422);
+        }
+
+        // Generate 6-digit code
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Store code in cache for 10 minutes
+        Cache::put('delete_code_' . $designer->id, $code, 600);
+
+        // Send code via email
+        try {
+            $locale = app()->getLocale();
+            $subject = $locale === 'ar'
+                ? 'رمز تأكيد حذف الحساب - ' . config('app.name')
+                : 'Account Deletion Verification Code - ' . config('app.name');
+
+            $htmlBody = view('emails.delete-code', [
+                'code' => $code,
+                'name' => $designer->first_name ?? $designer->name,
+                'locale' => $locale,
+            ])->render();
+
+            app(GmailOAuthService::class)->sendEmail(
+                $designer->email,
+                $subject,
+                $htmlBody
+            );
+        } catch (\Exception $e) {
+            Log::error('Failed to send delete verification code', [
+                'designer_id' => $designer->id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json(['message' => __('Failed to send verification code. Please try again.')], 500);
+        }
+
+        return response()->json(['message' => __('Verification code sent')]);
+    }
+
+    /**
+     * Confirm account deletion with verification code (soft delete).
+     */
+    public function confirmDelete(Request $request)
+    {
+        $designer = auth('designer')->user();
+
+        if (!Hash::check($request->password, $designer->password)) {
+            return response()->json(['message' => __('Invalid password')], 422);
+        }
+
+        $storedCode = Cache::get('delete_code_' . $designer->id);
+        if (!$storedCode || $storedCode !== $request->code) {
+            return response()->json(['message' => __('Invalid or expired verification code')], 422);
+        }
+
+        // Clear the code
+        Cache::forget('delete_code_' . $designer->id);
+
+        try {
+            // Soft delete: deactivate account
+            $designer->update([
+                'is_active' => false,
+                'approval_status' => 'rejected',
+            ]);
+
+            // Log out
+            Auth::guard('designer')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $locale = app()->getLocale();
+            return response()->json([
+                'message' => __('Account deleted successfully'),
+                'redirect' => route('home', ['locale' => $locale]),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Account deletion failed', [
+                'designer_id' => $designer->id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json(['message' => __('An error occurred. Please try again.')], 500);
         }
     }
 }

@@ -3,7 +3,10 @@
 namespace App\Providers;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
+use App\Mail\GmailApiTransport;
+use App\Services\GmailOAuthService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(GmailOAuthService::class);
     }
 
     /**
@@ -21,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         URL::forceScheme('https');
+
+        // Register custom Gmail API mail transport
+        Mail::extend('gmail', function () {
+            return new GmailApiTransport(app(GmailOAuthService::class));
+        });
 
         // Register versioned asset Blade directive for cache busting
         // Usage: @versionedAsset('css/app.css') or @autoVersionedAsset('css/app.css')

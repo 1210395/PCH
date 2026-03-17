@@ -127,12 +127,21 @@
                         <!-- Action Buttons -->
                         @if($isOwner)
                         <div class="flex flex-wrap gap-2 justify-center md:justify-start flex-shrink-0">
+                            @if($designer->sector === 'guest')
+                            <a href="{{ route('account.upgrade', ['locale' => app()->getLocale()]) }}" class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all text-xs sm:text-sm md:text-base animate-pulse">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                                {{ __('Upgrade to Full Account') }}
+                            </a>
+                            @else
                             <a href="{{ route('profile.edit', ['locale' => app()->getLocale()]) }}" class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-xs sm:text-sm md:text-base">
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                                 {{ __('Edit Profile') }}
                             </a>
+                            @endif
                             <x-share-button
                                 :url="route('designer.portfolio', ['locale' => app()->getLocale(), 'id' => $designer->id])"
                                 :title="$designer->name . ' - ' . __('Portfolio')"
@@ -245,8 +254,8 @@
                         </div>
                     </div>
 
-                    <!-- Rate Profile Button (for non-owners who are logged in) -->
-                    @if(!$isOwner && auth('designer')->check())
+                    <!-- Rate Profile Button (for non-owners who are logged in, not for guest profiles) -->
+                    @if(!$isOwner && auth('designer')->check() && $designer->sector !== 'guest')
                     <div class="mt-3 sm:mt-4">
                         @if($hasRated)
                         <button

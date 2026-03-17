@@ -2,6 +2,7 @@
 
 @section('head')
 <title>{{ config('app.name') }} - {{ __('Forgot Password') }}</title>
+<meta name="robots" content="noindex, nofollow">
 @endsection
 
 @section('content')

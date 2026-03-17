@@ -3,6 +3,7 @@
 @section('head')
 <title>{{ config('app.name') }} - {{ __('Create Your Profile') }}</title>
 <meta name="description" content="{{ __('Join Palestine Creative Hub and showcase your work') }}">
+<meta name="robots" content="noindex, nofollow">
 <style>
     [x-cloak] { display: none !important; }
     .step-connector { transition: background-color 0.3s ease; }

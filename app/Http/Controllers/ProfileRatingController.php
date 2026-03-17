@@ -35,6 +35,14 @@ class ProfileRatingController extends Controller
 
         $designer = Designer::findOrFail($designerId);
 
+        // Guest accounts cannot be rated via profile ratings
+        if ($designer->isGuest()) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Guest accounts cannot be rated')
+            ], 403);
+        }
+
         // Check if already rated
         if (ProfileRating::hasRated($designerId, $currentDesigner->id)) {
             return response()->json([

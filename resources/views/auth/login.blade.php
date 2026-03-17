@@ -3,6 +3,7 @@
 @section('head')
 <title>{{ config('app.name') }} - {{ __('Log In') }}</title>
 <meta name="description" content="{{ __('Log in to your TecnoPark account') }}">
+<meta name="robots" content="noindex, nofollow">
 @endsection
 
 @section('content')
