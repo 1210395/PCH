@@ -98,7 +98,7 @@ Route::get('/{locale}/favicon.ico', function () {
 Route::group(['prefix' => '{locale}'], function () {
     // Home/Discover page (rate limited)
     Route::get('/', [HomeController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware(['throttle:100,1', 'track.page:home'])
         ->name('home');
 
     // Search route (rate limited)
@@ -151,7 +151,7 @@ Route::group(['prefix' => '{locale}'], function () {
         ->middleware('throttle:60,1')
         ->name('login');
     Route::post('/login', [AuthController::class, 'login'])
-        ->middleware('throttle:15,1')
+        ->middleware('throttle:30,1')
         ->name('login.post');
 
     // ============================================================
@@ -193,7 +193,7 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Public designer portfolio view (no authentication required, rate limited)
     Route::get('/designer/{id}', [DesignerController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware(['throttle:60,1', 'track.page:designer_profile'])
         ->name('designer.portfolio');
 
     // Public routes for viewing (rate limited to prevent abuse)
@@ -413,16 +413,16 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Projects and Products listing pages (public, rate limited)
     Route::get('/projects', [ProjectController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware(['throttle:100,1', 'track.page:projects'])
         ->name('projects');
     Route::get('/projects/{id}', [ProjectController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware(['throttle:60,1', 'track.page:project_detail'])
         ->name('project.detail');
     Route::get('/products', [ProductController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware(['throttle:100,1', 'track.page:products'])
         ->name('products');
     Route::get('/products/{id}', [ProductController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware(['throttle:60,1', 'track.page:product_detail'])
         ->name('product.detail');
 
     // Fab Labs listing and detail pages (public, rate limited)
@@ -435,15 +435,15 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Designers and Manufacturers listing page (public, rate limited)
     Route::get('/designers', [DesignerController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware(['throttle:100,1', 'track.page:designers'])
         ->name('designers');
 
     // Marketplace listing and detail pages (public, rate limited)
     Route::get('/marketplace', [MarketplaceController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware(['throttle:100,1', 'track.page:marketplace'])
         ->name('marketplace.index');
     Route::get('/marketplace/{id}', [MarketplaceController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware(['throttle:60,1', 'track.page:marketplace_detail'])
         ->name('marketplace.show');
 
     // Marketplace comments (public read, auth required for write)
@@ -469,10 +469,10 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Services listing and detail pages (public, rate limited)
     Route::get('/services', [ServiceController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware(['throttle:100,1', 'track.page:services'])
         ->name('services');
     Route::get('/services/{id}', [ServiceController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware(['throttle:60,1', 'track.page:service_detail'])
         ->name('services.show');
 
     // Academic & Private Sectors listing and detail pages (public, rate limited)

@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Designer;
+use App\Models\Like;
+use App\Models\PageVisit;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\ProjectView;
 use App\Models\Service;
 use App\Models\MarketplacePost;
 use App\Models\ProfileRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AnalyticsExport;
@@ -325,13 +329,137 @@ class AdminAnalyticsController extends AdminBaseController
             ->values()
             ->take(15);
 
+        // ---- Top viewed content (across all approved types) ------------------
+        $topViewedContent = collect()
+            ->merge(Product::approved()->select('id', 'title', 'views_count', 'likes_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Product',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => (int)$i->likes_count]))
+            ->merge(Project::approved()->select('id', 'title', 'views_count', 'likes_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Project',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => (int)$i->likes_count]))
+            ->merge(Service::approved()->select('id', 'name as title', 'views_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Service',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => 0]))
+            ->merge(MarketplacePost::approved()->select('id', 'title', 'views_count', 'likes_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Marketplace', 'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => (int)$i->likes_count]))
+            ->sortByDesc('views')
+            ->values()
+            ->take(15);
+
+        // ---- Top liked content (across all approved types) -------------------
+        $topLikedContent = collect()
+            ->merge(Product::approved()->select('id', 'title', 'views_count', 'likes_count')->orderByDesc('likes_count')->limit(20)->get()->map(fn($i) => ['type' => 'Product',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => (int)$i->likes_count]))
+            ->merge(Project::approved()->select('id', 'title', 'views_count', 'likes_count')->orderByDesc('likes_count')->limit(20)->get()->map(fn($i) => ['type' => 'Project',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => (int)$i->likes_count]))
+            ->merge(MarketplacePost::approved()->select('id', 'title', 'views_count', 'likes_count')->orderByDesc('likes_count')->limit(20)->get()->map(fn($i) => ['type' => 'Marketplace', 'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count, 'likes' => (int)$i->likes_count]))
+            ->sortByDesc('likes')
+            ->values()
+            ->take(15);
+
+        // ---- Top followed designers ------------------------------------------
+        $topFollowedDesigners = Designer::where('is_admin', false)
+            ->where('sector', '!=', 'guest')
+            ->when($sector, fn($q) => $q->where('sector', $sector))
+            ->when($city,   fn($q) => $q->where('city', $city))
+            ->select('id', 'name', 'city', 'sector', 'followers_count', 'views_count', 'likes_count')
+            ->orderByDesc('followers_count')
+            ->limit(15)
+            ->get();
+
+        // ---- Engagement trends (monthly views + likes using event tables) ----
+        // Views: use project_views table (only table with per-event timestamps)
+        $viewsByMonth = ProjectView::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+            ->when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
+
+        // Likes: polymorphic likes table has created_at per event
+        $likesByMonth = Like::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+            ->when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
+
+        $engagementMonths = $viewsByMonth->keys()
+            ->merge($likesByMonth->keys())
+            ->unique()->sort()->values();
+
+        $engagementTrend = $engagementMonths->map(fn($m) => [
+            'month' => $m,
+            'views' => $viewsByMonth->get($m, 0),
+            'likes' => $likesByMonth->get($m, 0),
+        ])->values();
+
+        // ---- Page traffic (top pages + monthly breakdown) --------------------
+        $pageTrafficTotals = PageVisit::selectRaw('page_key, COUNT(*) as count')
+            ->when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
+            ->groupBy('page_key')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn($r) => ['page' => $r->page_key, 'count' => (int) $r->count]);
+
+        $pageTrafficTrend = PageVisit::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, page_key, COUNT(*) as count")
+            ->when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
+            ->groupBy('month', 'page_key')
+            ->orderBy('month')
+            ->get()
+            ->groupBy('month')
+            ->map(fn($rows) => $rows->pluck('count', 'page_key'))
+            ->values();
+
+        // ---- Improvement signals --------------------------------------------
+        // Content with zero views (approved only)
+        $zeroViewsContent = collect()
+            ->merge(Product::approved()->where('views_count', 0)->select('id', 'title')->get()->map(fn($i) => ['type' => 'Product',      'id' => $i->id, 'title' => $i->title]))
+            ->merge(Project::approved()->where('views_count', 0)->select('id', 'title')->get()->map(fn($i) => ['type' => 'Project',      'id' => $i->id, 'title' => $i->title]))
+            ->merge(Service::approved()->where('views_count', 0)->select('id', 'name as title')->get()->map(fn($i) => ['type' => 'Service',      'id' => $i->id, 'title' => $i->title]))
+            ->merge(MarketplacePost::approved()->where('views_count', 0)->select('id', 'title')->get()->map(fn($i) => ['type' => 'Marketplace', 'id' => $i->id, 'title' => $i->title]))
+            ->values();
+
+        // Content with zero likes — services excluded (no likes_count column)
+        $zeroLikesContent = collect()
+            ->merge(Product::approved()->where('likes_count', 0)->select('id', 'title', 'views_count')->orderByDesc('views_count')->limit(30)->get()->map(fn($i) => ['type' => 'Product',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count]))
+            ->merge(Project::approved()->where('likes_count', 0)->select('id', 'title', 'views_count')->orderByDesc('views_count')->limit(30)->get()->map(fn($i) => ['type' => 'Project',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count]))
+            ->merge(MarketplacePost::approved()->where('likes_count', 0)->select('id', 'title', 'views_count')->orderByDesc('views_count')->limit(30)->get()->map(fn($i) => ['type' => 'Marketplace', 'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count]))
+            ->sortByDesc('views')
+            ->values()
+            ->take(30);
+
+        // High-view low-engagement: views > 10 but likes = 0 — services excluded (no likes_count)
+        $highViewLowLikes = collect()
+            ->merge(Product::approved()->where('views_count', '>', 10)->where('likes_count', 0)->select('id', 'title', 'views_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Product',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count]))
+            ->merge(Project::approved()->where('views_count', '>', 10)->where('likes_count', 0)->select('id', 'title', 'views_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Project',      'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count]))
+            ->merge(MarketplacePost::approved()->where('views_count', '>', 10)->where('likes_count', 0)->select('id', 'title', 'views_count')->orderByDesc('views_count')->limit(20)->get()->map(fn($i) => ['type' => 'Marketplace', 'id' => $i->id, 'title' => $i->title, 'views' => (int)$i->views_count]))
+            ->sortByDesc('views')
+            ->values()
+            ->take(20);
+
+        // Inactive designers: registered but no approved content
+        $inactiveDesigners = Designer::where('is_admin', false)
+            ->where('sector', '!=', 'guest')
+            ->where('is_active', true)
+            ->when($sector, fn($q) => $q->where('sector', $sector))
+            ->when($city,   fn($q) => $q->where('city', $city))
+            ->withCount([
+                'products as products_count'   => fn($q) => $q->where('approval_status', 'approved'),
+                'projects as projects_count'   => fn($q) => $q->where('approval_status', 'approved'),
+                'services as services_count'   => fn($q) => $q->where('approval_status', 'approved'),
+                'marketplacePosts as marketplace_count' => fn($q) => $q->where('approval_status', 'approved'),
+            ])
+            ->having(DB::raw('products_count + projects_count + services_count + marketplace_count'), '=', 0)
+            ->select('id', 'name', 'city', 'sector', 'created_at')
+            ->orderBy('created_at')
+            ->limit(30)
+            ->get();
+
         return compact(
             'totalDesigners', 'activeDesigners', 'pendingTotal',
             'totalApprovedContent', 'totalRatings', 'averageRating',
             'designerGrowth', 'contentTrends',
             'approvalWorkflow', 'avgApprovalTime',
             'byCity', 'bySector',
-            'ratingsTrend', 'topDesigners'
+            'ratingsTrend', 'topDesigners',
+            'topViewedContent', 'topLikedContent', 'topFollowedDesigners',
+            'engagementTrend',
+            'pageTrafficTotals', 'pageTrafficTrend',
+            'zeroViewsContent', 'zeroLikesContent', 'highViewLowLikes', 'inactiveDesigners'
         );
     }
 

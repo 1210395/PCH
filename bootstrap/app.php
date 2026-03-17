@@ -33,8 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => \App\Http\Middleware\Authenticate::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'academic' => \App\Http\Middleware\AcademicMiddleware::class,
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-            'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+            'verified'    => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'signed'      => \Illuminate\Routing\Middleware\ValidateSignature::class,
+            'track.page'  => \App\Http\Middleware\TrackPageVisit::class,
         ]);
 
         // Apply locale and security headers middleware to web routes
