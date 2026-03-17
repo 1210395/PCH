@@ -213,7 +213,7 @@ function upgradeWizard() {
             sub_sector: '{{ $designer->sub_sector ?? '' }}',
             company_name: '{{ $designer->company_name ?? '' }}',
             position: '{{ $designer->position ?? '' }}',
-            bio: {!! json_encode($designer->bio ?? '') !!},
+            bio: @json($designer->bio ?? ''),
             city: '{{ $designer->city ?? '' }}',
             years_of_experience: '{{ $designer->years_of_experience ?? '' }}',
             phone_number: '{{ $designer->phone_number ?? '' }}',

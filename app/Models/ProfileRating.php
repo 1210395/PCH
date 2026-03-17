@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class ProfileRating extends Model
 {
@@ -44,20 +45,37 @@ class ProfileRating extends Model
         });
 
         static::created(function ($rating) {
+            // Clear cached rating stats for the designer being rated
+            Cache::forget("profile_rating:avg:{$rating->designer_id}");
+            Cache::forget("profile_rating:count:{$rating->designer_id}");
+
             // Notify the profile owner that they received a rating
+            $rater = $rating->rater;
+            $raterName = $rater?->name ?? 'Someone';
+
             Notification::create([
                 'designer_id' => $rating->designer_id,
                 'type' => 'profile_rating',
                 'title' => 'New Profile Rating!',
-                'message' => "{$rating->rater->name} rated your profile",
+                'message' => "{$raterName} rated your profile",
                 'read' => false,
                 'data' => [
                     'rating_id' => $rating->id,
                     'rating' => $rating->rating,
                     'rater_id' => $rating->rater_id,
-                    'rater_name' => $rating->rater->name,
+                    'rater_name' => $raterName,
                 ]
             ]);
+        });
+
+        static::updated(function ($rating) {
+            Cache::forget("profile_rating:avg:{$rating->designer_id}");
+            Cache::forget("profile_rating:count:{$rating->designer_id}");
+        });
+
+        static::deleted(function ($rating) {
+            Cache::forget("profile_rating:avg:{$rating->designer_id}");
+            Cache::forget("profile_rating:count:{$rating->designer_id}");
         });
     }
 
@@ -227,23 +245,27 @@ class ProfileRating extends Model
     // ==========================================
 
     /**
-     * Get average rating for a designer
+     * Get average rating for a designer (cached for 10 minutes)
      */
     public static function getAverageRating($designerId)
     {
-        return self::approved()
-            ->where('designer_id', $designerId)
-            ->avg('rating') ?? 0;
+        return Cache::remember("profile_rating:avg:{$designerId}", 600, function () use ($designerId) {
+            return self::approved()
+                ->where('designer_id', $designerId)
+                ->avg('rating') ?? 0;
+        });
     }
 
     /**
-     * Get total rating count for a designer
+     * Get total rating count for a designer (cached for 10 minutes)
      */
     public static function getRatingCount($designerId)
     {
-        return self::approved()
-            ->where('designer_id', $designerId)
-            ->count();
+        return Cache::remember("profile_rating:count:{$designerId}", 600, function () use ($designerId) {
+            return self::approved()
+                ->where('designer_id', $designerId)
+                ->count();
+        });
     }
 
     /**

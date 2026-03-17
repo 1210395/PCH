@@ -231,13 +231,16 @@ class AdminProfileRatingController extends AdminBaseController
         $filteredRatingIds = $ratingsQuery->pluck('profile_ratings.id');
         $totalFilteredRatings = $filteredRatingIds->count();
 
-        // --- Criteria breakdown ---
+        // --- Criteria breakdown (single grouped query instead of N+1) ---
         $criteria = RatingCriteria::ordered()->get();
 
-        $criteriaStats = $criteria->map(function ($criterion) use ($filteredRatingIds, $totalFilteredRatings) {
-            $count = RatingCriteriaResponse::where('rating_criteria_id', $criterion->id)
-                ->whereIn('profile_rating_id', $filteredRatingIds)
-                ->count();
+        $criteriaCounts = RatingCriteriaResponse::whereIn('profile_rating_id', $filteredRatingIds)
+            ->groupBy('rating_criteria_id')
+            ->selectRaw('rating_criteria_id, COUNT(*) as count')
+            ->pluck('count', 'rating_criteria_id');
+
+        $criteriaStats = $criteria->map(function ($criterion) use ($criteriaCounts, $totalFilteredRatings) {
+            $count = $criteriaCounts->get($criterion->id, 0);
 
             return [
                 'id'         => $criterion->id,

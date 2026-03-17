@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class ConversationRating extends Model
 {
@@ -15,6 +16,26 @@ class ConversationRating extends Model
         'rated_id',
         'rating',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($rating) {
+            Cache::forget("conv_rating:avg:{$rating->rated_id}");
+            Cache::forget("conv_rating:count:{$rating->rated_id}");
+        });
+
+        static::updated(function ($rating) {
+            Cache::forget("conv_rating:avg:{$rating->rated_id}");
+            Cache::forget("conv_rating:count:{$rating->rated_id}");
+        });
+
+        static::deleted(function ($rating) {
+            Cache::forget("conv_rating:avg:{$rating->rated_id}");
+            Cache::forget("conv_rating:count:{$rating->rated_id}");
+        });
+    }
 
     protected $casts = [
         'rating' => 'integer',
@@ -101,18 +122,22 @@ class ConversationRating extends Model
     }
 
     /**
-     * Get average conversation rating for a user (as the rated person)
+     * Get average conversation rating for a user (cached for 10 minutes)
      */
     public static function getAverageRating($designerId)
     {
-        return self::where('rated_id', $designerId)->avg('rating') ?? 0;
+        return Cache::remember("conv_rating:avg:{$designerId}", 600, function () use ($designerId) {
+            return self::where('rated_id', $designerId)->avg('rating') ?? 0;
+        });
     }
 
     /**
-     * Get total conversation ratings count for a user
+     * Get total conversation ratings count for a user (cached for 10 minutes)
      */
     public static function getRatingCount($designerId)
     {
-        return self::where('rated_id', $designerId)->count();
+        return Cache::remember("conv_rating:count:{$designerId}", 600, function () use ($designerId) {
+            return self::where('rated_id', $designerId)->count();
+        });
     }
 }
