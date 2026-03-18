@@ -36,28 +36,23 @@ Route::prefix('{locale}/admin')
     ->middleware(['auth:designer', 'admin'])
     ->group(function () {
 
-        // Advanced Analytics
-        Route::prefix('analytics')->name('admin.analytics.')->group(function () {
-            // Legacy index → redirect to overview
-            Route::get('/', fn($locale) => redirect()->route('admin.analytics.overview', ['locale' => $locale]))->name('index');
-
-            // Sub-pages
-            Route::get('/overview',    [AdminAnalyticsController::class, 'show'])->name('overview')->defaults('analyticsPage', 'overview');
-            Route::get('/engagement',  [AdminAnalyticsController::class, 'show'])->name('engagement')->defaults('analyticsPage', 'engagement');
-            Route::get('/traffic',     [AdminAnalyticsController::class, 'show'])->name('traffic')->defaults('analyticsPage', 'traffic');
-            Route::get('/geographic',  [AdminAnalyticsController::class, 'show'])->name('geographic')->defaults('analyticsPage', 'geographic');
-            Route::get('/workflow',    [AdminAnalyticsController::class, 'show'])->name('workflow')->defaults('analyticsPage', 'workflow');
-            Route::get('/improvement', [AdminAnalyticsController::class, 'show'])->name('improvement')->defaults('analyticsPage', 'improvement');
-
-            // Per-page exports
-            Route::get('/overview/export',    [AdminAnalyticsController::class, 'exportPage'])->name('overview.export')->defaults('analyticsPage', 'overview');
-            Route::get('/engagement/export',  [AdminAnalyticsController::class, 'exportPage'])->name('engagement.export')->defaults('analyticsPage', 'engagement');
-            Route::get('/traffic/export',     [AdminAnalyticsController::class, 'exportPage'])->name('traffic.export')->defaults('analyticsPage', 'traffic');
-            Route::get('/geographic/export',  [AdminAnalyticsController::class, 'exportPage'])->name('geographic.export')->defaults('analyticsPage', 'geographic');
-            Route::get('/workflow/export',    [AdminAnalyticsController::class, 'exportPage'])->name('workflow.export')->defaults('analyticsPage', 'workflow');
-            Route::get('/improvement/export', [AdminAnalyticsController::class, 'exportPage'])->name('improvement.export')->defaults('analyticsPage', 'improvement');
-
-            Route::post('/refresh', [AdminAnalyticsController::class, 'refresh'])->name('refresh');
+        // Analytics
+        Route::prefix('analytics')->group(function () {
+            // Index alias → defaults to overview
+            Route::get('/', [AdminAnalyticsController::class, 'show'])
+                ->name('admin.analytics.index')
+                ->defaults('analyticsPage', 'overview');
+            $pages = ['overview', 'engagement', 'traffic', 'geographic', 'workflow', 'improvement'];
+            foreach ($pages as $p) {
+                Route::get("/{$p}", [AdminAnalyticsController::class, 'show'])
+                    ->name("admin.analytics.{$p}")
+                    ->defaults('analyticsPage', $p);
+                Route::get("/{$p}/export", [AdminAnalyticsController::class, 'exportPage'])
+                    ->name("admin.analytics.{$p}.export")
+                    ->defaults('analyticsPage', $p);
+            }
+            Route::post('/refresh', [AdminAnalyticsController::class, 'refresh'])
+                ->name('admin.analytics.refresh');
         });
 
         // Dashboard
@@ -183,6 +178,9 @@ Route::prefix('{locale}/admin')
             Route::post('/{slug}/upload-image', [AdminPageController::class, 'uploadImage'])->name('upload-image');
             Route::post('/{slug}/remove-image', [AdminPageController::class, 'removeImage'])->name('remove-image');
             Route::post('/{slug}/reset', [AdminPageController::class, 'reset'])->name('reset');
+            Route::post('/{slug}/add-section', [AdminPageController::class, 'addSection'])->name('add-section');
+            Route::post('/{slug}/add-faq-item', [AdminPageController::class, 'addFaqItem'])->name('add-faq-item');
+            Route::post('/{slug}/add-team-member', [AdminPageController::class, 'addTeamMember'])->name('add-team-member');
         });
 
         // Public API for dropdowns (used by frontend)

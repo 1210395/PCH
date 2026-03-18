@@ -161,6 +161,20 @@
         }
     </script>
 
+    <script>
+    // Shared Alpine.js helper — computes smart page-number array with "…" gaps.
+    // Extracted here to avoid embedding < and > operators inside HTML attributes.
+    function getPageNums(pg, pages) {
+        const t = pages, c = pg;
+        if (t <= 7) return Array.from({length: t}, (_, i) => i + 1);
+        const s = new Set([1, t, c, Math.max(2, c - 1), Math.min(t - 1, c + 1)]);
+        return [...s].sort((a, b) => a - b).reduce((acc, n, i, arr) => {
+            if (i > 0 && n - arr[i - 1] > 1) acc.push('…');
+            acc.push(n);
+            return acc;
+        }, []);
+    }
+    </script>
     @stack('scripts')
 </body>
 </html>

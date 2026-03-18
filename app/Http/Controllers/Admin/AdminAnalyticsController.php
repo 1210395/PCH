@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Designer;
+use App\Models\DropdownOption;
 use App\Models\Like;
 use App\Models\PageVisit;
 use App\Models\Product;
@@ -14,8 +15,6 @@ use App\Models\ProfileRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\AnalyticsPageExport;
 
 /** Provides multi-page advanced platform analytics for admin users. */
 class AdminAnalyticsController extends AdminBaseController
@@ -35,15 +34,15 @@ class AdminAnalyticsController extends AdminBaseController
      */
     public function show(Request $request, $locale)
     {
-        $page = $request->route('analyticsPage', 'overview');
+        $page = $request->route('analyticsPage') ?? $request->segment(4) ?? 'overview';
         if (! array_key_exists($page, self::PAGES)) {
             $page = 'overview';
         }
 
-        [$filters, $data, $cachedAt, $sectors, $cities] = $this->resolveData($request);
+        [$filters, $data, $cachedAt, $sectors, $cities, $sectorLabels] = $this->resolveData($request);
 
         return view("admin.analytics.{$page}", compact(
-            'data', 'cachedAt', 'filters', 'sectors', 'cities', 'page'
+            'data', 'cachedAt', 'filters', 'sectors', 'cities', 'page', 'sectorLabels'
         ));
     }
 
@@ -52,7 +51,7 @@ class AdminAnalyticsController extends AdminBaseController
      */
     public function exportPage(Request $request, $locale)
     {
-        $page = $request->route('analyticsPage', 'overview');
+        $page = $request->route('analyticsPage') ?? $request->segment(4) ?? 'overview';
         if (! array_key_exists($page, self::PAGES)) {
             $page = 'overview';
         }
@@ -69,9 +68,92 @@ class AdminAnalyticsController extends AdminBaseController
 
         $filters  = compact('preset', 'dateFrom', 'dateTo', 'sector', 'city');
         $data     = $this->computeAnalytics($filters);
-        $filename = "analytics-{$page}-" . now()->format('Y-m-d') . '.xlsx';
+        $filename = "analytics-{$page}-" . now()->format('Y-m-d') . '.csv';
 
-        return Excel::download(new AnalyticsPageExport($page, $data, $filters), $filename);
+        $sheets = $this->buildCsvSheets($page, $data, $filters);
+
+        return response()->streamDownload(function () use ($sheets) {
+            $out = fopen('php://output', 'w');
+            foreach ($sheets as $sheet) {
+                // Sheet title as section header
+                fputcsv($out, ['=== ' . $sheet['title'] . ' ===']);
+                fputcsv($out, $sheet['headings']);
+                foreach ($sheet['rows'] as $row) {
+                    fputcsv($out, $row);
+                }
+                fputcsv($out, []); // blank separator between sheets
+            }
+            fclose($out);
+        }, $filename, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    private function buildCsvSheets(string $page, array $data, array $filters): array
+    {
+        return match ($page) {
+            'overview' => [
+                ['title' => 'KPIs', 'headings' => ['Metric', 'Value'], 'rows' => [
+                    ['Total Designers',       $data['totalDesigners']],
+                    ['Active Designers',      $data['activeDesigners']],
+                    ['Total Approved Content',$data['totalApprovedContent']],
+                    ['Total Pending Items',   $data['pendingTotal']],
+                    ['Total Approved Ratings',$data['totalRatings']],
+                    ['Average Rating',        $data['averageRating']],
+                    ['Date From',  $filters['dateFrom'] ?? 'All time'],
+                    ['Date To',    $filters['dateTo']   ?? 'All time'],
+                    ['Sector',     $filters['sector']   ?? 'All'],
+                    ['City',       $filters['city']     ?? 'All'],
+                    ['Exported At', now()->format('Y-m-d H:i:s')],
+                ]],
+                ['title' => 'Designer Growth', 'headings' => ['Month', 'New Registrations'],
+                    'rows' => $data['designerGrowth']->map(fn($r) => [$r['month'], $r['count']])->toArray()],
+                ['title' => 'Content Trends', 'headings' => ['Month', 'Products', 'Projects', 'Services', 'Marketplace'],
+                    'rows' => $data['contentTrends']->map(fn($r) => [$r['month'], $r['products'], $r['projects'], $r['services'], $r['marketplace']])->toArray()],
+            ],
+            'engagement' => [
+                ['title' => 'Engagement Trend', 'headings' => ['Month', 'Views', 'Likes'],
+                    'rows' => $data['engagementTrend']->map(fn($r) => [$r['month'], $r['views'], $r['likes']])->toArray()],
+                ['title' => 'Most Viewed', 'headings' => ['Type', 'Title', 'Views', 'Likes'],
+                    'rows' => $data['topViewedContent']->map(fn($r) => [$r['type'], $r['title'], $r['views'], $r['likes']])->toArray()],
+                ['title' => 'Most Liked', 'headings' => ['Type', 'Title', 'Likes', 'Views'],
+                    'rows' => $data['topLikedContent']->map(fn($r) => [$r['type'], $r['title'], $r['likes'], $r['views']])->toArray()],
+                ['title' => 'Most Followed', 'headings' => ['Name', 'City', 'Sector', 'Followers', 'Profile Views'],
+                    'rows' => $data['topFollowedDesigners']->map(fn($d) => [$d->name, $d->city ?? '', $d->sector ?? '', $d->followers_count, $d->views_count])->toArray()],
+            ],
+            'traffic' => [
+                ['title' => 'Page Traffic', 'headings' => ['Page', 'Total Visits'],
+                    'rows' => $data['pageTrafficTotals']->map(fn($r) => [$r['page'], $r['count']])->toArray()],
+            ],
+            'geographic' => [
+                ['title' => 'By City', 'headings' => ['City', 'Designers'],
+                    'rows' => $data['byCity']->map(fn($r) => [$r->city, $r->count])->toArray()],
+                ['title' => 'By Sector', 'headings' => ['Sector', 'Designers'],
+                    'rows' => $data['bySector']->map(fn($r) => [$r->sector, $r->count])->toArray()],
+                ['title' => 'Top Designers', 'headings' => ['Name', 'City', 'Sector', 'Products', 'Projects', 'Services', 'Marketplace', 'Total'],
+                    'rows' => $data['topDesigners']->map(fn($d) => [$d['name'], $d['city'] ?? '', $d['sector'] ?? '', $d['products'], $d['projects'], $d['services'], $d['marketplace'], $d['total']])->toArray()],
+            ],
+            'workflow' => [
+                ['title' => 'Approval Workflow', 'headings' => ['Content Type', 'Pending', 'Approved', 'Rejected'],
+                    'rows' => array_map(fn($r) => [$r['type'], $r['pending'], $r['approved'], $r['rejected']], $data['approvalWorkflow'])],
+                ['title' => 'Avg Time to Approve', 'headings' => ['Content Type', 'Avg Hours'],
+                    'rows' => array_map(fn($r) => [$r['type'], $r['avg_hours']], $data['avgApprovalTime'])],
+                ['title' => 'Ratings Trend', 'headings' => ['Month', 'Avg Rating', 'Count'],
+                    'rows' => $data['ratingsTrend']->map(fn($r) => [$r['month'], $r['avg_rating'], $r['count']])->toArray()],
+            ],
+            'improvement' => [
+                ['title' => 'Zero Views', 'headings' => ['Type', 'Title'],
+                    'rows' => $data['zeroViewsContent']->map(fn($r) => [$r['type'], $r['title']])->toArray()],
+                ['title' => 'Zero Likes', 'headings' => ['Type', 'Title', 'Views'],
+                    'rows' => $data['zeroLikesContent']->map(fn($r) => [$r['type'], $r['title'], $r['views']])->toArray()],
+                ['title' => 'High Views No Likes', 'headings' => ['Type', 'Title', 'Views'],
+                    'rows' => $data['highViewLowLikes']->map(fn($r) => [$r['type'], $r['title'], $r['views']])->toArray()],
+                ['title' => 'Inactive Designers', 'headings' => ['Name', 'City', 'Sector', 'Joined'],
+                    'rows' => $data['inactiveDesigners']->map(fn($d) => [$d->name, $d->city ?? '', $d->sector ?? '', $d->created_at->format('Y-m-d')])->toArray()],
+            ],
+            default => [],
+        };
     }
 
     /**
@@ -128,7 +210,25 @@ class AdminAnalyticsController extends AdminBaseController
             ->whereNotNull('city')->where('city', '!=', '')
             ->distinct()->orderBy('city')->pluck('city');
 
-        return [$filters, $data, $cachedAt, $sectors, $cities];
+        // Build sector label map: value → display label.
+        // Includes active AND inactive CMS options so disabled sectors still display correctly.
+        // Values present in DB but absent from CMS entirely get a "(Legacy)" suffix.
+        $locale = app()->getLocale();
+        $sectorLabels = DropdownOption::where('type', 'sector')
+            ->whereNull('parent_id')
+            ->get(['value', 'label', 'label_ar'])
+            ->mapWithKeys(fn($s) => [
+                $s->value => ($locale === 'ar' && $s->label_ar) ? $s->label_ar : $s->label,
+            ])
+            ->toArray();
+
+        foreach ($sectors as $v) {
+            if (! array_key_exists($v, $sectorLabels)) {
+                $sectorLabels[$v] = ucwords(str_replace(['_', '-'], ' ', $v)) . ' (Legacy)';
+            }
+        }
+
+        return [$filters, $data, $cachedAt, $sectors, $cities, $sectorLabels];
     }
 
     // -------------------------------------------------------------------------

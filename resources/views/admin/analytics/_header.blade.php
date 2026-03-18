@@ -97,7 +97,7 @@
                     <option value="">{{ __('All Sectors') }}</option>
                     @foreach($sectors as $s)
                         <option value="{{ $s }}" {{ $filters['sector'] === $s ? 'selected' : '' }}>
-                            {{ ucwords(str_replace(['_', '-'], ' ', $s)) }}
+                            {{ $sectorLabels[$s] ?? ucwords(str_replace(['_', '-'], ' ', $s)) }}
                         </option>
                     @endforeach
                 </select>
