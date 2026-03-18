@@ -260,6 +260,12 @@
                     <i class="fas fa-exclamation-triangle w-4 text-center text-xs"></i>
                     <span>{{ __('Improvement') }}</span>
                 </a>
+                <a href="{{ route('admin.analytics.search', ['locale' => $locale]) }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                          {{ $currentRoute === 'admin.analytics.search' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white' }}">
+                    <i class="fas fa-search w-4 text-center text-xs"></i>
+                    <span>{{ __('Search') }}</span>
+                </a>
             </div>
         </div>
 

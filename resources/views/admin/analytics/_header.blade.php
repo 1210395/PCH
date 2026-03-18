@@ -10,6 +10,7 @@
         'geographic'  => ['label' => __('Geographic'),  'icon' => 'fa-map-marker-alt'],
         'workflow'    => ['label' => __('Workflow'),     'icon' => 'fa-tasks'],
         'improvement' => ['label' => __('Improvement'), 'icon' => 'fa-exclamation-triangle'],
+        'search'      => ['label' => __('Search'),      'icon' => 'fa-search'],
     ];
 @endphp
 

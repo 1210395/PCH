@@ -166,6 +166,16 @@ class HomeController extends Controller
         // Total results count
         $totalResults = $designers->count() + $projects->count() + $products->count();
 
+        // Log the search query for analytics (never let this break the page)
+        try {
+            \App\Models\SearchLog::create([
+                'query'         => mb_strtolower(trim($query)),
+                'results_count' => $totalResults,
+                'ip_address'    => $request->ip(),
+                'designer_id'   => auth('designer')->id(),
+            ]);
+        } catch (\Throwable $e) {}
+
         return view('search', compact('query', 'designers', 'projects', 'products', 'totalResults'));
     }
 

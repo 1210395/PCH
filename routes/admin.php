@@ -42,7 +42,7 @@ Route::prefix('{locale}/admin')
             Route::get('/', [AdminAnalyticsController::class, 'show'])
                 ->name('admin.analytics.index')
                 ->defaults('analyticsPage', 'overview');
-            $pages = ['overview', 'engagement', 'traffic', 'geographic', 'workflow', 'improvement'];
+            $pages = ['overview', 'engagement', 'traffic', 'geographic', 'workflow', 'improvement', 'search'];
             foreach ($pages as $p) {
                 Route::get("/{$p}", [AdminAnalyticsController::class, 'show'])
                     ->name("admin.analytics.{$p}")

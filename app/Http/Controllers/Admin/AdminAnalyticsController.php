@@ -9,6 +9,7 @@ use App\Models\PageVisit;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\ProjectView;
+use App\Models\SearchLog;
 use App\Models\Service;
 use App\Models\MarketplacePost;
 use App\Models\ProfileRating;
@@ -27,6 +28,7 @@ class AdminAnalyticsController extends AdminBaseController
         'geographic'  => 'Geographic',
         'workflow'    => 'Workflow',
         'improvement' => 'Improvement',
+        'search'      => 'Search Queries',
     ];
 
     /**
@@ -151,6 +153,18 @@ class AdminAnalyticsController extends AdminBaseController
                     'rows' => $data['highViewLowLikes']->map(fn($r) => [$r['type'], $r['title'], $r['views']])->toArray()],
                 ['title' => 'Inactive Designers', 'headings' => ['Name', 'City', 'Sector', 'Joined'],
                     'rows' => $data['inactiveDesigners']->map(fn($d) => [$d->name, $d->city ?? '', $d->sector ?? '', $d->created_at->format('Y-m-d')])->toArray()],
+            ],
+            'search' => [
+                ['title' => 'Search KPIs', 'headings' => ['Metric', 'Value'], 'rows' => [
+                    ['Total Searches',   $data['searchTotalCount']],
+                    ['Unique Queries',   $data['searchUniqueCount']],
+                    ['Zero-Result Searches', $data['searchZeroCount']],
+                    ['Zero-Result Rate', $data['searchTotalCount'] > 0 ? round(($data['searchZeroCount'] / $data['searchTotalCount']) * 100, 1) . '%' : '0%'],
+                ]],
+                ['title' => 'Top Search Terms', 'headings' => ['Query', 'Searches', 'Avg Results', 'Zero-Result Searches'],
+                    'rows' => $data['searchTopTerms']->map(fn($r) => [$r['query'], $r['count'], $r['avg_results'], $r['zero_count']])->toArray()],
+                ['title' => 'Search Volume Trend', 'headings' => ['Month', 'Total Searches', 'Zero-Result Searches'],
+                    'rows' => $data['searchVolumeTrend']->map(fn($r) => [$r['month'], $r['count'], $r['zero_count']])->toArray()],
             ],
             default => [],
         };
@@ -554,6 +568,39 @@ class AdminAnalyticsController extends AdminBaseController
             ->take(30)
             ->values();
 
+        // ---- Search query analytics -----------------------------------------
+        $searchTopTerms = SearchLog::when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
+            ->selectRaw('query, COUNT(*) as count, ROUND(AVG(results_count), 1) as avg_results, SUM(CASE WHEN results_count = 0 THEN 1 ELSE 0 END) as zero_count')
+            ->groupBy('query')
+            ->orderByDesc('count')
+            ->limit(50)
+            ->get()
+            ->map(fn($r) => [
+                'query'       => $r->query,
+                'count'       => (int) $r->count,
+                'avg_results' => (float) $r->avg_results,
+                'zero_count'  => (int) $r->zero_count,
+            ])
+            ->values();
+
+        $searchVolumeTrend = SearchLog::when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, SUM(CASE WHEN results_count = 0 THEN 1 ELSE 0 END) as zero_count")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->map(fn($r) => ['month' => $r->month, 'count' => (int) $r->count, 'zero_count' => (int) $r->zero_count])
+            ->values();
+
+        $searchTotalCount   = SearchLog::when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))->count();
+        $searchUniqueCount  = SearchLog::when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))->distinct('query')->count('query');
+        $searchZeroCount    = SearchLog::where('results_count', 0)
+            ->when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
+            ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))->count();
+
         return compact(
             'totalDesigners', 'activeDesigners', 'pendingTotal',
             'totalApprovedContent', 'totalRatings', 'averageRating',
@@ -564,7 +611,8 @@ class AdminAnalyticsController extends AdminBaseController
             'topViewedContent', 'topLikedContent', 'topFollowedDesigners',
             'engagementTrend',
             'pageTrafficTotals', 'pageTrafficTrend',
-            'zeroViewsContent', 'zeroLikesContent', 'highViewLowLikes', 'inactiveDesigners'
+            'zeroViewsContent', 'zeroLikesContent', 'highViewLowLikes', 'inactiveDesigners',
+            'searchTopTerms', 'searchVolumeTrend', 'searchTotalCount', 'searchUniqueCount', 'searchZeroCount'
         );
     }
 
