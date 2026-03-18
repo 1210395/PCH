@@ -29,6 +29,7 @@ class AdminAnalyticsController extends AdminBaseController
         'workflow'    => 'Workflow',
         'improvement' => 'Improvement',
         'search'      => 'Search Queries',
+        'insights'    => 'Insights',
     ];
 
     /**
@@ -43,8 +44,10 @@ class AdminAnalyticsController extends AdminBaseController
 
         [$filters, $data, $cachedAt, $sectors, $cities, $sectorLabels] = $this->resolveData($request);
 
+        $insights = $this->generateInsights($data);
+
         return view("admin.analytics.{$page}", compact(
-            'data', 'cachedAt', 'filters', 'sectors', 'cities', 'page', 'sectorLabels'
+            'data', 'cachedAt', 'filters', 'sectors', 'cities', 'page', 'sectorLabels', 'insights'
         ));
     }
 
@@ -90,6 +93,229 @@ class AdminAnalyticsController extends AdminBaseController
             'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
+    }
+
+    /**
+     * Cross-reference all analytics data sources and return actionable insights.
+     * Each insight has: severity (critical|warning|info), title, description,
+     * recommendation, sources (which analytics pages it draws from), and metric.
+     */
+    private function generateInsights(array $data): array
+    {
+        $insights = [];
+
+        // ── 1. Repeated zero-result searches ─────────────────────────────────
+        $persistentZero = $data['searchTopTerms']
+            ->filter(fn($r) => $r['zero_count'] === $r['count'] && $r['count'] >= 3)
+            ->sortByDesc('count')
+            ->take(5);
+
+        foreach ($persistentZero as $term) {
+            $insights[] = [
+                'severity'       => $term['count'] >= 5 ? 'critical' : 'warning',
+                'title'          => 'Unresolved Search: "' . $term['query'] . '"',
+                'description'    => 'Searched ' . $term['count'] . ' times — every search returned 0 results.',
+                'recommendation' => 'Add content matching this query, or check if a category/tag is missing.',
+                'sources'        => ['search', 'improvement'],
+                'metric'         => $term['count'] . ' failed searches',
+            ];
+        }
+
+        // ── 2. High overall zero-result rate ─────────────────────────────────
+        if ($data['searchTotalCount'] >= 10) {
+            $zeroRate = round(($data['searchZeroCount'] / $data['searchTotalCount']) * 100, 1);
+            if ($zeroRate >= 40) {
+                $insights[] = [
+                    'severity'       => 'critical',
+                    'title'          => 'Very High Zero-Result Rate (' . $zeroRate . '%)',
+                    'description'    => $zeroRate . '% of all searches return no results (' . $data['searchZeroCount'] . ' of ' . $data['searchTotalCount'] . ' searches).',
+                    'recommendation' => 'Review top zero-result queries and ensure matching content exists. Verify FULLTEXT search indexes.',
+                    'sources'        => ['search'],
+                    'metric'         => $zeroRate . '% zero-result rate',
+                ];
+            } elseif ($zeroRate >= 25) {
+                $insights[] = [
+                    'severity'       => 'warning',
+                    'title'          => 'Elevated Zero-Result Rate (' . $zeroRate . '%)',
+                    'description'    => $zeroRate . '% of all searches return no results.',
+                    'recommendation' => 'Investigate the top zero-result queries and add missing content or categories.',
+                    'sources'        => ['search'],
+                    'metric'         => $zeroRate . '% zero-result rate',
+                ];
+            }
+        }
+
+        // ── 3. Search term exists as zero-view content (hidden content) ───────
+        $zeroResultTerms = $data['searchTopTerms']
+            ->filter(fn($r) => $r['zero_count'] > 0 && $r['avg_results'] < 1)
+            ->pluck('query');
+
+        $hiddenMatches = collect();
+        foreach ($zeroResultTerms as $term) {
+            $words = array_filter(explode(' ', $term), fn($w) => mb_strlen($w) >= 3);
+            foreach ($data['zeroViewsContent'] as $item) {
+                foreach ($words as $word) {
+                    if (str_contains(mb_strtolower($item['title']), mb_strtolower($word))) {
+                        $hiddenMatches->push(['term' => $term, 'title' => $item['title']]);
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        if ($hiddenMatches->count() >= 2) {
+            $examples = $hiddenMatches->take(3)->map(fn($m) => '"' . $m['term'] . '"')->implode(', ');
+            $insights[] = [
+                'severity'       => 'warning',
+                'title'          => 'Content Exists But Search Can\'t Find It',
+                'description'    => $hiddenMatches->count() . ' queries return no results yet matching approved content exists (with zero views). Examples: ' . $examples . '.',
+                'recommendation' => 'Check that FULLTEXT indexes cover all relevant fields. Content may have been approved before indexes were added.',
+                'sources'        => ['search', 'improvement'],
+                'metric'         => $hiddenMatches->count() . ' hidden matches',
+            ];
+        }
+
+        // ── 4. Slow approval + zero views for the same content type ──────────
+        $typeMap = ['Products' => 'Product', 'Projects' => 'Project', 'Services' => 'Service', 'Marketplace' => 'Marketplace'];
+        foreach ($data['avgApprovalTime'] as $at) {
+            if ($at['avg_hours'] < 48) continue;
+            $singular   = $typeMap[$at['type']] ?? $at['type'];
+            $zeroCount  = collect($data['zeroViewsContent'])->where('type', $singular)->count();
+            if ($zeroCount < 5) continue;
+            $insights[] = [
+                'severity'       => 'warning',
+                'title'          => $at['type'] . ': Slow Approval + High Zero-View Count',
+                'description'    => $at['type'] . ' take an avg of ' . $at['avg_hours'] . 'h to approve, and ' . $zeroCount . ' approved ' . strtolower($at['type']) . ' have never been viewed.',
+                'recommendation' => 'Speed up ' . strtolower($at['type']) . ' approvals — content may go cold and get buried before anyone discovers it.',
+                'sources'        => ['workflow', 'improvement'],
+                'metric'         => $at['avg_hours'] . 'h avg · ' . $zeroCount . ' zero-view items',
+            ];
+        }
+
+        // ── 5. Large pending approval queue ──────────────────────────────────
+        foreach ($data['approvalWorkflow'] as $wf) {
+            if ($wf['pending'] < 20) continue;
+            $insights[] = [
+                'severity'       => $wf['pending'] >= 50 ? 'critical' : 'warning',
+                'title'          => 'Large Pending Queue: ' . $wf['type'],
+                'description'    => $wf['pending'] . ' ' . strtolower($wf['type']) . ' are waiting for approval.',
+                'recommendation' => 'Process the ' . strtolower($wf['type']) . ' queue — designers lose motivation when submissions are ignored.',
+                'sources'        => ['workflow'],
+                'metric'         => $wf['pending'] . ' pending',
+            ];
+        }
+
+        // ── 6. Inactive designer scale ────────────────────────────────────────
+        $inactiveCount = $data['inactiveDesigners']->count();
+        if ($data['totalDesigners'] > 0 && $inactiveCount > 0) {
+            $pct = round(($inactiveCount / $data['totalDesigners']) * 100, 1);
+            if ($pct >= 30) {
+                $insights[] = [
+                    'severity'       => 'critical',
+                    'title'          => 'High Proportion of Inactive Designers (' . $pct . '%)',
+                    'description'    => $inactiveCount . ' designers (' . $pct . '% of total) joined but have never published any approved content.',
+                    'recommendation' => 'Run an onboarding email campaign or simplify the first-upload experience.',
+                    'sources'        => ['improvement', 'geographic'],
+                    'metric'         => $pct . '% inactive',
+                ];
+            } elseif ($pct >= 15) {
+                $insights[] = [
+                    'severity'       => 'warning',
+                    'title'          => 'Significant Inactive Designer Base',
+                    'description'    => $inactiveCount . ' designers (' . $pct . '%) have joined but published nothing.',
+                    'recommendation' => 'Consider a re-engagement campaign or reduce friction in the first-upload flow.',
+                    'sources'        => ['improvement'],
+                    'metric'         => $inactiveCount . ' inactive designers',
+                ];
+            }
+        }
+
+        // ── 7. Zero-views content scale ───────────────────────────────────────
+        $zeroViewsCount = $data['zeroViewsContent']->count();
+        if ($data['totalApprovedContent'] > 0 && $zeroViewsCount > 0) {
+            $pct = round(($zeroViewsCount / $data['totalApprovedContent']) * 100, 1);
+            if ($pct >= 40) {
+                $insights[] = [
+                    'severity'       => 'critical',
+                    'title'          => 'Large Amount of Unseen Approved Content (' . $pct . '%)',
+                    'description'    => $zeroViewsCount . ' approved items (' . $pct . '%) have never been viewed.',
+                    'recommendation' => 'Improve content discoverability: review homepage curation, category pages, and search indexing.',
+                    'sources'        => ['improvement', 'traffic'],
+                    'metric'         => $pct . '% never viewed',
+                ];
+            } elseif ($pct >= 20) {
+                $insights[] = [
+                    'severity'       => 'warning',
+                    'title'          => 'Many Approved Items With Zero Views',
+                    'description'    => $zeroViewsCount . ' approved items (' . $pct . '%) have never been viewed.',
+                    'recommendation' => 'Promote newly approved content on the homepage or notify followers.',
+                    'sources'        => ['improvement'],
+                    'metric'         => $zeroViewsCount . ' unseen items',
+                ];
+            }
+        }
+
+        // ── 8. High-traffic page with low engagement ──────────────────────────
+        $pageToType  = ['marketplace' => 'Marketplace', 'products' => 'Product', 'projects' => 'Project', 'services' => 'Service'];
+        $totalTraffic = $data['pageTrafficTotals']->sum('count');
+        if ($totalTraffic > 0) {
+            foreach ($data['pageTrafficTotals'] as $pt) {
+                $type = $pageToType[$pt['page']] ?? null;
+                if (! $type) continue;
+                $share = round(($pt['count'] / $totalTraffic) * 100, 1);
+                if ($share < 20) continue;
+                $typeItems = collect($data['topViewedContent'])->where('type', $type);
+                if ($typeItems->isEmpty()) continue;
+                if ($typeItems->avg('likes') < 1) {
+                    $insights[] = [
+                        'severity'       => 'warning',
+                        'title'          => ucfirst($pt['page']) . ' Gets ' . $share . '% of Traffic But Near-Zero Likes',
+                        'description'    => ucfirst($pt['page']) . ' is one of the top visited pages (' . $share . '% of traffic), but top ' . strtolower($type) . ' content averages fewer than 1 like.',
+                        'recommendation' => 'Review ' . strtolower($type) . ' content quality and add engagement prompts (like buttons, CTAs) in visible positions.',
+                        'sources'        => ['traffic', 'engagement'],
+                        'metric'         => $share . '% traffic share',
+                    ];
+                }
+            }
+        }
+
+        // ── 9. Geographic concentration ───────────────────────────────────────
+        if ($data['byCity']->count() >= 3) {
+            $topCity      = $data['byCity']->first();
+            $totalByCity  = $data['byCity']->sum('count');
+            if ($totalByCity > 0) {
+                $pct = round(($topCity->count / $totalByCity) * 100, 1);
+                if ($pct >= 50) {
+                    $insights[] = [
+                        'severity'       => 'info',
+                        'title'          => 'Designer Base Concentrated in ' . $topCity->city . ' (' . $pct . '%)',
+                        'description'    => $pct . '% of all designers are based in ' . $topCity->city . '.',
+                        'recommendation' => 'Run outreach campaigns in underrepresented cities to diversify the platform geographically.',
+                        'sources'        => ['geographic'],
+                        'metric'         => $pct . '% from ' . $topCity->city,
+                    ];
+                }
+            }
+        }
+
+        // ── 10. High-view zero-like content scale ─────────────────────────────
+        $highLowCount = $data['highViewLowLikes']->count();
+        if ($highLowCount >= 10) {
+            $insights[] = [
+                'severity'       => 'info',
+                'title'          => $highLowCount . ' Items Have High Views But Zero Likes',
+                'description'    => $highLowCount . ' approved items each have 10+ views but no likes at all — people find them but don\'t engage.',
+                'recommendation' => 'Review this content for quality issues, or ensure the like button is prominent and easy to use.',
+                'sources'        => ['engagement', 'improvement'],
+                'metric'         => $highLowCount . ' items',
+            ];
+        }
+
+        // Sort: critical → warning → info
+        $order = ['critical' => 0, 'warning' => 1, 'info' => 2];
+        usort($insights, fn($a, $b) => ($order[$a['severity']] ?? 3) <=> ($order[$b['severity']] ?? 3));
+
+        return $insights;
     }
 
     private function buildCsvSheets(string $page, array $data, array $filters): array
@@ -153,6 +379,17 @@ class AdminAnalyticsController extends AdminBaseController
                     'rows' => $data['highViewLowLikes']->map(fn($r) => [$r['type'], $r['title'], $r['views']])->toArray()],
                 ['title' => 'Inactive Designers', 'headings' => ['Name', 'City', 'Sector', 'Joined'],
                     'rows' => $data['inactiveDesigners']->map(fn($d) => [$d->name, $d->city ?? '', $d->sector ?? '', $d->created_at->format('Y-m-d')])->toArray()],
+            ],
+            'insights' => [
+                ['title' => 'Insights', 'headings' => ['Severity', 'Title', 'Description', 'Recommendation', 'Sources', 'Metric'],
+                    'rows' => array_map(fn($i) => [
+                        strtoupper($i['severity']),
+                        $i['title'],
+                        $i['description'],
+                        $i['recommendation'],
+                        implode(' + ', $i['sources']),
+                        $i['metric'] ?? '',
+                    ], $this->generateInsights($data))],
             ],
             'search' => [
                 ['title' => 'Search KPIs', 'headings' => ['Metric', 'Value'], 'rows' => [

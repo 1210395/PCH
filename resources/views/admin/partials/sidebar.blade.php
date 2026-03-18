@@ -266,6 +266,12 @@
                     <i class="fas fa-search w-4 text-center text-xs"></i>
                     <span>{{ __('Search') }}</span>
                 </a>
+                <a href="{{ route('admin.analytics.insights', ['locale' => $locale]) }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200
+                          {{ $currentRoute === 'admin.analytics.insights' ? 'bg-amber-500 text-white' : 'text-amber-400 hover:bg-gray-700 hover:text-white' }}">
+                    <i class="fas fa-lightbulb w-4 text-center text-xs"></i>
+                    <span>{{ __('Insights') }}</span>
+                </a>
             </div>
         </div>
 
