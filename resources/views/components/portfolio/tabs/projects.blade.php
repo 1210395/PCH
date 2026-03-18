@@ -19,9 +19,9 @@
                 @php
                     try {
                         $primaryImage = $project->images && $project->images->count() > 0 ? $project->images->where('is_primary', 1)->first() : null;
-                        $imageUrl = $primaryImage ? url('media/' . $primaryImage->image_path) : asset('images/placeholder.jpg');
+                        $imageUrl = $primaryImage ? url('media/' . $primaryImage->image_path) : url('media/images/placeholder.jpg');
                     } catch (\Exception $e) {
-                        $imageUrl = asset('images/placeholder.jpg');
+                        $imageUrl = url('media/images/placeholder.jpg');
                         \Log::error('Error loading project image', ['error' => $e->getMessage(), 'project_id' => $project->id]);
                     }
                 @endphp

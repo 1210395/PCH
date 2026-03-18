@@ -14,7 +14,7 @@
 <meta property="og:type" content="@yield('og_type', 'website')">
 <meta property="og:title" content="@yield('og_title', config('app.name'))">
 <meta property="og:description" content="@yield('og_description', 'Palestine Creative Hub - Empowering Palestinian creativity through technology, innovation, and collaboration.')">
-<meta property="og:image" content="@yield('og_image', asset('images/logo.png'))">
+<meta property="og:image" content="@yield('og_image', url('media/images/logo.png'))">
 <meta property="og:image:width" content="@yield('og_image_width', '512')">
 <meta property="og:image:height" content="@yield('og_image_height', '512')">
 <meta property="og:site_name" content="{{ config('app.name', 'Palestine Creative Hub') }}">
@@ -24,7 +24,7 @@
 <meta name="twitter:card" content="@yield('twitter_card', 'summary')">
 <meta name="twitter:title" content="@yield('og_title', config('app.name'))">
 <meta name="twitter:description" content="@yield('og_description', 'Palestine Creative Hub - Empowering Palestinian creativity through technology, innovation, and collaboration.')">
-<meta name="twitter:image" content="@yield('og_image', asset('images/logo.png'))">
+<meta name="twitter:image" content="@yield('og_image', url('media/images/logo.png'))">
 
 {{-- Canonical URL (strip query params to avoid duplicate indexing) --}}
 @php

@@ -40,17 +40,32 @@ require __DIR__ . '/admin.php';
 // Uses /media/ prefix to avoid Apache blocking /storage/ paths on shared hosting
 // Supports any nested path depth (e.g., /media/logos/image.jpg or /media/trainings/2024/image.jpg)
 Route::get('/media/{path}', function ($path) {
-    // Prevent path traversal attacks
-    $basePath = realpath(storage_path('app/public'));
-    $filePath = realpath(storage_path("app/public/{$path}"));
+    // Try storage/app/public first, then fall back to public/ directory
+    $storagePath = realpath(storage_path("app/public/{$path}"));
+    $storageBase = realpath(storage_path('app/public'));
+    $publicPath  = realpath(public_path($path));
+    $publicBase  = realpath(public_path());
 
-    // Ensure the resolved path is within the allowed base directory
-    if (!$filePath || !$basePath || !str_starts_with($filePath, $basePath . DIRECTORY_SEPARATOR)) {
+    // Check storage first
+    if ($storagePath && $storageBase && str_starts_with($storagePath, $storageBase . DIRECTORY_SEPARATOR)) {
+        $filePath = $storagePath;
+    // Fall back to public/
+    } elseif ($publicPath && $publicBase && str_starts_with($publicPath, $publicBase . DIRECTORY_SEPARATOR)) {
+        $filePath = $publicPath;
+    } else {
         abort(404);
     }
 
-    // Determine content type
-    $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+    $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimeMap = [
+        'js'    => 'application/javascript',
+        'css'   => 'text/css',
+        'svg'   => 'image/svg+xml',
+        'webp'  => 'image/webp',
+        'woff'  => 'font/woff',
+        'woff2' => 'font/woff2',
+    ];
+    $mimeType = $mimeMap[$ext] ?? mime_content_type($filePath) ?: 'application/octet-stream';
 
     return response()->file($filePath, [
         'Content-Type' => $mimeType,
@@ -485,7 +500,7 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Note: Removed fallback to avoid catching asset files (js, css, images)
     // Assets are served directly by the web server
-});
+})->where('locale', 'en|ar');
 
 // ============================================================
 // ADMIN TOOLS (Password Protected)

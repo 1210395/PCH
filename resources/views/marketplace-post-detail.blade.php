@@ -21,7 +21,7 @@
 
 @section('head')
 @php
-    $ogImage = $post->image ? url('media/' . $post->image) : asset('images/logo.png');
+    $ogImage = $post->image ? url('media/' . $post->image) : url('media/images/logo.png');
 @endphp
 <meta property="og:title" content="{{ $postTitle }} | {{ __('Marketplace') }}">
 <meta property="og:description" content="{{ Str::limit($postDescription, 160) }}">

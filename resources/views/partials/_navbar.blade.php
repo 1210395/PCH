@@ -26,7 +26,7 @@
             <div class="flex items-center gap-4 sm:gap-8 lg:gap-12">
                 <!-- Logo -->
                 <a href="{{ url('/') }}" class="cursor-pointer">
-                    <img src="{{ asset('images/logo.webp') }}" alt="Palestine Creative Hub" class="h-[3.6rem]">
+                    <img src="{{ url('media/images/logo.webp') }}" alt="Palestine Creative Hub" class="h-[3.6rem]">
                 </a>
 
                 <!-- Main Navigation - Desktop -->

@@ -7,7 +7,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 {{-- Optimized Image Lazy Loading --}}
-<script src="{{ asset('js/lazy-images.js') }}" defer></script>
+<script src="{{ url('media/js/lazy-images.js') }}" defer></script>
 
 {{-- Additional Scripts --}}
 @stack('scripts')

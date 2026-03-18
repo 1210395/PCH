@@ -47,7 +47,7 @@
             <!-- About Section -->
             <div>
                 <div class="mb-4">
-                    <img src="{{ asset('images/logo-white.webp') }}" alt="Palestine Creative Hub" class="h-[3.6rem]">
+                    <img src="{{ url('media/images/logo-white.webp') }}" alt="Palestine Creative Hub" class="h-[3.6rem]">
                 </div>
                 <p class="text-white/90 text-sm leading-relaxed">
                     @if(app()->getLocale() === 'ar' && !empty($footerSettings['description_ar']))
@@ -65,8 +65,8 @@
                 </p>
                 @endif
 				<div class="mt-3 flex items-center gap-4 sm:gap-5">
-					<img src="{{ asset('images/sweden-english.png') }}" alt="Sweden" class="w-24 sm:w-[130px] max-w-[50%]" />
-					<img src="{{ asset('images/global-w.png') }}" alt="Global Communites" class="w-24 sm:w-[130px] max-w-[50%]" />
+					<img src="{{ url('media/images/sweden-english.png') }}" alt="Sweden" class="w-24 sm:w-[130px] max-w-[50%]" />
+					<img src="{{ url('media/images/global-w.png') }}" alt="Global Communites" class="w-24 sm:w-[130px] max-w-[50%]" />
 				</div>
             </div>
 

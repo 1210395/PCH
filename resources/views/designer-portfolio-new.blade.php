@@ -9,7 +9,7 @@
 
 @section('head')
 @php
-    $ogAvatar = $designer->avatar ? url('media/' . $designer->avatar) : asset('images/logo.png');
+    $ogAvatar = $designer->avatar ? url('media/' . $designer->avatar) : url('media/images/logo.png');
     $ogBio = \App\Helpers\DropdownHelper::sanitizeUtf8(Str::limit($designer->bio ?? '', 160));
 @endphp
 <meta property="og:title" content="{{ $designerName }} - {{ __('Designer Portfolio') }}">

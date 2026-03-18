@@ -34,7 +34,7 @@
             <!-- Logo above modal -->
             <div class="text-center mb-6">
                 <a href="{{ url(app()->getLocale()) }}" class="inline-block">
-                    <img src="{{ asset('images/logo.webp') }}" alt="{{ config('app.name') }}" class="h-16 mx-auto">
+                    <img src="{{ url('media/images/logo.webp') }}" alt="{{ config('app.name') }}" class="h-16 mx-auto">
                 </a>
             </div>
 

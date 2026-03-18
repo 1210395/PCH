@@ -13,7 +13,7 @@
     # Send media/storage requests directly to Laravel
     RewriteRule ^media/(.+)$ index.php [L]
 
-    # Serve static files from public/ directory if they exist
+    # Serve static files from public/ directory if they exist there
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond /home/technopark/public_html/PalestineCreativeHub/public/$1 -f

@@ -23,7 +23,7 @@
         "name": "Palestine Creative Hub",
         "logo": {
             "@@type": "ImageObject",
-            "url": "{{ asset('images/logo.png') }}"
+            "url": "{{ url('media/images/logo.png') }}"
         }
     }
 }

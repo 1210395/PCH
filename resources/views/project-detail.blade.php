@@ -9,7 +9,7 @@
     $headDesignerName = $sanitize($project->designer->name ?? '');
 @endphp
 @php
-    $ogImage = $project->images->first() ? url('media/' . $project->images->first()->image_path) : asset('images/logo.png');
+    $ogImage = $project->images->first() ? url('media/' . $project->images->first()->image_path) : url('media/images/logo.png');
 @endphp
 
 @section('head')
