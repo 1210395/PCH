@@ -87,7 +87,7 @@ Route::get('/', function () {
     // Check for saved locale preference in cookie
     $cookieLocale = request()->cookie('locale');
     if ($cookieLocale && in_array($cookieLocale, ['en', 'ar'])) {
-        return redirect('/' . $cookieLocale);
+        return redirect(url($cookieLocale));
     }
 
     // Detect from Accept-Language header
@@ -97,7 +97,7 @@ Route::get('/', function () {
         $locale = 'ar';
     }
 
-    return redirect('/' . $locale);
+    return redirect(url($locale));
 });
 
 // Favicon route - serve favicon from public directory regardless of locale prefix
