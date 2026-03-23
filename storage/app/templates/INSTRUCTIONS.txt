@@ -1,0 +1,148 @@
+================================================
+DATABASE IMPORT TEMPLATES - INSTRUCTIONS
+Palestine Creative Hub Portal
+================================================
+
+OVERVIEW:
+These CSV files can be opened in Microsoft Excel, Google Sheets, or any spreadsheet software.
+Fill in the data following the examples provided in row 2 of each file.
+Delete the example row before importing.
+
+================================================
+1. USERS_TEMPLATE.CSV - Designer/User Profiles
+================================================
+
+COLUMNS:
+- name: Full name of the user (e.g., "Sarah Johnson")
+- email: Unique email address (e.g., "sarah@example.com") - MUST BE UNIQUE
+- password: Password for the user (will be encrypted when imported)
+- title: Job title/role (e.g., "Brand Designer & Strategist")
+- bio: Short biography (1-2 sentences about the designer)
+- location: City/Country (e.g., "Palestine")
+- website: Personal website URL (e.g., "https://sarahjohnson.com") - Optional
+- verified: TRUE or FALSE - whether user has verified badge
+- avatar: URL to profile picture (must be a valid image URL)
+- cover_image: URL to cover/banner image (must be a valid image URL)
+
+NOTES:
+- Email must be unique for each user
+- Password will be encrypted automatically when imported
+- Avatar & cover_image should be direct links to images (you can use Unsplash URLs)
+- For verified column, use TRUE or FALSE (all caps)
+
+EXAMPLE IMAGE URLS (you can use these or find your own):
+Avatar: https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400
+Cover: https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=1200
+
+================================================
+2. PROJECTS_TEMPLATE.CSV - Creative Projects
+================================================
+
+COLUMNS:
+- user_email: Email of the user who created this project (must match email from users_template.csv)
+- category_name: Category name - MUST BE ONE OF:
+  * Branding
+  * UI/UX
+  * Photography
+  * Illustration
+  * Architecture
+  * Fashion
+  * Digital Art
+  * Graphic Design
+- title: Project title (e.g., "Modern Brand Identity System")
+- slug: URL-friendly version (e.g., "modern-brand-identity") - use lowercase, hyphens, no spaces
+- description: Detailed project description (2-3 sentences)
+- image: URL to main project image (must be a valid image URL)
+- featured: TRUE or FALSE - whether project should be featured on homepage
+- published_at: Date in format YYYY-MM-DD (e.g., "2025-11-14")
+
+NOTES:
+- user_email MUST match an email from users_template.csv
+- category_name MUST exactly match one of the 8 categories listed above
+- slug should be lowercase with hyphens (no spaces)
+- image should be a direct link to project image
+
+EXAMPLE IMAGE URLS:
+https://images.unsplash.com/photo-1652805363265-b8fbf9bbdfac?w=800
+https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800
+https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=800
+
+================================================
+3. USER_SKILLS_TEMPLATE.CSV - User Skills/Tags
+================================================
+
+COLUMNS:
+- user_email: Email of the user (must match email from users_template.csv)
+- skill_name: Skill name - MUST BE ONE OF:
+  * Branding
+  * Logo Design
+  * Visual Identity
+  * UI Design
+  * UX Research
+  * Prototyping
+  * Wireframing
+  * Product Photography
+  * Retouching
+  * Lighting
+  * Portrait Photography
+  * Illustration
+  * Digital Art
+  * Character Design
+  * 3D Modeling
+  * Web Design
+  * Mobile App Design
+  * Responsive Design
+  * Motion Graphics
+  * Animation
+  * Video Editing
+
+NOTES:
+- One row per skill per user
+- Each user can have multiple skills (add multiple rows with same user_email)
+- Typically 3-5 skills per user is good
+- skill_name MUST exactly match one from the list above
+
+EXAMPLE:
+sarah@example.com,Branding
+sarah@example.com,Logo Design
+sarah@example.com,Visual Identity
+
+================================================
+HOW TO USE:
+================================================
+
+1. Open each CSV file in Excel/Google Sheets
+2. Row 1 contains column headers - DO NOT CHANGE THESE
+3. Row 2 contains an example - you can keep it as reference or delete it
+4. Add your data starting from row 3 (or row 2 if you deleted the example)
+5. Save the file as CSV format (not XLSX)
+6. Send all filled CSV files back
+
+================================================
+TIPS:
+================================================
+
+- Use Unsplash.com to find free professional images
+- Search for: "professional designer portrait", "creative workspace", "design project", etc.
+- Right-click on image → "Copy image address" to get the URL
+- Make sure email addresses are consistent across all files
+- Use realistic data that makes sense for a creative portfolio platform
+- Aim for 10-20 users and 2-3 projects per user
+
+================================================
+COMMON MISTAKES TO AVOID:
+================================================
+
+❌ Using emails in projects_template.csv that don't exist in users_template.csv
+❌ Misspelling category names (must match exactly)
+❌ Using spaces in slug field (use hyphens instead)
+❌ Not using TRUE/FALSE for boolean fields
+❌ Wrong date format (must be YYYY-MM-DD)
+❌ Broken image URLs (test them in browser first)
+❌ Duplicate email addresses in users_template.csv
+
+================================================
+NEED HELP?
+================================================
+
+If you have questions or need clarification, ask before filling the data.

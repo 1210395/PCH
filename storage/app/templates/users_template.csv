@@ -1,0 +1,2 @@
+name,email,password,title,bio,location,website,verified,avatar,cover_image
+"John Doe","john@example.com","password123","UI/UX Designer","Passionate designer with 5+ years experience","Palestine","https://johndoe.com","TRUE","https://example.com/avatar.jpg","https://example.com/cover.jpg"

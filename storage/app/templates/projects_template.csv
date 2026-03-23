@@ -1,0 +1,2 @@
+user_email,category_name,title,slug,description,image,featured,published_at
+"john@example.com","Branding","Modern Brand Identity","modern-brand-identity","Complete brand identity system for a tech startup","https://example.com/project.jpg","TRUE","2025-11-14"

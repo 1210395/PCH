@@ -1,0 +1,20 @@
+# Prevent PHP execution in storage directory
+# Security: uploaded files should never be executed as code
+
+<FilesMatch "\.(php|php3|php4|php5|php7|php8|phtml|phar|phps|cgi|pl|py|sh|bash|exe|bat|cmd)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Force all PHP files to be served as plain text
+AddType text/plain .php .php3 .php4 .php5 .php7 .php8 .phtml .phar
+
+# Disable script execution
+Options -ExecCGI
+RemoveHandler .php .php3 .php4 .php5 .php7 .php8 .phtml .phar
+
+# Block access to hidden files and sensitive files
+<FilesMatch "^\.">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
