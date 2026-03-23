@@ -84,12 +84,10 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 
 // Redirect root based on browser language preference
 Route::get('/', function () {
-    $base = rtrim(config('app.url'), '/');
-
     // Check for saved locale preference in cookie
     $cookieLocale = request()->cookie('locale');
     if ($cookieLocale && in_array($cookieLocale, ['en', 'ar'])) {
-        return redirect($base . '/' . $cookieLocale);
+        return redirect('/' . $cookieLocale);
     }
 
     // Detect from Accept-Language header
@@ -99,7 +97,7 @@ Route::get('/', function () {
         $locale = 'ar';
     }
 
-    return redirect($base . '/' . $locale);
+    return redirect('/' . $locale);
 });
 
 // Favicon route - serve favicon from public directory regardless of locale prefix
