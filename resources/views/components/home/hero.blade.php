@@ -7,7 +7,7 @@
     }
 @endphp
 
-<section class="relative overflow-hidden" x-data="{
+<section class="relative overflow-hidden min-h-[60vh] sm:min-h-[50vh] md:min-h-[70vh]" x-data="{
     images: @js($heroImages),
     currentIndex: 0,
     interval: null,
@@ -31,13 +31,13 @@
             <img
                 :src="image"
                 alt="{{ __('Palestine Creative Hub') }}"
-                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000"
                 :class="currentIndex === index ? 'opacity-100' : 'opacity-0'"
                 onerror="this.style.display='none'"
             />
         </template>
         {{-- Gradient overlay for better text readability --}}
-        <div class="absolute inset-0 bg-gradient-to-r from-white/80 via-white/70 to-white/60"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-white/90 via-white/80 to-white/70 sm:from-white/80 sm:via-white/70 sm:to-white/60"></div>
     </div>
 
     <div class="relative max-w-[1440px] mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-28">

@@ -22,6 +22,14 @@ class ServiceController extends Controller
     {
         $query = Service::with('designer');
 
+        // Filter by language based on current locale
+        $locale = app()->getLocale();
+        if ($locale === 'ar') {
+            $query->whereRaw("name REGEXP '[ء-ي]'");
+        } else {
+            $query->whereRaw("name NOT REGEXP '[ء-ي]'");
+        }
+
         // Filter by approval status - show approved content + own pending/rejected content
         // Also filter out services from inactive or admin accounts (unless viewing own)
         $currentDesignerId = auth('designer')->id();

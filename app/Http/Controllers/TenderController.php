@@ -30,6 +30,14 @@ class TenderController extends Controller
         // Query all tenders (admin-managed, no approval needed)
         $query = Tender::query();
 
+        // Filter by language based on current locale
+        $locale = app()->getLocale();
+        if ($locale === 'ar') {
+            $query->whereRaw("title REGEXP '[ء-ي]'");
+        } else {
+            $query->whereRaw("title NOT REGEXP '[ء-ي]'");
+        }
+
         // Filter by status
         if (!empty($validated['status']) && $validated['status'] !== 'all') {
             $query->byStatus($validated['status']);

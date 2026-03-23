@@ -36,6 +36,14 @@ class MarketplaceController extends Controller
 
         $query = MarketplacePost::with('designer');
 
+        // Filter by language based on current locale
+        $locale = app()->getLocale();
+        if ($locale === 'ar') {
+            $query->whereRaw("title REGEXP '[ء-ي]'");
+        } else {
+            $query->whereRaw("title NOT REGEXP '[ء-ي]'");
+        }
+
         // Filter by approval status - show approved content + own pending/rejected content
         // Also filter out posts from inactive or admin accounts (unless viewing own)
         $currentDesignerId = auth('designer')->id();

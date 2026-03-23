@@ -33,6 +33,14 @@ class ProjectController extends Controller
 
         $query = Project::with(['designer', 'category', 'images']);
 
+        // Filter by language based on current locale
+        $locale = app()->getLocale();
+        if ($locale === 'ar') {
+            $query->whereRaw("title REGEXP '[ء-ي]'");
+        } else {
+            $query->whereRaw("title NOT REGEXP '[ء-ي]'");
+        }
+
         // Filter by approval status - show approved content + own pending/rejected content
         // Also filter out projects from inactive or admin accounts (unless viewing own)
         $currentDesignerId = auth('designer')->id();

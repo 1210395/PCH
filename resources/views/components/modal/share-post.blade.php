@@ -46,7 +46,6 @@
 
         closeShare() {
             this.show = false;
-            location.reload();
         },
 
         async copyLink() {

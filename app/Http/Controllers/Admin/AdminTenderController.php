@@ -299,13 +299,13 @@ class AdminTenderController extends AdminBaseController
             'publisher' => 'nullable|string|max:255',
             'publisher_type' => 'nullable|in:government,ngo,private,academic,media,other',
             'company_name' => 'nullable|string|max:255',
-            'company_url' => 'nullable|url|max:500',
+            'company_url' => 'nullable|string|max:500',
             'location' => 'nullable|string|max:255',
             'status' => 'nullable|in:open,closing_soon,closed',
             'published_date' => 'nullable|date',
             'deadline' => 'nullable|date',
-            'source_url' => 'nullable|url|max:500',
-            'is_visible' => 'nullable',
+            'source_url' => 'nullable|string|max:500',
+            'is_visible' => 'nullable|boolean',
         ]);
     }
 }

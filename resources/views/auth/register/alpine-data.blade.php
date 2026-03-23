@@ -2153,25 +2153,25 @@ function signupWizard() {
             // Restore profile image preview
             if (this.uploadedPaths.profile) {
                 // Use direct storage path to access uploaded temp files
-                this.profileImagePreview = '{{ asset("") }}storage/app/public/' + this.uploadedPaths.profile;
+                this.profileImagePreview = '{{ url("media") }}/' + this.uploadedPaths.profile;
             }
 
             // Restore cover image preview
             if (this.uploadedPaths.cover) {
-                this.heroImagePreview = '{{ asset("") }}storage/app/public/' + this.uploadedPaths.cover;
+                this.heroImagePreview = '{{ url("media") }}/' + this.uploadedPaths.cover;
             }
 
             // Restore product image previews
             this.formData.products.forEach(product => {
                 if (this.uploadedPaths.products[product.id]) {
-                    product.imagePreview = '{{ asset("") }}storage/app/public/' + this.uploadedPaths.products[product.id];
+                    product.imagePreview = '{{ url("media") }}/' + this.uploadedPaths.products[product.id];
                 }
             });
 
             // Restore project image previews
             this.formData.projects.forEach(project => {
                 if (this.uploadedPaths.projects[project.id]) {
-                    project.imagePreview = '{{ asset("") }}storage/app/public/' + this.uploadedPaths.projects[project.id];
+                    project.imagePreview = '{{ url("media") }}/' + this.uploadedPaths.projects[project.id];
                 }
             });
 

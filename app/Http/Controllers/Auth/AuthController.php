@@ -773,7 +773,7 @@ class AuthController extends Controller
             }
 
             // Log what was created for debugging
-            og::debug('Registration completed', [
+            Log::debug('Registration completed', [
                 'designer_id' => $designer->id,
                 'designer_email' => $designer->email,
                 'products_created' => $productsCount,

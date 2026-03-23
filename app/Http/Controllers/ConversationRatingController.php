@@ -8,8 +8,9 @@ use Illuminate\Http\Request;
 
 /**
  * Handles rating of conversations between designers.
- * Enforces a 24-hour waiting period after a conversation is accepted before a rating can be submitted,
- * and prevents duplicate ratings from the same participant.
+ * Rating is allowed immediately after a conversation is accepted.
+ * A 24-hour reminder notification is sent if the user hasn't rated yet (via scheduled command).
+ * Prevents duplicate ratings from the same participant.
  */
 class ConversationRatingController extends Controller
 {
@@ -88,13 +89,11 @@ class ConversationRatingController extends Controller
             ], 403);
         }
 
-        // Check if rating is allowed (24 hours passed)
+        // Check if rating is allowed (conversation must be accepted)
         if (!$conversation->canRate()) {
-            $hoursRemaining = $conversation->hoursUntilRatingAllowed();
             return response()->json([
                 'success' => false,
-                'message' => "You can rate this conversation in {$hoursRemaining} hours",
-                'hours_remaining' => $hoursRemaining
+                'message' => 'This conversation has not been accepted yet',
             ], 403);
         }
 

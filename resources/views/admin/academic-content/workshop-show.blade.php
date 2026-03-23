@@ -90,7 +90,15 @@
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Requirements') }}</h3>
                     <div class="prose max-w-none text-gray-700">
-                        {!! nl2br(e($workshop->requirements)) !!}
+                        @if(is_array($workshop->requirements))
+                            <ul class="list-disc list-inside">
+                                @foreach($workshop->requirements as $req)
+                                    <li>{{ $req }}</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            {!! nl2br(e($workshop->requirements)) !!}
+                        @endif
                     </div>
                 </div>
             @endif
@@ -169,7 +177,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Institution') }}</h3>
                 <div class="flex items-center gap-3 mb-4">
-                    @if($workshop->academicAccount->logo)
+                    @if($workshop->academicAccount?->logo)
                         <img src="{{ url('media/' . $workshop->academicAccount->logo) }}" class="w-12 h-12 rounded-lg object-cover">
                     @else
                         <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">
@@ -178,7 +186,7 @@
                     @endif
                     <div>
                         <p class="font-medium text-gray-800">{{ $workshop->academicAccount->name ?? __('Unknown') }}</p>
-                        <p class="text-sm text-gray-500">{{ $workshop->academicAccount->institution_type_label ?? '' }}</p>
+                        <p class="text-sm text-gray-500">{{ $workshop->academicAccount?->institution_type_label ?? '' }}</p>
                     </div>
                 </div>
                 <a href="{{ route('admin.academic-accounts.show', ['locale' => app()->getLocale(), 'id' => $workshop->academic_account_id]) }}"

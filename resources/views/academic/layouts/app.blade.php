@@ -77,9 +77,9 @@
         html[dir="rtl"] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
         html[dir="rtl"] .mr-3 { margin-right: 0; margin-left: 0.75rem; }
 
-        /* RTL: Positioning flips */
-        html[dir="rtl"] .left-0 { left: auto; right: 0; }
-        html[dir="rtl"] .right-0 { right: auto; left: 0; }
+        /* RTL: Positioning flips - exclude sidebar and fixed aside elements */
+        html[dir="rtl"] .left-0:not(aside):not(.fixed) { left: auto; right: 0; }
+        html[dir="rtl"] .right-0:not(aside):not(.fixed) { right: auto; left: 0; }
 
         /* RTL: Text alignment flips */
         html[dir="rtl"] .text-left { text-align: right; }
@@ -130,7 +130,7 @@
         @include('academic.partials.sidebar')
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col transition-all duration-300" :class="{ '{{ app()->getLocale() === 'ar' ? 'mr-64' : 'ml-64' }}': sidebarOpen, '{{ app()->getLocale() === 'ar' ? 'mr-20' : 'ml-20' }}': !sidebarOpen }">
+        <div class="flex-1 flex flex-col transition-all duration-300 overflow-x-hidden {{ app()->getLocale() === 'ar' ? 'ml-0' : 'mr-0' }}" :class="{ '{{ app()->getLocale() === 'ar' ? 'mr-64' : 'ml-64' }}': sidebarOpen, '{{ app()->getLocale() === 'ar' ? 'mr-20' : 'ml-20' }}': !sidebarOpen }">
             <!-- Top Navigation -->
             @include('academic.partials.topnav')
 

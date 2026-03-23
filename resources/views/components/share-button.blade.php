@@ -100,6 +100,24 @@
 }"
 class="relative inline-block"
 @click.away="open = false"
+x-init="$watch('open', value => {
+    if (value) {
+        $nextTick(() => {
+            const dropdown = $el.querySelector('[x-ref=shareDropdown]') || $el.querySelector('.share-dropdown-menu');
+            if (dropdown) {
+                const rect = dropdown.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    dropdown.style.left = 'auto';
+                    dropdown.style.right = '0';
+                }
+                if (rect.left < 0) {
+                    dropdown.style.left = '0';
+                    dropdown.style.right = 'auto';
+                }
+            }
+        });
+    }
+})"
 >
     {{-- Share Button --}}
     @if($variant === 'icon-only')
@@ -146,7 +164,7 @@ class="relative inline-block"
         x-transition:leave="transition ease-in duration-75"
         x-transition:leave-start="transform opacity-100 scale-100"
         x-transition:leave-end="transform opacity-0 scale-95"
-        class="absolute {{ $dropdownPositionClasses }} w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+        class="share-dropdown-menu fixed sm:absolute inset-x-4 sm:inset-x-auto bottom-4 sm:bottom-auto {{ $dropdownPositionClasses }} w-auto sm:w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[60] max-h-[80vh] overflow-y-auto"
         style="display: none;"
     >
         {{-- Copy Link --}}

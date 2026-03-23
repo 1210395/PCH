@@ -174,7 +174,8 @@
     }
 
     /* Search icon: keep in same position (left side) in RTL, do NOT rotate */
-    html[dir="rtl"] .search-icon-fixed {
+    html[dir="rtl"] .search-icon-fixed,
+    html[dir="rtl"] .fa-search.absolute {
         left: 0.75rem !important;
         right: auto !important;
         transform: translateY(-50%) !important;

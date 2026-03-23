@@ -369,12 +369,16 @@ class DesignerProfileController extends Controller
                     $skillName = strip_tags($skillName);
                     $skillName = substr($skillName, 0, 50);
 
-                    // Validate skill name contains only allowed characters
-                    if (!preg_match('/^[a-zA-Z0-9\s\.\-\/\+\#]+$/', $skillName)) {
+                    // Validate skill name contains only allowed characters (Latin, Arabic, digits, common punctuation)
+                    if (!preg_match('/^[\p{L}\p{N}\s\.\-\/\+\#]+$/u', $skillName)) {
                         continue; // Skip invalid skill names
                     }
 
                     $slug = \Illuminate\Support\Str::slug($skillName);
+                    // For non-Latin scripts (e.g. Arabic), Str::slug may return empty — use a fallback
+                    if (empty($slug)) {
+                        $slug = mb_strtolower(trim(preg_replace('/[\s\-]+/', '-', $skillName)));
+                    }
                     if (empty($slug)) continue;
 
                     $skill = \App\Models\Skill::firstOrCreate(
@@ -499,12 +503,16 @@ class DesignerProfileController extends Controller
                 $skillName = strip_tags($skillName);
                 $skillName = substr($skillName, 0, 50);
 
-                // Validate skill name contains only allowed characters
-                if (!preg_match('/^[a-zA-Z0-9\s\.\-\/\+\#]+$/', $skillName)) {
+                // Validate skill name contains only allowed characters (Latin, Arabic, digits, common punctuation)
+                if (!preg_match('/^[\p{L}\p{N}\s\.\-\/\+\#]+$/u', $skillName)) {
                     continue; // Skip invalid skill names
                 }
 
                 $slug = \Illuminate\Support\Str::slug($skillName);
+                // For non-Latin scripts (e.g. Arabic), Str::slug may return empty — use a fallback
+                if (empty($slug)) {
+                    $slug = mb_strtolower(trim(preg_replace('/[\s\-]+/', '-', $skillName)));
+                }
                 if (empty($slug)) continue;
 
                 $skill = \App\Models\Skill::firstOrCreate(

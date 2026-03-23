@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
     <!-- Pre-compiled Tailwind CSS -->
-    <link rel="stylesheet" href="{{ asset('build/assets/admin-CyMh2Lim.css') }}">
+    <link rel="stylesheet" href="{{ url('media/build/assets/admin-CyMh2Lim.css') }}">
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -92,8 +92,8 @@
         @include('admin.partials.sidebar')
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col transition-all duration-300"
-             :style="sidebarOpen ? '{{ app()->getLocale() === 'ar' ? 'margin-right: 16rem' : 'margin-left: 16rem' }}' : '{{ app()->getLocale() === 'ar' ? 'margin-right: 5rem' : 'margin-left: 5rem' }}'">
+        <div class="flex-1 flex flex-col transition-all duration-300 overflow-x-hidden"
+             :style="sidebarOpen ? '{{ app()->getLocale() === 'ar' ? 'margin-right: 16rem; margin-left: 0' : 'margin-left: 16rem; margin-right: 0' }}' : '{{ app()->getLocale() === 'ar' ? 'margin-right: 5rem; margin-left: 0' : 'margin-left: 5rem; margin-right: 0' }}'">
             <!-- Top Navigation -->
             @include('admin.partials.topnav')
 

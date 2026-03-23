@@ -89,22 +89,37 @@ class AcademicWorkshopController extends AcademicBaseController
             'title' => 'required|string|max:255',
             'short_description' => 'nullable|string|max:500',
             'description' => 'nullable|string|max:5000',
+            'objectives' => 'nullable|string|max:5000',
             'category' => 'nullable|string|max:100',
             'location_type' => 'nullable|in:online,in-person,hybrid',
             'location' => 'nullable|string|max:255',
+            'is_online' => 'nullable|boolean',
+            'instructor' => 'nullable|string|max:255',
             'price' => 'nullable|string|max:100',
+            'is_free' => 'nullable|boolean',
             'duration' => 'nullable|string|max:100',
             'workshop_date' => 'required|date',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
             'max_participants' => 'nullable|integer|min:1',
-            'requirements' => 'nullable|array',
+            'requirements' => 'nullable|string|max:5000',
             'tools_provided' => 'nullable|array',
             'has_certificate' => 'boolean',
+            'registration_link' => 'nullable|url|max:500',
         ]);
 
         $validated['academic_account_id'] = $this->getAccountId();
         $validated['has_certificate'] = $request->boolean('has_certificate');
+        $validated['is_online'] = $request->boolean('is_online');
+        $validated['is_free'] = $request->boolean('is_free');
+
+        // Convert requirements text to array (split by newlines, filter empty)
+        if (isset($validated['requirements']) && is_string($validated['requirements'])) {
+            $validated['requirements'] = array_values(array_filter(
+                array_map('trim', preg_split('/\r?\n/', $validated['requirements'])),
+                fn($line) => $line !== ''
+            ));
+        }
 
         // Auto-approve if admin setting is enabled
         $autoAcceptEnabled = \App\Models\AdminSetting::isAutoAcceptEnabled('workshops');
@@ -191,21 +206,36 @@ class AcademicWorkshopController extends AcademicBaseController
             'title' => 'required|string|max:255',
             'short_description' => 'nullable|string|max:500',
             'description' => 'nullable|string|max:5000',
+            'objectives' => 'nullable|string|max:5000',
             'category' => 'nullable|string|max:100',
             'location_type' => 'nullable|in:online,in-person,hybrid',
             'location' => 'nullable|string|max:255',
+            'is_online' => 'nullable|boolean',
+            'instructor' => 'nullable|string|max:255',
             'price' => 'nullable|string|max:100',
+            'is_free' => 'nullable|boolean',
             'duration' => 'nullable|string|max:100',
             'workshop_date' => 'required|date',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
             'max_participants' => 'nullable|integer|min:1',
-            'requirements' => 'nullable|array',
+            'requirements' => 'nullable|string|max:5000',
             'tools_provided' => 'nullable|array',
             'has_certificate' => 'boolean',
+            'registration_link' => 'nullable|url|max:500',
         ]);
 
         $validated['has_certificate'] = $request->boolean('has_certificate');
+        $validated['is_online'] = $request->boolean('is_online');
+        $validated['is_free'] = $request->boolean('is_free');
+
+        // Convert requirements text to array (split by newlines, filter empty)
+        if (isset($validated['requirements']) && is_string($validated['requirements'])) {
+            $validated['requirements'] = array_values(array_filter(
+                array_map('trim', preg_split('/\r?\n/', $validated['requirements'])),
+                fn($line) => $line !== ''
+            ));
+        }
 
         // Handle image upload
         if ($request->hasFile('image')) {

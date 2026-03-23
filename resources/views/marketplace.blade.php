@@ -8,7 +8,7 @@
 @endphp
 <div class="min-h-screen bg-gray-50">
     {{-- Hero Section with Carousel --}}
-    <section class="relative h-64 overflow-hidden {{ empty($heroImages) ? 'bg-gradient-to-r from-blue-600 to-purple-600' : '' }}"
+    <section class="relative h-44 sm:h-56 md:h-64 overflow-hidden {{ empty($heroImages) ? 'bg-gradient-to-r from-blue-600 to-purple-600' : '' }}"
         @if(!empty($heroImages))
         x-data="{
             images: @js($heroImages),
@@ -59,7 +59,7 @@
                             placeholder="{{ __('Search marketplace...') }}"
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="search-icon-fixed absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
@@ -73,7 +73,7 @@
 
                 {{-- Collapsible Filters --}}
                 <div x-show="filtersOpen" x-collapse class="lg:!block mt-4 lg:mt-0" :class="{ 'hidden': !filtersOpen }">
-                <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+                <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch lg:items-center">
                     {{-- Category Filter --}}
                     <div class="w-full lg:w-auto">
                         <select
@@ -119,7 +119,7 @@
                     </div>
 
                     {{-- View Mode Toggle --}}
-                    <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                    <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1 w-full lg:w-auto justify-center lg:justify-start">
                         <button
                             type="button"
                             onclick="setViewMode('grid')"

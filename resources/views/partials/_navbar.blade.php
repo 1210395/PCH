@@ -652,19 +652,96 @@
 <div id="mobileMenu" class="hidden lg:hidden border-t border-gray-100 bg-white">
     <div class="px-4 py-4 space-y-3">
         <!-- Mobile Search Bar -->
-        <div class="md:hidden">
+        <div class="md:hidden" x-data="searchDropdown()" @click.away="showResults = false">
             <form action="{{ route('search', ['locale' => app()->getLocale()]) }}" method="GET" class="relative">
-                <svg class="search-icon-fixed absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="search-icon-fixed absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input
                     type="text"
                     name="q"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    x-model="query"
+                    @input.debounce.300ms="search"
+                    @focus="if(query.length >= 2) showResults = true"
+                    @keydown.escape="showResults = false"
+                    class="block w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-all"
                     placeholder="{{ __('Search creative work...') }}"
                     value="{{ request('q') ?? '' }}"
+                    autocomplete="off"
                 >
+                <!-- Clear Button -->
+                <button type="button" x-show="query.length > 0" @click="query = ''; showResults = false" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </form>
+
+            <!-- Mobile Search Results Dropdown -->
+            <div x-show="showResults && hasResults"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="absolute left-0 right-0 mx-4 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[60vh] overflow-y-auto"
+                 style="display: none;">
+
+                <!-- Designers Results -->
+                <template x-if="results.designers && results.designers.length > 0">
+                    <div class="border-b border-gray-100">
+                        <div class="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Designers') }}</div>
+                        <template x-for="designer in results.designers" :key="'md-'+designer.id">
+                            <a :href="'{{ url(app()->getLocale()) }}/designer/' + designer.id"
+                               class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
+                                <template x-if="designer.avatar">
+                                    <img :src="'{{ url('media') }}/' + designer.avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                                </template>
+                                <template x-if="!designer.avatar">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-400 flex items-center justify-center text-white font-semibold text-xs flex-shrink-0" x-text="designer.name.charAt(0).toUpperCase()"></div>
+                                </template>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-gray-900 truncate text-sm" x-text="designer.name"></p>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Projects Results -->
+                <template x-if="results.projects && results.projects.length > 0">
+                    <div class="border-b border-gray-100">
+                        <div class="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Projects') }}</div>
+                        <template x-for="project in results.projects" :key="'mp-'+project.id">
+                            <a :href="'{{ url(app()->getLocale()) }}/projects/' + project.id"
+                               class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-gray-900 truncate text-sm" x-text="project.title"></p>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Products Results -->
+                <template x-if="results.products && results.products.length > 0">
+                    <div>
+                        <div class="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Products') }}</div>
+                        <template x-for="product in results.products" :key="'mpr-'+product.id">
+                            <a :href="'{{ url(app()->getLocale()) }}/products/' + product.id"
+                               class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-gray-900 truncate text-sm" x-text="product.name"></p>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- View All Results -->
+                <a :href="'{{ route('search', ['locale' => app()->getLocale()]) }}?q=' + encodeURIComponent(query)"
+                   class="block px-4 py-3 text-center text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors border-t border-gray-200">
+                    {{ __('View all results') }}
+                </a>
+            </div>
         </div>
 
         <!-- Mobile Navigation Links -->

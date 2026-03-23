@@ -71,7 +71,7 @@ Route::get('/media/{path}', function ($path) {
         'Content-Type' => $mimeType,
         'Cache-Control' => 'public, max-age=31536000',
     ]);
-})->where('path', '[a-zA-Z0-9._\-/]+')->middleware('throttle:200,1');
+})->where('path', '[a-zA-Z0-9._\-/]+')->middleware('throttle:500,1');
 
 // Google OAuth2 callback for Gmail API (no locale prefix needed)
 Route::get('/oauth2/setup', [GoogleOAuthController::class, 'redirect'])
@@ -113,17 +113,17 @@ Route::get('/{locale}/favicon.ico', function () {
 Route::group(['prefix' => '{locale}'], function () {
     // Home/Discover page (rate limited)
     Route::get('/', [HomeController::class, 'index'])
-        ->middleware(['throttle:100,1', 'track.page:home'])
+        ->middleware(['throttle:200,1', 'track.page:home'])
         ->name('home');
 
     // Search route (rate limited)
     Route::get('/search', [HomeController::class, 'search'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('search');
 
     // Instant search API for navbar autocomplete (rate limited)
     Route::get('/search/instant', [HomeController::class, 'instantSearch'])
-        ->middleware('throttle:120,1')
+        ->middleware('throttle:200,1')
         ->name('search.instant');
 
     // ============================================================
@@ -144,17 +144,17 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // AJAX validation endpoints (BUG-011 Fix: Added rate limiting)
     Route::post('/validate/email', [ValidationController::class, 'checkEmail'])
-        ->middleware('throttle:10,1')
+        ->middleware('throttle:30,1')
         ->name('validate.email');
 
     // Progressive image upload endpoint
     Route::post('/upload-registration-image', [\App\Http\Controllers\Auth\ImageUploadController::class, 'uploadRegistrationImage'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('upload.registration.image');
 
     // Progressive PDF upload endpoint (certifications)
     Route::post('/upload-registration-pdf', [\App\Http\Controllers\Auth\ImageUploadController::class, 'uploadRegistrationPdf'])
-        ->middleware('throttle:30,1')
+        ->middleware('throttle:60,1')
         ->name('upload.registration.pdf');
 
     // ============================================================
@@ -163,10 +163,10 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Login routes (rate limited to prevent brute force attacks)
     Route::get('/login', [AuthController::class, 'showLoginForm'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('login');
     Route::post('/login', [AuthController::class, 'login'])
-        ->middleware('throttle:30,1')
+        ->middleware('throttle:60,1')
         ->name('login.post');
 
     // ============================================================
@@ -204,42 +204,42 @@ Route::group(['prefix' => '{locale}'], function () {
             abort(404);
         }
         return response()->download($path);
-    })->where('filename', '[a-zA-Z0-9_\-\.]+')->middleware('throttle:60,1')->name('certification.download');
+    })->where('filename', '[a-zA-Z0-9_\-\.]+')->middleware('throttle:120,1')->name('certification.download');
 
     // Public designer portfolio view (no authentication required, rate limited)
     Route::get('/designer/{id}', [DesignerController::class, 'show'])
-        ->middleware(['throttle:60,1', 'track.page:designer_profile'])
+        ->middleware(['throttle:120,1', 'track.page:designer_profile'])
         ->name('designer.portfolio');
 
     // Public routes for viewing (rate limited to prevent abuse)
     Route::post('/designer/{id}/track-view', [DesignerController::class, 'trackView'])
-        ->middleware('throttle:30,1')
+        ->middleware('throttle:60,1')
         ->name('designer.track-view');
     Route::get('/designer/{id}/check-following', [DesignerFollowController::class, 'checkFollowing'])
-        ->middleware('throttle:30,1')
+        ->middleware('throttle:60,1')
         ->name('designer.check-following');
 
     // Public ratings endpoint (view ratings for any designer profile)
     Route::get('/designer/{designerId}/ratings', [ProfileRatingController::class, 'index'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('designer.ratings');
 
     // Subscription routes (auth required - controller handles multi-guard logic)
     Route::middleware(['auth:designer', 'verified'])->group(function () {
         Route::post('/subscriptions/profile/toggle', [SubscriptionController::class, 'toggleProfileSubscription'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('subscriptions.profile.toggle');
         Route::get('/subscriptions/profile/check', [SubscriptionController::class, 'checkProfileSubscription'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('subscriptions.profile.check');
         Route::get('/subscriptions/category/{contentType}', [SubscriptionController::class, 'getCategorySubscription'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('subscriptions.category.get');
         Route::post('/subscriptions/category/{contentType}', [SubscriptionController::class, 'saveCategorySubscription'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('subscriptions.category.save');
         Route::delete('/subscriptions/category/{contentType}', [SubscriptionController::class, 'deleteCategorySubscription'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('subscriptions.category.delete');
     });
 
@@ -258,102 +258,102 @@ Route::group(['prefix' => '{locale}'], function () {
 
         // Notification routes (authenticated only, rate limited)
         Route::get('/notifications', [NotificationController::class, 'index'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('notifications.index');
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
-            ->middleware('throttle:120,1')
+            ->middleware('throttle:200,1')
             ->name('notifications.unreadCount');
         Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('notifications.markAsRead');
         Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('notifications.markAllAsRead');
 
         // Messaging routes (authenticated only, rate limited)
         Route::get('/messages', [MessagesController::class, 'index'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.index');
         Route::get('/messages/unread-count', [MessagesController::class, 'getUnreadCount'])
-            ->middleware('throttle:120,1')
+            ->middleware('throttle:200,1')
             ->name('messages.unreadCount');
         Route::get('/messages/pending-requests-count', [MessageRequestController::class, 'pendingCount'])
-            ->middleware('throttle:120,1')
+            ->middleware('throttle:200,1')
             ->name('messages.pendingRequestsCount');
         Route::get('/messages/requests', [MessageRequestController::class, 'index'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.requests');
         Route::post('/messages/send-request/{designerId}', [MessageRequestController::class, 'send'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.sendRequest');
         Route::get('/messages/check-pending-request/{designerId}', [MessageRequestController::class, 'checkPending'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.checkPendingRequest');
         Route::get('/messages/compose/{designerId}', [MessagesController::class, 'compose'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.compose');
         Route::post('/messages/send/{designerId}', [MessagesController::class, 'send'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('messages.send');
         Route::get('/messages/chat/{designerId}', [MessagesController::class, 'chat'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.chat');
         Route::post('/messages/chat/{conversationId}/send', [MessagesController::class, 'sendInChat'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.sendInChat');
         Route::get('/messages/chat/{conversationId}/messages', [MessagesController::class, 'getMessages'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.getMessages');
         Route::post('/messages/requests/{requestId}/accept', [MessageRequestController::class, 'accept'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.acceptRequest');
         Route::post('/messages/requests/{requestId}/decline', [MessageRequestController::class, 'decline'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.declineRequest');
 
         // Chat panel routes (for popup chat)
         Route::get('/messages/{conversationId}/fetch', [MessagesController::class, 'fetchMessages'])
-            ->middleware('throttle:120,1')
+            ->middleware('throttle:200,1')
             ->name('messages.fetch');
         Route::post('/messages/{conversationId}/send', [MessagesController::class, 'sendInChat'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.sendInConversation');
         Route::post('/messages/{conversationId}/mark-read', [MessagesController::class, 'markAsRead'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.markAsRead');
 
         // Conversation rating routes
         Route::get('/messages/{conversationId}/rating-status', [ConversationRatingController::class, 'status'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.rating.status');
         Route::post('/messages/{conversationId}/rate', [ConversationRatingController::class, 'store'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('messages.rating.store');
         Route::put('/messages/{conversationId}/rate', [ConversationRatingController::class, 'update'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('messages.rating.update');
 
         // Product management routes (auth required for create/update/delete)
-        Route::post('/products', [ProductController::class, 'store'])->middleware('throttle:10,1')->name('products.store');
+        Route::post('/products', [ProductController::class, 'store'])->middleware('throttle:30,1')->name('products.store');
         Route::match(['PUT', 'POST'], '/products/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::match(['DELETE', 'POST'], '/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
         // Project management routes (auth required for create/update/delete)
-        Route::post('/projects', [ProjectController::class, 'store'])->middleware('throttle:10,1')->name('projects.store');
+        Route::post('/projects', [ProjectController::class, 'store'])->middleware('throttle:30,1')->name('projects.store');
         Route::match(['PUT', 'POST'], '/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
         Route::match(['DELETE', 'POST'], '/projects/{id}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
         // Service management routes (auth required for create/update/delete)
-        Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store'])->middleware('throttle:10,1')->name('services.store');
+        Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store'])->middleware('throttle:30,1')->name('services.store');
         Route::match(['PUT', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'update'])->name('services.update');
         Route::match(['DELETE', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'destroy'])->name('services.destroy');
 
         // Marketplace post management routes
-        Route::post('/marketplace-posts', [\App\Http\Controllers\MarketplacePostController::class, 'store'])->middleware('throttle:10,1')->name('marketplace-posts.store');
+        Route::post('/marketplace-posts', [\App\Http\Controllers\MarketplacePostController::class, 'store'])->middleware('throttle:30,1')->name('marketplace-posts.store');
         Route::match(['PUT', 'POST'], '/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'update'])->name('marketplace-posts.update');
-        Route::match(['DELETE', 'POST'], '/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'destroy'])->name('marketplace-posts.destroy');
+        Route::delete('/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'destroy'])->name('marketplace-posts.destroy');
         Route::get('/marketplace-posts/source-data', [\App\Http\Controllers\MarketplacePostController::class, 'getSourceData'])->name('marketplace-posts.source-data');
-        Route::post('/marketplace-posts/{id}/share', [\App\Http\Controllers\MarketplacePostController::class, 'shareToUsers'])->middleware('throttle:10,1')->name('marketplace-posts.share');
+        Route::post('/marketplace-posts/{id}/share', [\App\Http\Controllers\MarketplacePostController::class, 'shareToUsers'])->middleware('throttle:30,1')->name('marketplace-posts.share');
 
         // User search & suggestions (for sharing)
         Route::get('/designers/search-users', [DesignerFollowController::class, 'searchUsers'])->name('designers.search-users');
@@ -361,13 +361,13 @@ Route::group(['prefix' => '{locale}'], function () {
 
         // Marketplace comments routes (authenticated only, rate limited)
         Route::post('/marketplace/{postId}/comments', [\App\Http\Controllers\MarketplaceCommentController::class, 'store'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('marketplace.comments.store');
         Route::put('/marketplace/{postId}/comments/{commentId}', [\App\Http\Controllers\MarketplaceCommentController::class, 'update'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('marketplace.comments.update');
         Route::delete('/marketplace/{postId}/comments/{commentId}', [\App\Http\Controllers\MarketplaceCommentController::class, 'destroy'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('marketplace.comments.destroy');
 
         // Designer profile management routes
@@ -379,29 +379,29 @@ Route::group(['prefix' => '{locale}'], function () {
 
         // Follow/Unfollow routes (authenticated only, rate limited)
         Route::post('/designer/{id}/follow', [DesignerFollowController::class, 'follow'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('designer.follow');
         Route::post('/designer/{id}/unfollow', [DesignerFollowController::class, 'unfollow'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('designer.unfollow');
 
         // Like routes (authenticated only, rate limited)
         Route::post('/products/{id}/like', [ProductController::class, 'toggleLike'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('product.like');
         Route::post('/projects/{id}/like', [ProjectController::class, 'toggleLike'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('project.like');
         Route::post('/designer/{id}/like', [DesignerFollowController::class, 'toggleLike'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('designer.like');
         Route::post('/marketplace/{id}/like', [MarketplaceController::class, 'toggleLike'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('marketplace.like');
 
         // Email routes (authenticated only, rate limited)
         Route::get('/email/compose/{designerId}', [EmailController::class, 'compose'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('email.compose');
         Route::post('/email/send/{designerId}', [EmailController::class, 'send'])
             ->middleware('throttle:5,1')
@@ -409,16 +409,16 @@ Route::group(['prefix' => '{locale}'], function () {
 
         // Profile rating routes (authenticated only, rate limited)
         Route::post('/designer/{designerId}/rate', [ProfileRatingController::class, 'store'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('designer.rate');
         Route::get('/designer/{designerId}/my-rating', [ProfileRatingController::class, 'show'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('designer.my-rating');
         Route::put('/designer/{designerId}/rate', [ProfileRatingController::class, 'update'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('designer.rate.update');
         Route::delete('/designer/{designerId}/rate', [ProfileRatingController::class, 'destroy'])
-            ->middleware('throttle:10,1')
+            ->middleware('throttle:30,1')
             ->name('designer.rate.delete');
     });
 
@@ -428,74 +428,82 @@ Route::group(['prefix' => '{locale}'], function () {
 
     // Projects and Products listing pages (public, rate limited)
     Route::get('/projects', [ProjectController::class, 'index'])
-        ->middleware(['throttle:100,1', 'track.page:projects'])
+        ->middleware(['throttle:200,1', 'track.page:projects'])
         ->name('projects');
     Route::get('/projects/{id}', [ProjectController::class, 'show'])
-        ->middleware(['throttle:60,1', 'track.page:project_detail'])
+        ->middleware(['throttle:120,1', 'track.page:project_detail'])
         ->name('project.detail');
     Route::get('/products', [ProductController::class, 'index'])
-        ->middleware(['throttle:100,1', 'track.page:products'])
+        ->middleware(['throttle:200,1', 'track.page:products'])
         ->name('products');
     Route::get('/products/{id}', [ProductController::class, 'show'])
-        ->middleware(['throttle:60,1', 'track.page:product_detail'])
+        ->middleware(['throttle:120,1', 'track.page:product_detail'])
         ->name('product.detail');
 
     // Fab Labs listing and detail pages (public, rate limited)
     Route::get('/fab-labs', [FabLabController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware('throttle:200,1')
         ->name('fab-labs');
     Route::get('/fab-labs/{id}', [FabLabController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('fab-lab.detail');
 
     // Designers and Manufacturers listing page (public, rate limited)
     Route::get('/designers', [DesignerController::class, 'index'])
-        ->middleware(['throttle:100,1', 'track.page:designers'])
+        ->middleware(['throttle:200,1', 'track.page:designers'])
         ->name('designers');
 
     // Marketplace listing and detail pages (public, rate limited)
     Route::get('/marketplace', [MarketplaceController::class, 'index'])
-        ->middleware(['throttle:100,1', 'track.page:marketplace'])
+        ->middleware(['throttle:200,1', 'track.page:marketplace'])
         ->name('marketplace.index');
     Route::get('/marketplace/{id}', [MarketplaceController::class, 'show'])
-        ->middleware(['throttle:60,1', 'track.page:marketplace_detail'])
+        ->middleware(['throttle:120,1', 'track.page:marketplace_detail'])
         ->name('marketplace.show');
 
     // Marketplace comments (public read, auth required for write)
     Route::get('/marketplace/{postId}/comments', [\App\Http\Controllers\MarketplaceCommentController::class, 'index'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('marketplace.comments.index');
 
     // Trainings listing and detail pages (public, rate limited) - uses AcademicTraining
     Route::get('/trainings', [TrainingController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware('throttle:200,1')
         ->name('trainings.index');
     Route::get('/trainings/{id}', [TrainingController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('trainings.show');
+
+    // Announcements (news) - public listing filtered from trainings page
+    Route::get('/announcements', function ($locale) {
+        return redirect()->route('trainings.index', ['locale' => $locale, 'type' => 'announcement']);
+    })->middleware('throttle:200,1')->name('announcements.index');
+    Route::get('/announcements/{id}', function ($locale, $id) {
+        return redirect()->route('trainings.show', ['locale' => $locale, 'id' => $id, 'type' => 'announcement']);
+    })->middleware('throttle:120,1')->name('announcements.show');
 
     // Tenders listing and detail pages (public, rate limited)
     Route::get('/tenders', [TenderController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware('throttle:200,1')
         ->name('tenders.index');
     Route::get('/tenders/{id}', [TenderController::class, 'show'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('tenders.show');
 
     // Services listing and detail pages (public, rate limited)
     Route::get('/services', [ServiceController::class, 'index'])
-        ->middleware(['throttle:100,1', 'track.page:services'])
+        ->middleware(['throttle:200,1', 'track.page:services'])
         ->name('services');
     Route::get('/services/{id}', [ServiceController::class, 'show'])
-        ->middleware(['throttle:60,1', 'track.page:service_detail'])
+        ->middleware(['throttle:120,1', 'track.page:service_detail'])
         ->name('services.show');
 
     // Academic & Private Sectors listing and detail pages (public, rate limited)
     Route::get('/academic-tevets', [AcademicTevetsController::class, 'index'])
-        ->middleware('throttle:100,1')
+        ->middleware('throttle:200,1')
         ->name('academic-tevets');
     Route::get('/academic-tevets/{id}', [AcademicTevetsController::class, 'showAcademic'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:120,1')
         ->name('academic-institution.show');
 
     // Note: Removed fallback to avoid catching asset files (js, css, images)

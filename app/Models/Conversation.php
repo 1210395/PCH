@@ -126,19 +126,15 @@ class Conversation extends Model
     }
 
     /**
-     * Check if rating is allowed (24 hours after conversation was accepted)
+     * Check if rating is allowed (immediately after conversation is accepted)
      */
     public function canRate()
     {
-        if (!$this->accepted_at) {
-            return false;
-        }
-
-        return $this->accepted_at->addHours(24)->isPast();
+        return $this->accepted_at !== null;
     }
 
     /**
-     * Get hours remaining until rating is allowed
+     * Get hours remaining until rating is allowed (always 0 since rating is immediate)
      */
     public function hoursUntilRatingAllowed()
     {
@@ -146,13 +142,25 @@ class Conversation extends Model
             return null;
         }
 
-        $ratingAllowedAt = $this->accepted_at->addHours(24);
+        return 0;
+    }
 
-        if ($ratingAllowedAt->isPast()) {
-            return 0;
+    /**
+     * Check if the 24-hour reminder should be sent (accepted 24+ hours ago and user hasn't rated)
+     */
+    public function shouldSendRatingReminder($designerId)
+    {
+        if (!$this->accepted_at) {
+            return false;
         }
 
-        return (int) ceil(now()->diffInMinutes($ratingAllowedAt) / 60);
+        // Only send reminder if 24 hours have passed since acceptance
+        if (!$this->accepted_at->addHours(24)->isPast()) {
+            return false;
+        }
+
+        // Only send if the user hasn't rated yet
+        return !$this->hasUserRated($designerId);
     }
 
     /**

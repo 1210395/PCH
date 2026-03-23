@@ -211,7 +211,7 @@ window.__profileFormData = <?php echo json_encode([
     'email' => $designer->email ?? '',
     'phone' => $designer->phone_number ?? '',
     'phoneCountry' => 'PS',
-    'city' => $designer->city ?? '',
+    'city' => $designer->city ?? array_key_first(\App\Helpers\DropdownHelper::citiesKeyValue()) ?? '',
     'address' => $designer->address ?? '',
     'linkedin' => $designer->linkedin ?? '',
     'instagram' => $designer->instagram ?? '',
@@ -679,9 +679,7 @@ window.profileEditData = function() {
 
         deleteMarketplacePost(id, index) {
             if (!confirm('{{ __("Are you sure you want to delete this marketplace post?") }}')) return;
-            const formData = new FormData();
-            formData.append('_method', 'DELETE');
-            fetch(window.__profileBaseUrl + '/marketplace-posts/' + id, { method: 'POST', headers: { 'X-CSRF-TOKEN': window.__profileCsrfToken, 'Accept': 'application/json' }, body: formData })
+            fetch(window.__profileBaseUrl + '/marketplace-posts/' + id, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': window.__profileCsrfToken, 'Accept': 'application/json' } })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

@@ -34,10 +34,17 @@ class TrainingController extends Controller
         $contentType = $validated['type'] ?? 'all';
         $allItems = collect();
 
+        // Determine language filter based on current locale
+        $locale = app()->getLocale();
+        $arabicFilter = $locale === 'ar'
+            ? "title REGEXP '[ء-ي]'"
+            : "title NOT REGEXP '[ء-ي]'";
+
         // Get trainings if type is all or training
         if ($contentType === 'all' || $contentType === 'training' || in_array($contentType, ['online', 'in-person', 'hybrid'])) {
             $trainingsQuery = AcademicTraining::with('academicAccount')
                 ->where('approval_status', 'approved')
+                ->whereRaw($arabicFilter)
                 ->where(function ($q) {
                     $q->whereNull('end_date')
                       ->orWhere('end_date', '>=', now()->toDateString());
@@ -81,7 +88,8 @@ class TrainingController extends Controller
         // Get workshops if type is all or workshop
         if ($contentType === 'all' || $contentType === 'workshop') {
             $workshopsQuery = AcademicWorkshop::with('academicAccount')
-                ->where('approval_status', 'approved');
+                ->where('approval_status', 'approved')
+                ->whereRaw($arabicFilter);
 
             // Filter by category
             if (!empty($validated['category']) && $validated['category'] !== 'all') {
@@ -112,6 +120,7 @@ class TrainingController extends Controller
         if ($contentType === 'all' || $contentType === 'announcement') {
             $announcementsQuery = AcademicAnnouncement::with('academicAccount')
                 ->where('approval_status', 'approved')
+                ->whereRaw($arabicFilter)
                 ->where(function ($q) {
                     $q->whereNull('expiry_date')
                       ->orWhere('expiry_date', '>=', now()->toDateString());

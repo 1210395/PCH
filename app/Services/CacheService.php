@@ -313,6 +313,7 @@ class CacheService
         $designers = Cache::remember($cacheKey, self::TTL_LONG, function() use ($sector) {
             return Designer::where('is_admin', false)
                 ->where('is_active', true)
+                ->where('sector', '!=', 'guest')
                 ->where('sector', $sector ?? '')
                 ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'followers_count')
                 ->orderByDesc('followers_count')

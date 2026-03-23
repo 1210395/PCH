@@ -325,8 +325,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($announcements as $announcement)
                 @php
-                    $announcementLink = $announcement->external_link ?: '#';
                     $isExternalLink = !empty($announcement->external_link);
+                    $announcementLink = $isExternalLink
+                        ? $announcement->external_link
+                        : route('trainings.show', ['locale' => app()->getLocale(), 'id' => $announcement->id, 'type' => 'announcement']);
                 @endphp
                 <a href="{{ $announcementLink }}" @if($isExternalLink) target="_blank" rel="noopener" @endif class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all group block">
                     {{-- Content --}}

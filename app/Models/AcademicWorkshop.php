@@ -24,11 +24,15 @@ class AcademicWorkshop extends Model
         'title',
         'short_description',
         'description',
+        'objectives',
         'image',
         'category',
         'location_type',
         'location',
+        'is_online',
+        'instructor',
         'price',
+        'is_free',
         'duration',
         'workshop_date',
         'start_time',
@@ -37,6 +41,7 @@ class AcademicWorkshop extends Model
         'requirements',
         'tools_provided',
         'has_certificate',
+        'registration_link',
         'views_count',
         // Approval fields
         'approval_status',
@@ -54,6 +59,8 @@ class AcademicWorkshop extends Model
             'requirements' => 'array',
             'tools_provided' => 'array',
             'has_certificate' => 'boolean',
+            'is_online' => 'boolean',
+            'is_free' => 'boolean',
             'approved_at' => 'datetime',
         ];
     }

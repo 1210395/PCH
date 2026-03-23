@@ -5,8 +5,8 @@
      style="display: none;">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
          @click="editProductModal = false"></div>
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="relative bg-white rounded-xl shadow-xl border border-gray-200 max-w-2xl w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-end sm:items-center justify-center min-h-screen p-0 sm:p-4">
+        <div class="relative bg-white rounded-t-xl sm:rounded-xl shadow-xl border border-gray-200 max-w-2xl w-full p-4 sm:p-6 h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto">
             <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{{ __('Edit Product') }}</h3>
 
             <div class="space-y-4">

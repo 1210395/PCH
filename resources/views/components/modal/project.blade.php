@@ -2,7 +2,7 @@
 <div x-show="projectModal"
      x-cloak
      @click.self="closeProjectModal()"
-     class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+     class="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm"
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
@@ -17,7 +17,7 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 transform scale-100"
          x-transition:leave-end="opacity-0 transform scale-95"
-         class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+         class="bg-white rounded-t-2xl sm:rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col">
 
         {{-- Modal Header with Gradient --}}
         <div class="relative p-4 sm:p-6 md:p-8 bg-gradient-to-r from-blue-600 to-green-500 text-white overflow-hidden">
@@ -49,7 +49,7 @@
         </div>
 
         {{-- Modal Body --}}
-        <div class="overflow-y-auto max-h-[calc(90vh-200px)] sm:max-h-[calc(90vh-240px)]">
+        <div class="overflow-y-auto flex-1 min-h-0">
             <div class="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
                 {{-- Project Title --}}
                 <div class="group">
@@ -186,15 +186,15 @@
         </div>
 
         {{-- Modal Footer --}}
-        <div class="p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100/50 flex gap-4 justify-end">
+        <div class="flex-shrink-0 p-4 sm:p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100/50 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end safe-area-bottom">
             <button @click="closeProjectModal()"
-                    class="px-8 py-3.5 border-2 border-gray-300 hover:border-gray-400 bg-white text-gray-700 rounded-xl font-bold transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95">
+                    class="px-6 sm:px-8 py-3 sm:py-3.5 border-2 border-gray-300 hover:border-gray-400 bg-white text-gray-700 rounded-xl font-bold transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 w-full sm:w-auto">
                 {{ __('Cancel') }}
             </button>
             <button @click="saveProject()"
                     :disabled="projectSubmitting"
                     :class="projectSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-2xl hover:shadow-blue-500/40 hover:scale-105 active:scale-95'"
-                    class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-xl font-bold transition-all duration-200 flex items-center gap-3 shadow-lg">
+                    class="px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-3 shadow-lg w-full sm:w-auto">
                 <svg x-show="projectSubmitting" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
