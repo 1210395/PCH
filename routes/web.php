@@ -138,7 +138,7 @@ Route::group(['prefix' => '{locale}'], function () {
     // ============================================================
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])
-        ->middleware('throttle:5,1')
+        ->middleware('throttle:20,1')
         ->name('register.post');
     Route::get('/register/success', [AuthController::class, 'showRegistrationSuccess'])->name('register.success');
 
@@ -290,16 +290,16 @@ Route::group(['prefix' => '{locale}'], function () {
             ->middleware('throttle:120,1')
             ->name('messages.checkPendingRequest');
         Route::get('/messages/compose/{designerId}', [MessagesController::class, 'compose'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.compose');
         Route::post('/messages/send/{designerId}', [MessagesController::class, 'send'])
-            ->middleware('throttle:30,1')
+            ->middleware('throttle:60,1')
             ->name('messages.send');
         Route::get('/messages/chat/{designerId}', [MessagesController::class, 'chat'])
             ->middleware('throttle:60,1')
             ->name('messages.chat');
         Route::post('/messages/chat/{conversationId}/send', [MessagesController::class, 'sendInChat'])
-            ->middleware('throttle:60,1')
+            ->middleware('throttle:120,1')
             ->name('messages.sendInChat');
         Route::get('/messages/chat/{conversationId}/messages', [MessagesController::class, 'getMessages'])
             ->middleware('throttle:120,1')
