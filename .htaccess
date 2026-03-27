@@ -10,15 +10,7 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Serve media files directly from storage (bypass PHP for Imunify360 compatibility)
-    RewriteCond /home/technopark/public_html/PalestineCreativeHub/storage/app/public/%1 -f
-    RewriteRule ^media/(.+)$ storage/app/public/$1 [L]
-
-    # Fall back to public/ directory for media files (images, js, etc.)
-    RewriteCond /home/technopark/public_html/PalestineCreativeHub/public/%1 -f
-    RewriteRule ^media/(.+)$ public/$1 [L]
-
-    # If media file not found in storage or public, send to Laravel
+    # Send media/storage requests directly to Laravel
     RewriteRule ^media/(.+)$ index.php [L]
 
     # Serve static files from public/ directory if they exist there
