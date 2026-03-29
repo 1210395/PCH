@@ -351,7 +351,7 @@ class ProductController extends Controller
             // Filter out invalid paths
             $incomingPaths = array_filter($incomingPaths);
 
-            \og::debug('Product update - processing images', [
+            \Log::debug('Product update - processing images', [
                 'product_id' => $product->id,
                 'existing_paths' => $existingPaths,
                 'incoming_paths' => array_values($incomingPaths)
@@ -385,7 +385,7 @@ class ProductController extends Controller
                     }
                 } else {
                     // This is a new temporary upload - move to permanent storage
-                    \og::debug('Product update - moving temp image', [
+                    \Log::debug('Product update - moving temp image', [
                         'product_id' => $product->id,
                         'temp_path' => $path,
                         'file_exists' => \Storage::disk('public')->exists($path)
@@ -406,7 +406,7 @@ class ProductController extends Controller
                             'is_primary' => $displayOrder === 0 ? 1 : 0
                         ]);
                         $displayOrder++;
-                        \og::debug('Product image saved successfully', [
+                        \Log::debug('Product image saved successfully', [
                             'product_id' => $product->id,
                             'permanent_path' => $permanentPath
                         ]);

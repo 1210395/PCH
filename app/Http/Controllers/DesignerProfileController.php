@@ -554,19 +554,89 @@ class DesignerProfileController extends Controller
     }
 
     /**
-     * Stub for certification updates (not yet implemented; maintained for route compatibility).
+     * Update certifications — upload new PDF or remove existing one.
+     * Certifications are stored as a JSON array of file paths on the Designer model.
+     * Maximum 3 certifications allowed.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateCertifications(Request $request)
     {
-        // Note: This method is referenced in routes but was not implemented
-        // in the original DesignerController. Keeping as a stub for route compatibility.
-        return response()->json([
-            'success' => false,
-            'message' => 'Not implemented'
-        ], 501);
+        $designer = auth('designer')->user();
+        $certifications = $designer->certifications ?? [];
+
+        // Handle remove
+        if ($request->has('remove_index')) {
+            $index = (int) $request->input('remove_index');
+            if (isset($certifications[$index])) {
+                // Delete the file from storage
+                $path = $certifications[$index];
+                if (is_string($path)) {
+                    $storagePath = storage_path('app/public/' . $path);
+                    if (file_exists($storagePath)) {
+                        @unlink($storagePath);
+                    }
+                } elseif (is_array($path) && isset($path['path'])) {
+                    $storagePath = storage_path('app/public/' . $path['path']);
+                    if (file_exists($storagePath)) {
+                        @unlink($storagePath);
+                    }
+                }
+                array_splice($certifications, $index, 1);
+                $designer->update(['certifications' => array_values($certifications)]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => __('Certification removed successfully.'),
+                    'certifications' => array_values($certifications),
+                ]);
+            }
+
+            return response()->json(['success' => false, 'message' => __('Certification not found.')], 404);
+        }
+
+        // Handle upload
+        if ($request->hasFile('new_certification')) {
+            if (count($certifications) >= 3) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Maximum 3 certifications allowed.'),
+                ], 422);
+            }
+
+            $request->validate([
+                'new_certification' => ['required', 'file', 'mimes:pdf', 'max:10240'], // 10MB max
+            ]);
+
+            $file = $request->file('new_certification');
+            $filename = 'cert_' . $designer->id . '_' . time() . '_' . uniqid() . '.pdf';
+            $path = $file->storeAs('certifications', $filename, 'public');
+
+            if (!$path) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Failed to upload certification file.'),
+                ], 500);
+            }
+
+            $certifications[] = $path;
+            $designer->update(['certifications' => $certifications]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Certification uploaded successfully.'),
+                'certifications' => $certifications,
+                'new_cert' => [
+                    'id' => count($certifications) - 1,
+                    'path' => $path,
+                    'name' => $file->getClientOriginalName(),
+                    'url' => url("media/certifications/{$filename}"),
+                ],
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => __('No file provided.')], 400);
     }
 
     /**
