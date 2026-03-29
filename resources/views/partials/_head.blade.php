@@ -52,6 +52,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
 @endif
 
+{{-- Force clear all caches on load (TEMPORARY - remove after deployment) --}}
+<script>
+(function(){
+    try {
+        // Clear localStorage and sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        // Unregister all service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+                regs.forEach(function(r) { r.unregister(); });
+            });
+        }
+        // Clear caches API
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) { caches.delete(name); });
+            });
+        }
+    } catch(e) {}
+})();
+</script>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 {{-- Hide page until Tailwind CSS is ready --}}
 <style>body { opacity: 0; } body.ready { opacity: 1; transition: opacity 0.15s; }</style>
 
