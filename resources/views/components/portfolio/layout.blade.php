@@ -1,6 +1,10 @@
 @props(['designer', 'projectsData', 'productsData', 'servicesData'])
 
 <script>
+    // Base URL for AJAX calls (includes /PalestineCreativeHub/{locale} prefix)
+    window.__portfolioBaseUrl = '{{ url(app()->getLocale()) }}';
+    window.__portfolioCsrfToken = '{{ csrf_token() }}';
+
     // Global Alpine functions for project category and role comboboxes
     window.searchableProjectCategory = function() {
         const categories = [
@@ -442,7 +446,7 @@
                 formData.append(`image_paths[${index}]`, image);
             });
 
-            fetch(`/{{ app()->getLocale() }}/projects/${this.currentItem.id}`, {
+            fetch(`${window.__portfolioBaseUrl}/projects/${this.currentItem.id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -480,7 +484,7 @@
                 formData.append(`image_paths[${index}]`, image);
             });
 
-            fetch(`/{{ app()->getLocale() }}/products/${this.currentItem.id}`, {
+            fetch(`${window.__portfolioBaseUrl}/products/${this.currentItem.id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -509,7 +513,7 @@
         submitEditService() {
             this.isSubmitting = true;
 
-            fetch(`/{{ app()->getLocale() }}/services/${this.currentItem.id}`, {
+            fetch(`${window.__portfolioBaseUrl}/services/${this.currentItem.id}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -543,7 +547,7 @@
 
         submitEditBio() {
             this.isSubmitting = true;
-            fetch(`/{{ app()->getLocale() }}/designer/update-bio`, {
+            fetch(`{{ route('designer.update-bio', ['locale' => app()->getLocale()]) }}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -572,7 +576,7 @@
 
         submitEditSkills() {
             this.isSubmitting = true;
-            fetch(`/{{ app()->getLocale() }}/designer/update-skills`, {
+            fetch(`${window.__portfolioBaseUrl}/designer/update-skills`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -611,7 +615,7 @@
                 formData.append(`image_paths[${index}]`, image);
             });
 
-            fetch(`/{{ app()->getLocale() }}/projects`, {
+            fetch(`${window.__portfolioBaseUrl}/projects`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -648,7 +652,7 @@
                 formData.append(`image_paths[${index}]`, image);
             });
 
-            fetch(`/{{ app()->getLocale() }}/products`, {
+            fetch(`${window.__portfolioBaseUrl}/products`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -677,7 +681,7 @@
         submitAddService() {
             this.isSubmitting = true;
 
-            fetch(`/{{ app()->getLocale() }}/services`, {
+            fetch(`${window.__portfolioBaseUrl}/services`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
