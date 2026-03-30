@@ -122,6 +122,7 @@
                     <option value="all" {{ request('type') == 'all' || !request('type') ? 'selected' : '' }}>{{ __('All Types') }}</option>
                     <option value="academic" {{ request('type') == 'academic' ? 'selected' : '' }}>{{ __('Academic Institutions') }}</option>
                     <option value="tvet" {{ request('type') == 'tvet' ? 'selected' : '' }}>{{ __('TVETs') }}</option>
+                    <option value="ebdc" {{ request('type') == 'ebdc' ? 'selected' : '' }}>{{ __('EBDCs') }}</option>
                     <option value="private_sector" {{ request('type') == 'private_sector' ? 'selected' : '' }}>{{ __('Workplace Learning Centers') }}</option>
                 </select>
             </div>
@@ -185,6 +186,8 @@
                                 <span class="absolute top-3 right-3 px-2 py-1 text-xs font-semibold rounded-full z-10
                                     @if($institution->institution_type === 'university') bg-blue-100 text-blue-700
                                     @elseif($institution->institution_type === 'college') bg-green-100 text-green-700
+                                    @elseif($institution->institution_type === 'ebdc') bg-amber-100 text-amber-700
+                                    @elseif($institution->institution_type === 'tvet') bg-purple-100 text-purple-700
                                     @else bg-gray-100 text-gray-700
                                     @endif
                                 ">

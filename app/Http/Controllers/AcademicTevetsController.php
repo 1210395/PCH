@@ -27,7 +27,7 @@ class AcademicTevetsController extends Controller
         // Validate and sanitize input
         $validated = $request->validate([
             'city' => 'nullable|string|max:100',
-            'type' => 'nullable|string|in:all,academic,tvet,private_sector',
+            'type' => 'nullable|string|in:all,academic,tvet,ebdc,private_sector',
             'search' => 'nullable|string|max:255',
         ]);
 
@@ -75,6 +75,12 @@ class AcademicTevetsController extends Controller
         } elseif ($type === 'tvet') {
             $academicInstitutions = collect();
             $tevetInstitutions = $tevetQuery->orderBy('name')->paginate(12)->withQueryString();
+            $privateSectors = collect();
+        } elseif ($type === 'ebdc') {
+            $academicInstitutions = AcademicAccount::active()
+                ->where('institution_type', 'ebdc')
+                ->orderBy('name')->paginate(12)->withQueryString();
+            $tevetInstitutions = collect();
             $privateSectors = collect();
         } elseif ($type === 'private_sector') {
             $academicInstitutions = collect();

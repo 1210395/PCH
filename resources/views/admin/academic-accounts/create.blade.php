@@ -47,6 +47,7 @@
                             <option value="university">{{ __('University') }}</option>
                             <option value="tvet">{{ __('TVET') }}</option>
                             <option value="college">{{ __('College') }}</option>
+                            <option value="ebdc">{{ __('EBDC') }}</option>
                             <option value="other">{{ __('Other') }}</option>
                         </select>
                     </div>

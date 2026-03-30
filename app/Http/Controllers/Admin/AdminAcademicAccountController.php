@@ -67,7 +67,8 @@ class AdminAcademicAccountController extends AdminBaseController
             COUNT(*) as total,
             SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
             SUM(CASE WHEN institution_type = 'university' THEN 1 ELSE 0 END) as universities,
-            SUM(CASE WHEN institution_type = 'tvet' THEN 1 ELSE 0 END) as tvets
+            SUM(CASE WHEN institution_type = 'tvet' THEN 1 ELSE 0 END) as tvets,
+            SUM(CASE WHEN institution_type = 'ebdc' THEN 1 ELSE 0 END) as ebdcs
         ")->first()->toArray();
 
         return view('admin.academic-accounts.index', compact('accounts', 'stats'));
@@ -90,7 +91,7 @@ class AdminAcademicAccountController extends AdminBaseController
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:academic_accounts,email',
             'password' => 'required|string|min:8',
-            'institution_type' => 'required|in:university,tvet,college,other',
+            'institution_type' => 'required|in:university,tvet,college,ebdc,other',
             'description' => 'nullable|string|max:2000',
             'website' => 'nullable|url|max:255',
             'phone' => 'nullable|string|max:50',
@@ -190,7 +191,7 @@ class AdminAcademicAccountController extends AdminBaseController
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:academic_accounts,email,' . $id,
-            'institution_type' => 'required|in:university,tvet,college,other',
+            'institution_type' => 'required|in:university,tvet,college,ebdc,other',
             'description' => 'nullable|string|max:2000',
             'website' => 'nullable|url|max:255',
             'phone' => 'nullable|string|max:50',

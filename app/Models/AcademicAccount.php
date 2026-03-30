@@ -96,6 +96,7 @@ class AcademicAccount extends Authenticatable
             'university' => __('University'),
             'tvet' => __('TVET'),
             'college' => __('College'),
+            'ebdc' => __('EBDC'),
             'other' => __('Other'),
             default => __(ucfirst($this->institution_type)),
         };
@@ -107,6 +108,7 @@ class AcademicAccount extends Authenticatable
             'university' => 'blue',
             'tvet' => 'purple',
             'college' => 'green',
+            'ebdc' => 'amber',
             'other' => 'gray',
             default => 'gray',
         };

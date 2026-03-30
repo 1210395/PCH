@@ -12,7 +12,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">{{ __('Academic Accounts') }}</h1>
-            <p class="text-gray-500">{{ __('Manage university, TVET, and college accounts') }}</p>
+            <p class="text-gray-500">{{ __('Manage university, TVET, college, and EBDC accounts') }}</p>
         </div>
         <a href="{{ route('admin.academic-accounts.create', ['locale' => app()->getLocale()]) }}"
            class="px-4 py-2 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg hover:shadow-lg transition-all">
@@ -66,6 +66,17 @@
                 </div>
             </div>
         </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-amber-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">{{ __('EBDCs') }}</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $stats['ebdcs'] ?? 0 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-lightbulb text-amber-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Filters & Search -->
@@ -89,6 +100,7 @@
                 <option value="university" {{ request('type') === 'university' ? 'selected' : '' }}>{{ __('University') }}</option>
                 <option value="tvet" {{ request('type') === 'tvet' ? 'selected' : '' }}>{{ __('TVET') }}</option>
                 <option value="college" {{ request('type') === 'college' ? 'selected' : '' }}>{{ __('College') }}</option>
+                <option value="ebdc" {{ request('type') === 'ebdc' ? 'selected' : '' }}>{{ __('EBDC') }}</option>
                 <option value="other" {{ request('type') === 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
             </select>
 
