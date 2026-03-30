@@ -217,7 +217,17 @@ class AuthController extends Controller
                 // Step 1: Account Creation
                 'first_name' => ['required', 'string', 'max:255'],
                 'last_name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:designers'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:designers', function ($attribute, $value, $fail) {
+                    // Prevent +alias email trick (user+tag@gmail.com registers as same user@gmail.com)
+                    $normalized = preg_replace('/\+[^@]*@/', '@', strtolower($value));
+                    $exists = \App\Models\Designer::whereRaw(
+                        "LOWER(CONCAT(SUBSTRING_INDEX(SUBSTRING_INDEX(email, '@', 1), '+', 1), '@', SUBSTRING_INDEX(email, '@', -1))) = ?",
+                        [$normalized]
+                    )->exists();
+                    if ($exists) {
+                        $fail(__('This email is already registered.'));
+                    }
+                }],
                 'password' => [
                     'required',
                     'confirmed',

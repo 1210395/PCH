@@ -29,11 +29,25 @@ class ValidationController extends Controller
             ]);
         }
 
-        $exists = Designer::where('email', $email)->exists();
+        // Normalize email: strip +alias part (user+tag@gmail.com → user@gmail.com)
+        // Prevents multiple accounts using Gmail's +alias trick
+        $normalizedEmail = preg_replace('/\+[^@]*@/', '@', strtolower($email));
+        $inputEmail = strtolower($email);
+
+        // Check both the exact email and the normalized version
+        $exists = Designer::whereRaw('LOWER(email) = ?', [$inputEmail])
+            ->orWhereRaw("LOWER(REPLACE(SUBSTRING_INDEX(email, '+', 1), '', '') || '@' || SUBSTRING_INDEX(email, '@', -1)) = ?", [$normalizedEmail])
+            ->exists();
+
+        // Simpler fallback: also check if stripping + from all existing emails matches
+        if (!$exists && str_contains($email, '+')) {
+            $exists = Designer::whereRaw("LOWER(CONCAT(SUBSTRING_INDEX(SUBSTRING_INDEX(email, '@', 1), '+', 1), '@', SUBSTRING_INDEX(email, '@', -1))) = ?", [$normalizedEmail])
+                ->exists();
+        }
 
         return response()->json([
             'available' => !$exists,
-            'message' => $exists ? 'This email is already registered' : 'Email is available'
+            'message' => $exists ? __('This email is already registered') : __('Email is available')
         ]);
     }
 }
