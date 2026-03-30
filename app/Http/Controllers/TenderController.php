@@ -57,14 +57,17 @@ class TenderController extends Controller
         // Sort
         $sort = $validated['sort'] ?? 'deadline';
         switch ($sort) {
-            case 'published_date':
-                $query->orderBy('published_date', 'desc');
+            case 'deadline':
+                $query->orderBy('deadline', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('published_date', 'desc')->orderBy('created_at', 'desc');
                 break;
             case 'title':
                 $query->orderBy('title', 'asc');
                 break;
             default:
-                $query->orderBy('deadline', 'asc');
+                $query->orderBy('deadline', 'desc');
         }
 
         $tenders = $query->paginate(12)->withQueryString();
