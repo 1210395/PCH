@@ -31,16 +31,20 @@ class AcademicTevetsController extends Controller
             'search' => 'nullable|string|max:255',
         ]);
 
-        // Build three separate queries
-        // 1. Academic institutions (universities, colleges, etc. — NOT tvet)
+        // Build four separate queries
+        // 1. Academic institutions (universities, colleges — NOT tvet, NOT ebdc)
         $academicQuery = AcademicAccount::active()
-            ->where('institution_type', '!=', 'tvet');
+            ->whereNotIn('institution_type', ['tvet', 'ebdc']);
 
         // 2. TVETs (academic_accounts with institution_type = 'tvet')
         $tevetQuery = AcademicAccount::active()
             ->where('institution_type', 'tvet');
 
-        // 3. Private sector (designers with is_tevet = true)
+        // 3. EBDCs (academic_accounts with institution_type = 'ebdc')
+        $ebdcQuery = AcademicAccount::active()
+            ->where('institution_type', 'ebdc');
+
+        // 4. Private sector (designers with is_tevet = true)
         $privateSectorQuery = Designer::where('is_tevet', true)
             ->where('is_active', true)
             ->whereIn('sector', ['manufacturer', 'showroom']);
@@ -50,6 +54,7 @@ class AcademicTevetsController extends Controller
             $city = strip_tags($validated['city']);
             $academicQuery->where('city', $city);
             $tevetQuery->where('city', $city);
+            $ebdcQuery->where('city', $city);
             $privateSectorQuery->where('city', $city);
         }
 
@@ -58,6 +63,7 @@ class AcademicTevetsController extends Controller
             $searchTerm = strip_tags($validated['search']);
             $academicQuery->search($searchTerm);
             $tevetQuery->search($searchTerm);
+            $ebdcQuery->search($searchTerm);
             $privateSectorQuery->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
                   ->orWhere('company_name', 'like', "%{$searchTerm}%")
@@ -71,54 +77,52 @@ class AcademicTevetsController extends Controller
         if ($type === 'academic') {
             $academicInstitutions = $academicQuery->orderBy('name')->paginate(12)->withQueryString();
             $tevetInstitutions = collect();
+            $ebdcInstitutions = collect();
             $privateSectors = collect();
         } elseif ($type === 'tvet') {
             $academicInstitutions = collect();
             $tevetInstitutions = $tevetQuery->orderBy('name')->paginate(12)->withQueryString();
+            $ebdcInstitutions = collect();
             $privateSectors = collect();
         } elseif ($type === 'ebdc') {
-            $academicInstitutions = AcademicAccount::active()
-                ->where('institution_type', 'ebdc')
-                ->orderBy('name')->paginate(12)->withQueryString();
+            $academicInstitutions = collect();
             $tevetInstitutions = collect();
+            $ebdcInstitutions = $ebdcQuery->orderBy('name')->paginate(12)->withQueryString();
             $privateSectors = collect();
         } elseif ($type === 'private_sector') {
             $academicInstitutions = collect();
             $tevetInstitutions = collect();
+            $ebdcInstitutions = collect();
             $privateSectors = $privateSectorQuery->orderBy('name')->paginate(12)->withQueryString();
         } else {
-            // Show all three
+            // Show all four
             $academicInstitutions = $academicQuery->orderBy('name')->get();
             $tevetInstitutions = $tevetQuery->orderBy('name')->get();
+            $ebdcInstitutions = $ebdcQuery->orderBy('name')->get();
             $privateSectors = $privateSectorQuery->orderBy('name')->get();
         }
 
-        // Get unique cities for filter (from all three sources)
-        $academicCities = AcademicAccount::active()
-            ->where('institution_type', '!=', 'tvet')
-            ->distinct()->pluck('city')->filter();
-
-        $tevetCities = AcademicAccount::active()
-            ->where('institution_type', 'tvet')
-            ->distinct()->pluck('city')->filter();
-
+        // Get unique cities for filter (from all sources)
+        $allCities = AcademicAccount::active()->distinct()->pluck('city')->filter();
         $privateSectorCities = Designer::where('is_tevet', true)
             ->where('is_active', true)
             ->whereIn('sector', ['manufacturer', 'showroom'])
-            ->distinct()
-            ->pluck('city')
-            ->filter();
+            ->distinct()->pluck('city')->filter();
 
-        $cities = $academicCities->merge($tevetCities)->merge($privateSectorCities)
+        $cities = $allCities->merge($privateSectorCities)
             ->unique()->sort()->values();
 
         // Stats
         $totalAcademic = AcademicAccount::active()
-            ->where('institution_type', '!=', 'tvet')
+            ->whereNotIn('institution_type', ['tvet', 'ebdc'])
             ->count();
 
         $totalTevets = AcademicAccount::active()
             ->where('institution_type', 'tvet')
+            ->count();
+
+        $totalEbdc = AcademicAccount::active()
+            ->where('institution_type', 'ebdc')
             ->count();
 
         $totalPrivateSectors = Designer::where('is_tevet', true)
@@ -129,10 +133,12 @@ class AcademicTevetsController extends Controller
         return view('academic-tevets', compact(
             'academicInstitutions',
             'tevetInstitutions',
+            'ebdcInstitutions',
             'privateSectors',
             'cities',
             'totalAcademic',
             'totalTevets',
+            'totalEbdc',
             'totalPrivateSectors'
         ));
     }

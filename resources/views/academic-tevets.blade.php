@@ -61,6 +61,12 @@
                 </div>
                 <div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    <span>{{ $totalEbdc }} {{ __('EBDCs') }}</span>
+                </div>
+                <div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                     <span>{{ $totalPrivateSectors }} {{ __('Workplace Learning Centers') }}</span>
@@ -145,10 +151,11 @@
         @php
             $hasAcademic = is_countable($academicInstitutions) ? count($academicInstitutions) > 0 : $academicInstitutions->count() > 0;
             $hasTevets = is_countable($tevetInstitutions) ? count($tevetInstitutions) > 0 : $tevetInstitutions->count() > 0;
+            $hasEbdc = is_countable($ebdcInstitutions) ? count($ebdcInstitutions) > 0 : $ebdcInstitutions->count() > 0;
             $hasPrivateSectors = is_countable($privateSectors) ? count($privateSectors) > 0 : $privateSectors->count() > 0;
         @endphp
 
-        @if($hasAcademic || $hasTevets || $hasPrivateSectors)
+        @if($hasAcademic || $hasTevets || $hasEbdc || $hasPrivateSectors)
 
             {{-- Academic Institutions Section --}}
             @if($hasAcademic)
@@ -307,6 +314,73 @@
                 @if($tevetInstitutions instanceof \Illuminate\Pagination\LengthAwarePaginator)
                     <div class="mt-8">
                         {{ $tevetInstitutions->links() }}
+                    </div>
+                @endif
+            </div>
+            @endif
+
+            {{-- EBDCs Section --}}
+            @if($hasEbdc)
+            <div class="mb-12">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ __('EBDCs') }}</h2>
+                    <span class="text-sm text-gray-500">({{ is_countable($ebdcInstitutions) ? count($ebdcInstitutions) : $ebdcInstitutions->count() }})</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach($ebdcInstitutions as $institution)
+                        <a href="{{ route('academic-institution.show', ['locale' => app()->getLocale(), 'id' => $institution->id]) }}" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all group block">
+                            <div class="h-32 bg-gradient-to-br from-amber-500 to-orange-400 relative flex items-center justify-center overflow-hidden">
+                                @if($institution->banner)
+                                    <img src="{{ $institution->banner_url }}" alt="{{ $institution->name }}" class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-amber-900/60 to-orange-900/60"></div>
+                                @endif
+                                <div class="relative z-10">
+                                    @if($institution->logo)
+                                        <img src="{{ $institution->logo_url }}" alt="{{ $institution->name }}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
+                                    @else
+                                        <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg">
+                                            <span class="text-3xl font-bold text-amber-600">{{ strtoupper(substr($institution->name, 0, 1)) }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <span class="absolute top-3 right-3 px-2 py-1 text-xs font-semibold rounded-full z-10 bg-amber-100 text-amber-700">
+                                    {{ __('EBDC') }}
+                                </span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors">
+                                    {{ $institution->name }}
+                                </h3>
+                                @if($institution->city)
+                                <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span>{{ $institution->city }}</span>
+                                </div>
+                                @endif
+                                @if($institution->description)
+                                <p class="text-sm text-gray-600 line-clamp-2 mb-3">{{ Str::limit($institution->description, 100) }}</p>
+                                @endif
+                                <div class="mt-3 pt-3 border-t border-gray-100">
+                                    <span class="block w-full text-center px-3 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+                                        {{ __('View Details') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+
+                @if($ebdcInstitutions instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    <div class="mt-8">
+                        {{ $ebdcInstitutions->links() }}
                     </div>
                 @endif
             </div>
