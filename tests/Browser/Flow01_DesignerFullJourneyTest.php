@@ -367,6 +367,30 @@ class Flow01_DesignerFullJourneyTest extends DuskTestCase
             $this->visitPage($browser, TestConfig::url('designers'));
             $browser->screenshot('f01/10-designers');
 
+            // Verify filter panel is visible on desktop (filter-panel class fix)
+            $filters = $browser->script("
+                var panel = document.querySelector('.filter-panel');
+                var tabs = document.querySelectorAll('a[href*=\"type=\"]');
+                var sortLinks = document.querySelectorAll('a[href*=\"sort=\"]');
+                return {
+                    panelExists: !!panel,
+                    panelVisible: panel ? (panel.offsetHeight > 0 && panel.offsetWidth > 0) : false,
+                    tabCount: tabs.length,
+                    sortCount: sortLinks.length,
+                    hasDesignersTab: !!document.querySelector('a[href*=\"type=designers\"]'),
+                    hasManufacturersTab: !!document.querySelector('a[href*=\"type=manufacturers\"]'),
+                    hasPopularSort: !!document.querySelector('a[href*=\"sort=popular\"]'),
+                    hasNewestSort: !!document.querySelector('a[href*=\"sort=newest\"]'),
+                    hasSearch: !!document.querySelector('input[name=\"search\"]')
+                };
+            ")[0];
+            $this->assertTrue($filters['panelVisible'] ?? false, 'Filter panel should be visible on desktop');
+            $this->assertTrue($filters['hasDesignersTab'] ?? false, 'Should have Designers tab');
+            $this->assertTrue($filters['hasManufacturersTab'] ?? false, 'Should have Manufacturers tab');
+            $this->assertTrue($filters['hasPopularSort'] ?? false, 'Should have Popular sort');
+            $this->assertTrue($filters['hasNewestSort'] ?? false, 'Should have Newest sort');
+            $this->assertTrue($filters['hasSearch'] ?? false, 'Should have search input');
+
             // Click Designers filter tab
             $browser->script("var a=document.querySelector('a[href*=\"type=designers\"]');if(a)a.click();");
             $browser->pause(3000)->screenshot('f01/10-filtered');
@@ -467,16 +491,28 @@ class Flow01_DesignerFullJourneyTest extends DuskTestCase
             $this->visitPage($browser, TestConfig::url('marketplace'));
 
             $filters = $browser->script("
+                var panel = document.querySelector('.filter-panel-lg');
+                var catSelect = document.querySelector('select[name=\"category\"]');
+                var typeSelect = document.querySelector('select[name=\"type\"]');
+                var sortSelect = document.querySelector('select[name=\"sort\"]');
                 return {
-                    hasCategory: !!document.querySelector('select[name=\"category\"]'),
-                    hasType: !!document.querySelector('select[name=\"type\"]'),
-                    hasSort: !!document.querySelector('select[name=\"sort\"]'),
+                    panelExists: !!panel,
+                    panelVisible: panel ? (panel.offsetHeight > 0 && panel.offsetWidth > 0) : false,
+                    hasCategory: !!catSelect,
+                    categoryVisible: catSelect ? catSelect.offsetHeight > 0 : false,
+                    hasType: !!typeSelect,
+                    typeVisible: typeSelect ? typeSelect.offsetHeight > 0 : false,
+                    hasSort: !!sortSelect,
+                    sortVisible: sortSelect ? sortSelect.offsetHeight > 0 : false,
                     hasSearch: !!document.querySelector('input[name=\"search\"]'),
                     noError: !document.body.textContent.includes('Server Error')
                 };
             ")[0];
             $browser->screenshot('f01/13-marketplace');
-            $this->assertTrue($filters['noError'] ?? false);
+            $this->assertTrue($filters['noError'] ?? false, 'No server error');
+            $this->assertTrue($filters['panelVisible'] ?? false, 'Filter panel should be visible on desktop');
+            $this->assertTrue($filters['categoryVisible'] ?? false, 'Category dropdown should be visible');
+            $this->assertTrue($filters['sortVisible'] ?? false, 'Sort dropdown should be visible');
         });
     }
 
