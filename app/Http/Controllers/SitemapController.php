@@ -9,180 +9,187 @@ use App\Models\Service;
 use App\Models\MarketplacePost;
 use App\Models\FabLab;
 use App\Models\Training;
+use App\Models\AcademicTraining;
+use App\Models\AcademicWorkshop;
+use App\Models\AcademicAccount;
 use App\Models\Tender;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Generates the XML sitemap for both Arabic and English locales.
- * The sitemap is cached for one hour to avoid repeated database queries on every crawl.
+ * Generates the XML sitemap with xhtml:link hreflang for bilingual SEO.
+ * Includes all public content: designers, products, projects, services,
+ * marketplace, fablabs, trainings, workshops, tenders, academic institutions,
+ * and static pages. Cached for 1 hour.
  */
 class SitemapController extends Controller
 {
-    /**
-     * Build and return the sitemap.xml response, cached for 1 hour.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $sitemap = Cache::remember('sitemap_xml', 3600, function () {
+        $sitemap = Cache::remember('sitemap_xml_v2', 3600, function () {
             $urls = collect();
+            $base = config('app.url');
 
-            foreach (['en', 'ar'] as $locale) {
-                // Static listing pages
-                $urls->push(['url' => route('home',              ['locale' => $locale]), 'priority' => '1.0', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('designers',         ['locale' => $locale]), 'priority' => '0.9', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('products',          ['locale' => $locale]), 'priority' => '0.9', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('projects',          ['locale' => $locale]), 'priority' => '0.9', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('services',          ['locale' => $locale]), 'priority' => '0.8', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('marketplace.index', ['locale' => $locale]), 'priority' => '0.8', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('fab-labs',          ['locale' => $locale]), 'priority' => '0.7', 'changefreq' => 'weekly']);
-                $urls->push(['url' => route('trainings.index',   ['locale' => $locale]), 'priority' => '0.7', 'changefreq' => 'weekly']);
-                $urls->push(['url' => route('tenders.index',     ['locale' => $locale]), 'priority' => '0.7', 'changefreq' => 'daily']);
-                $urls->push(['url' => route('academic-tevets',   ['locale' => $locale]), 'priority' => '0.6', 'changefreq' => 'weekly']);
+            // ==========================================
+            // STATIC PAGES (both locales)
+            // ==========================================
+            $staticPages = [
+                ['route' => 'home',              'priority' => '1.0', 'freq' => 'daily'],
+                ['route' => 'designers',         'priority' => '0.9', 'freq' => 'daily'],
+                ['route' => 'products',          'priority' => '0.9', 'freq' => 'daily'],
+                ['route' => 'projects',          'priority' => '0.9', 'freq' => 'daily'],
+                ['route' => 'services',          'priority' => '0.8', 'freq' => 'daily'],
+                ['route' => 'marketplace.index', 'priority' => '0.8', 'freq' => 'daily'],
+                ['route' => 'fab-labs',          'priority' => '0.7', 'freq' => 'weekly'],
+                ['route' => 'trainings.index',   'priority' => '0.7', 'freq' => 'weekly'],
+                ['route' => 'tenders.index',     'priority' => '0.7', 'freq' => 'daily'],
+                ['route' => 'academic-tevets',   'priority' => '0.6', 'freq' => 'weekly'],
+            ];
+
+            foreach ($staticPages as $page) {
+                $enUrl = route($page['route'], ['locale' => 'en']);
+                $arUrl = route($page['route'], ['locale' => 'ar']);
+                $urls->push([
+                    'url' => $enUrl,
+                    'priority' => $page['priority'],
+                    'changefreq' => $page['freq'],
+                    'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                ]);
+                $urls->push([
+                    'url' => $arUrl,
+                    'priority' => $page['priority'],
+                    'changefreq' => $page['freq'],
+                    'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                ]);
             }
+
+            // CMS static pages (about, terms, etc.)
+            $cmsPages = ['about', 'support', 'community-guidelines', 'terms', 'privacy', 'accessibility'];
+            foreach ($cmsPages as $slug) {
+                foreach (['en', 'ar'] as $locale) {
+                    $enUrl = route('page.show', ['locale' => 'en', 'slug' => $slug]);
+                    $arUrl = route('page.show', ['locale' => 'ar', 'slug' => $slug]);
+                    $urls->push([
+                        'url' => route('page.show', ['locale' => $locale, 'slug' => $slug]),
+                        'priority' => '0.4',
+                        'changefreq' => 'monthly',
+                        'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                    ]);
+                }
+            }
+
+            // ==========================================
+            // DYNAMIC CONTENT
+            // ==========================================
 
             // Designers (active, non-admin, non-guest)
             Designer::where('is_active', true)->where('is_admin', false)->where('sector', '!=', 'guest')
                 ->select('id', 'updated_at')
                 ->orderByDesc('updated_at')
-                ->chunk(500, function ($designers) use ($urls) {
-                    foreach ($designers as $designer) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('designer.portfolio', ['locale' => $locale, 'id' => $designer->id]),
-                                'lastmod'    => $designer->updated_at->toW3cString(),
-                                'priority'   => '0.8',
-                                'changefreq' => 'weekly',
-                            ]);
-                        }
+                ->chunk(500, function ($items) use ($urls) {
+                    foreach ($items as $item) {
+                        $enUrl = route('designer.portfolio', ['locale' => 'en', 'id' => $item->id]);
+                        $arUrl = route('designer.portfolio', ['locale' => 'ar', 'id' => $item->id]);
+                        $urls->push([
+                            'url' => $enUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.8', 'changefreq' => 'weekly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
+                        $urls->push([
+                            'url' => $arUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.8', 'changefreq' => 'weekly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
                     }
                 });
 
             // Products (approved)
-            Product::where('approval_status', 'approved')
-                ->select('id', 'updated_at')
-                ->orderByDesc('updated_at')
-                ->chunk(500, function ($items) use ($urls) {
-                    foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('product.detail', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.7',
-                                'changefreq' => 'weekly',
-                            ]);
-                        }
-                    }
-                });
+            $this->addContentUrls($urls, Product::where('approval_status', 'approved'), 'product.detail', '0.7', 'weekly');
 
             // Projects (approved)
-            Project::where('approval_status', 'approved')
-                ->select('id', 'updated_at')
-                ->orderByDesc('updated_at')
-                ->chunk(500, function ($items) use ($urls) {
-                    foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('project.detail', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.7',
-                                'changefreq' => 'weekly',
-                            ]);
-                        }
-                    }
-                });
+            $this->addContentUrls($urls, Project::where('approval_status', 'approved'), 'project.detail', '0.7', 'weekly');
 
             // Services (approved)
-            Service::where('approval_status', 'approved')
-                ->select('id', 'updated_at')
-                ->orderByDesc('updated_at')
-                ->chunk(500, function ($items) use ($urls) {
-                    foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('services.show', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.6',
-                                'changefreq' => 'weekly',
-                            ]);
-                        }
-                    }
-                });
+            $this->addContentUrls($urls, Service::where('approval_status', 'approved'), 'services.show', '0.6', 'weekly');
 
             // Marketplace posts (approved)
-            MarketplacePost::where('approval_status', 'approved')
+            $this->addContentUrls($urls, MarketplacePost::where('approval_status', 'approved'), 'marketplace.show', '0.6', 'weekly');
+
+            // FabLabs
+            $this->addContentUrls($urls, FabLab::query(), 'fab-lab.detail', '0.5', 'monthly');
+
+            // Admin Trainings
+            $this->addContentUrls($urls, Training::query(), 'trainings.show', '0.5', 'monthly');
+
+            // Academic Trainings (approved)
+            AcademicTraining::where('approval_status', 'approved')
                 ->select('id', 'updated_at')
                 ->orderByDesc('updated_at')
                 ->chunk(500, function ($items) use ($urls) {
                     foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('marketplace.show', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.6',
-                                'changefreq' => 'weekly',
-                            ]);
-                        }
+                        $enUrl = route('trainings.show', ['locale' => 'en', 'id' => $item->id]);
+                        $arUrl = route('trainings.show', ['locale' => 'ar', 'id' => $item->id]);
+                        $urls->push([
+                            'url' => $enUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.5', 'changefreq' => 'weekly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
+                        $urls->push([
+                            'url' => $arUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.5', 'changefreq' => 'weekly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
                     }
                 });
 
-            // FabLabs
-            FabLab::select('id', 'updated_at')
+            // Tenders (visible)
+            Tender::where('is_visible', true)
+                ->select('id', 'updated_at')
                 ->orderByDesc('updated_at')
                 ->chunk(500, function ($items) use ($urls) {
                     foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('fab-lab.detail', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.5',
-                                'changefreq' => 'monthly',
-                            ]);
-                        }
+                        $enUrl = route('tenders.show', ['locale' => 'en', 'id' => $item->id]);
+                        $arUrl = route('tenders.show', ['locale' => 'ar', 'id' => $item->id]);
+                        $urls->push([
+                            'url' => $enUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.5', 'changefreq' => 'weekly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
+                        $urls->push([
+                            'url' => $arUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.5', 'changefreq' => 'weekly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
                     }
                 });
 
-            // Trainings
-            Training::select('id', 'updated_at')
+            // Academic Institutions (active)
+            AcademicAccount::where('is_active', true)
+                ->select('id', 'updated_at')
                 ->orderByDesc('updated_at')
                 ->chunk(500, function ($items) use ($urls) {
                     foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('trainings.show', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.5',
-                                'changefreq' => 'monthly',
-                            ]);
-                        }
-                    }
-                });
-
-            // Tenders
-            Tender::select('id', 'updated_at')
-                ->orderByDesc('updated_at')
-                ->chunk(500, function ($items) use ($urls) {
-                    foreach ($items as $item) {
-                        foreach (['en', 'ar'] as $locale) {
-                            $urls->push([
-                                'url'        => route('tenders.show', ['locale' => $locale, 'id' => $item->id]),
-                                'lastmod'    => $item->updated_at->toW3cString(),
-                                'priority'   => '0.5',
-                                'changefreq' => 'weekly',
-                            ]);
-                        }
+                        $enUrl = route('academic-institution.show', ['locale' => 'en', 'id' => $item->id]);
+                        $arUrl = route('academic-institution.show', ['locale' => 'ar', 'id' => $item->id]);
+                        $urls->push([
+                            'url' => $enUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.5', 'changefreq' => 'monthly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
+                        $urls->push([
+                            'url' => $arUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                            'priority' => '0.5', 'changefreq' => 'monthly',
+                            'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                        ]);
                     }
                 });
 
             return $urls;
         });
 
+        // Build XML
         $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' . "\n";
-        $xml .= '        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
-        $xml .= '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9' . "\n";
-        $xml .= '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">' . "\n";
+        $xml .= '        xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
 
         foreach ($sitemap as $entry) {
             $xml .= "  <url>\n";
@@ -192,6 +199,14 @@ class SitemapController extends Controller
             }
             $xml .= "    <changefreq>{$entry['changefreq']}</changefreq>\n";
             $xml .= "    <priority>{$entry['priority']}</priority>\n";
+
+            // Add hreflang alternates for bilingual SEO
+            if (!empty($entry['alternates'])) {
+                foreach ($entry['alternates'] as $lang => $href) {
+                    $xml .= '    <xhtml:link rel="alternate" hreflang="' . $lang . '" href="' . htmlspecialchars($href, ENT_XML1) . '" />' . "\n";
+                }
+            }
+
             $xml .= "  </url>\n";
         }
 
@@ -199,5 +214,30 @@ class SitemapController extends Controller
 
         return response($xml, 200)
             ->header('Content-Type', 'application/xml; charset=UTF-8');
+    }
+
+    /**
+     * Helper to add content URLs for both locales with hreflang.
+     */
+    private function addContentUrls($urls, $query, string $routeName, string $priority, string $freq): void
+    {
+        $query->select('id', 'updated_at')
+            ->orderByDesc('updated_at')
+            ->chunk(500, function ($items) use ($urls, $routeName, $priority, $freq) {
+                foreach ($items as $item) {
+                    $enUrl = route($routeName, ['locale' => 'en', 'id' => $item->id]);
+                    $arUrl = route($routeName, ['locale' => 'ar', 'id' => $item->id]);
+                    $urls->push([
+                        'url' => $enUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                        'priority' => $priority, 'changefreq' => $freq,
+                        'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                    ]);
+                    $urls->push([
+                        'url' => $arUrl, 'lastmod' => $item->updated_at->toW3cString(),
+                        'priority' => $priority, 'changefreq' => $freq,
+                        'alternates' => ['en' => $enUrl, 'ar' => $arUrl],
+                    ]);
+                }
+            });
     }
 }

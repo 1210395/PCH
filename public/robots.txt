@@ -1,26 +1,48 @@
 User-agent: *
 Allow: /
 
+# Crawl delay to avoid overloading shared hosting
+Crawl-delay: 2
+
 # Sitemap
 Sitemap: https://technopark.ps/PalestineCreativeHub/sitemap.xml
 
-# Disallow private/admin areas
-Disallow: /admin/
-Disallow: /academic/
-Disallow: /Control/
-Disallow: /messages/
-Disallow: /account/
-Disallow: /storage/temp/
+# Disallow private/admin areas (both locales)
+Disallow: /en/admin/
+Disallow: /ar/admin/
+Disallow: /en/academic/
+Disallow: /ar/academic/
+Disallow: /en/messages/
+Disallow: /ar/messages/
+Disallow: /en/account/
+Disallow: /ar/account/
+Disallow: /en/notifications
+Disallow: /ar/notifications
+Disallow: /en/profile/edit
+Disallow: /ar/profile/edit
 
-# Disallow auth pages (login, register, password reset, verification)
-Disallow: /*/login
-Disallow: /*/register
-Disallow: /*/forgot-password
-Disallow: /*/reset-password
-Disallow: /*/email/verify
+# Disallow auth pages
+Disallow: /en/login
+Disallow: /ar/login
+Disallow: /en/register
+Disallow: /ar/register
+Disallow: /en/password/
+Disallow: /ar/password/
+Disallow: /en/email/verify
+Disallow: /ar/email/verify
 Disallow: /oauth2/
 
-# Disallow URLs with query parameters (login redirects, etc.)
+# Disallow URLs with query parameters that create duplicate content
 Disallow: /*?redirect=
 Disallow: /*?expires=
 Disallow: /*?signature=
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow debug/test/temp files
+Disallow: /debug-
+Disallow: /test-
+Disallow: /fix-
+Disallow: /git-pull
+Disallow: /storage/temp/
