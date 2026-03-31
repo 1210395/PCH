@@ -141,7 +141,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($designers as $designer)
-                        <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($designer, 'designer') ? 'bg-amber-50 hover:bg-amber-100' : 'hover:bg-gray-50' }} transition-colors">
+                        <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($designer, 'designer') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($designer, 'designer') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} transition-colors">
                             <td class="px-4 py-4">
                                 <input type="checkbox"
                                        value="{{ $designer->id }}"

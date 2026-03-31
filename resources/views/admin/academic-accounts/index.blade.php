@@ -143,7 +143,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($accounts as $account)
-                        <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($account, 'academic_account') ? 'bg-amber-50 hover:bg-amber-100' : 'hover:bg-gray-50' }} transition-colors">
+                        <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($account, 'academic_account') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($account, 'academic_account') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} transition-colors">
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($account->logo)

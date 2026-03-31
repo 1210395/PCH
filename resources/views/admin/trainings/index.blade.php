@@ -82,7 +82,7 @@
             </thead>
             <tbody class="divide-y">
                 @forelse($trainings as $training)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($training, 'training') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($training, 'training') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} transition-colors">
                         <td class="px-4 py-4"><input type="checkbox" value="{{ $training->id }}" x-model.number="selectedIds" class="rounded"></td>
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-3">

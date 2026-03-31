@@ -82,7 +82,7 @@
             </thead>
             <tbody class="divide-y">
                 @forelse($services as $service)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($service, 'service') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($service, 'service') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} transition-colors">
                         <td class="px-4 py-4"><input type="checkbox" value="{{ $service->id }}" x-model.number="selectedIds" class="rounded"></td>
                         <td class="px-4 py-4">
                             <p class="font-medium text-gray-800">{{ Str::limit($service->name, 40) }}</p>

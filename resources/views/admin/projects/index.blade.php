@@ -97,7 +97,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($projects as $project)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($project, 'project') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($project, 'project') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} transition-colors">
                             <td class="px-4 py-4"><input type="checkbox" value="{{ $project->id }}" x-model.number="selectedIds" class="rounded"></td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">

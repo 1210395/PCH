@@ -85,7 +85,7 @@
             </thead>
             <tbody class="divide-y">
                 @forelse($tenders as $tender)
-                    <tr class="hover:bg-gray-50 {{ !$tender->is_visible ? 'bg-gray-100 opacity-60' : '' }}">
+                    <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($tender, 'tender') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($tender, 'tender') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} {{ !$tender->is_visible ? 'opacity-60' : '' }} transition-colors">
                         <td class="px-4 py-4"><input type="checkbox" value="{{ $tender->id }}" x-model.number="selectedIds" class="rounded"></td>
                         <td class="px-4 py-4">
                             <div>

@@ -69,7 +69,7 @@
             </thead>
             <tbody class="divide-y">
                 @forelse($fablabs as $fablab)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($fablab, 'fablab') ? 'bg-amber-50 hover:bg-amber-100' : (\App\Helpers\CompletenessHelper::hasOther($fablab, 'fablab') ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50') }} transition-colors">
                         <td class="px-4 py-4"><input type="checkbox" value="{{ $fablab->id }}" x-model.number="selectedIds" class="rounded"></td>
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-3">
