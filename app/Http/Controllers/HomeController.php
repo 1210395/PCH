@@ -133,52 +133,17 @@ class HomeController extends Controller
             return redirect()->route('home', ['locale' => app()->getLocale()]);
         }
 
-        // Arabic ↔ English translation map for common search terms
-        // Allows users to search in Arabic and find English-stored fields (sector, sub_sector, etc.)
-        $arEnMap = [
-            'مصمم' => 'designer', 'مصنع' => 'manufacturer', 'صالة عرض' => 'showroom',
-            'مورد' => 'vendor', 'ضيف' => 'guest', 'supplier' => 'supplier',
-            'رام الله' => 'Ramallah', 'القدس' => 'Jerusalem', 'نابلس' => 'Nablus',
-            'الخليل' => 'Hebron', 'بيت لحم' => 'Bethlehem', 'غزة' => 'Gaza',
-            'جنين' => 'Jenin', 'طولكرم' => 'Tulkarm', 'قلقيلية' => 'Qalqilya',
-            'أريحا' => 'Jericho', 'سلفيت' => 'Salfit', 'طوباس' => 'Tubas',
-            'تصميم' => 'design', 'فن' => 'art', 'حرف' => 'craft',
-            'أزياء' => 'fashion', 'تصوير' => 'photography', 'عمارة' => 'architecture',
-            'خدمة' => 'service', 'مشروع' => 'project', 'منتج' => 'product',
-        ];
-
-        // Build expanded search query — add English equivalent if Arabic term found
-        $searchTerms = $query . '*';
-        $lowerQuery = mb_strtolower($query);
-        foreach ($arEnMap as $ar => $en) {
-            if (mb_strpos($lowerQuery, $ar) !== false) {
-                $searchTerms = $query . '* ' . $en . '*';
-                break;
-            }
-            // Also reverse: English → Arabic
-            if (stripos($lowerQuery, $en) !== false) {
-                $searchTerms = $query . '* ' . $ar . '*';
-                break;
-            }
-        }
+        // Build bilingual search terms (Arabic ↔ English)
+        $searchTerms = $this->buildBilingualSearch($query);
 
         // Search designers using FULLTEXT index (excluding admin and inactive accounts)
         $designers = Designer::where('is_admin', false)
             ->where('is_active', true)
             ->where('sector', '!=', 'guest')
-            ->where(function ($q) use ($query, $searchTerms, $arEnMap, $lowerQuery) {
-                $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms]);
-
-                // Also do a LIKE search on sector/sub_sector for Arabic terms
-                // because FULLTEXT may not match short Arabic words well
-                foreach ($arEnMap as $ar => $en) {
-                    if (mb_strpos($lowerQuery, $ar) !== false) {
-                        $q->orWhere('sector', 'LIKE', "%{$en}%")
-                          ->orWhere('sub_sector', 'LIKE', "%{$en}%")
-                          ->orWhere('city', 'LIKE', "%{$en}%");
-                        break;
-                    }
-                }
+            ->where(function ($q) use ($query, $searchTerms) {
+                $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('name', 'LIKE', "%{$query}%")
+                  ->orWhere('company_name', 'LIKE', "%{$query}%");
             })
             ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
             ->with('skills:id,name')
@@ -190,7 +155,11 @@ class HomeController extends Controller
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('title', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
             ->with(['designer:id,name,avatar', 'images'])
             ->limit(20)
             ->get();
@@ -200,13 +169,44 @@ class HomeController extends Controller
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('title', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
             ->with(['designer:id,name,avatar', 'images'])
             ->limit(20)
             ->get();
 
+        // Search services (only approved)
+        $services = \App\Models\Service::where('approval_status', 'approved')
+            ->whereHas('designer', function($q) {
+                $q->where('is_admin', false)->where('is_active', true);
+            })
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('description', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
+            ->with('designer:id,name,avatar')
+            ->limit(10)
+            ->get();
+
+        // Search marketplace posts (only approved)
+        $marketplace = \App\Models\MarketplacePost::where('approval_status', 'approved')
+            ->whereHas('designer', function($q) {
+                $q->where('is_admin', false)->where('is_active', true);
+            })
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('title', 'LIKE', "%{$query}%");
+            })
+            ->with('designer:id,name,avatar')
+            ->limit(10)
+            ->get();
+
         // Total results count
-        $totalResults = $designers->count() + $projects->count() + $products->count();
+        $totalResults = $designers->count() + $projects->count() + $products->count() + $services->count() + $marketplace->count();
 
         // Log the search query for analytics (never let this break the page)
         try {
@@ -218,7 +218,7 @@ class HomeController extends Controller
             ]);
         } catch (\Throwable $e) {}
 
-        return view('search', compact('query', 'designers', 'projects', 'products', 'totalResults'));
+        return view('search', compact('query', 'designers', 'projects', 'products', 'services', 'marketplace', 'totalResults'));
     }
 
     /**
@@ -234,15 +234,26 @@ class HomeController extends Controller
                 'success' => true,
                 'designers' => [],
                 'projects' => [],
-                'products' => []
+                'products' => [],
+                'services' => [],
+                'marketplace' => [],
+                'trainings' => [],
             ]);
         }
+
+        // Build bilingual search terms (Arabic ↔ English)
+        $searchTerms = $this->buildBilingualSearch($query);
 
         // Search designers using FULLTEXT (limit to 4, excluding admin and inactive accounts)
         $designers = Designer::where('is_admin', false)
             ->where('is_active', true)
             ->where('sector', '!=', 'guest')
-            ->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms]);
+                // Also LIKE search for short Arabic terms
+                $q->orWhere('name', 'LIKE', "%{$query}%")
+                  ->orWhere('company_name', 'LIKE', "%{$query}%");
+            })
             ->select('id', 'name', 'sector', 'sub_sector', 'avatar')
             ->limit(4)
             ->get();
@@ -252,7 +263,11 @@ class HomeController extends Controller
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('title', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
             ->with(['designer:id,name', 'images' => function($q) {
                 $q->select('project_id', 'image_path')->limit(1);
             }])
@@ -263,7 +278,7 @@ class HomeController extends Controller
                 return [
                     'id' => $project->id,
                     'title' => $project->title,
-                    'category' => $project->category,
+                    'category' => $project->localized_category,
                     'designer_name' => $project->designer->name ?? null,
                     'image' => $project->images->first()->image_path ?? null
                 ];
@@ -274,7 +289,11 @@ class HomeController extends Controller
             ->whereHas('designer', function($q) {
                 $q->where('is_admin', false)->where('is_active', true);
             })
-            ->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$query . '*'])
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('title', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
             ->with(['designer:id,name', 'images' => function($q) {
                 $q->select('product_id', 'image_path')->limit(1);
             }])
@@ -285,9 +304,79 @@ class HomeController extends Controller
                 return [
                     'id' => $product->id,
                     'name' => $product->title,
-                    'category' => $product->category,
+                    'category' => $product->localized_category,
                     'designer_name' => $product->designer->name ?? null,
                     'image' => $product->images->first()->image_path ?? null
+                ];
+            });
+
+        // Search services (limit to 3, only approved)
+        $services = \App\Models\Service::where('approval_status', 'approved')
+            ->whereHas('designer', function($q) {
+                $q->where('is_admin', false)->where('is_active', true);
+            })
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('description', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
+            ->with('designer:id,name')
+            ->select('id', 'title', 'designer_id', 'category', 'approval_status')
+            ->limit(3)
+            ->get()
+            ->map(function($service) {
+                return [
+                    'id' => $service->id,
+                    'title' => $service->title,
+                    'category' => $service->localized_category,
+                    'designer_name' => $service->designer->name ?? null,
+                ];
+            });
+
+        // Search marketplace posts (limit to 3, only approved)
+        $marketplace = \App\Models\MarketplacePost::where('approval_status', 'approved')
+            ->whereHas('designer', function($q) {
+                $q->where('is_admin', false)->where('is_active', true);
+            })
+            ->where(function ($q) use ($searchTerms, $query) {
+                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                  ->orWhere('title', 'LIKE', "%{$query}%");
+            })
+            ->with('designer:id,name')
+            ->select('id', 'title', 'designer_id', 'category', 'type', 'image', 'approval_status')
+            ->limit(3)
+            ->get()
+            ->map(function($post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'category' => $post->localized_category,
+                    'type' => $post->type,
+                    'designer_name' => $post->designer->name ?? null,
+                    'image' => $post->image,
+                ];
+            });
+
+        // Search trainings (limit to 3, only approved or from admin)
+        $trainings = \App\Models\AcademicTraining::where(function ($q) {
+                $q->where('approval_status', 'approved')
+                  ->orWhereNull('approval_status');
+            })
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('description', 'LIKE', "%{$query}%")
+                  ->orWhere('category', 'LIKE', "%{$query}%");
+            })
+            ->select('id', 'title', 'category', 'start_date', 'location_type')
+            ->limit(3)
+            ->get()
+            ->map(function($training) {
+                return [
+                    'id' => $training->id,
+                    'title' => $training->title,
+                    'category' => $training->category,
+                    'start_date' => $training->start_date?->format('M d, Y'),
+                    'location_type' => $training->location_type,
                 ];
             });
 
@@ -295,7 +384,49 @@ class HomeController extends Controller
             'success' => true,
             'designers' => $designers,
             'projects' => $projects,
-            'products' => $products
+            'products' => $products,
+            'services' => $services,
+            'marketplace' => $marketplace,
+            'trainings' => $trainings,
         ]);
+    }
+
+    /**
+     * Build bilingual search terms — expands Arabic query with English equivalent and vice versa.
+     */
+    private function buildBilingualSearch(string $query): string
+    {
+        $arEnMap = [
+            'مصمم' => 'designer', 'مصنع' => 'manufacturer', 'صالة عرض' => 'showroom',
+            'مورد' => 'vendor', 'مهندس' => 'architect',
+            'رام الله' => 'Ramallah', 'القدس' => 'Jerusalem', 'نابلس' => 'Nablus',
+            'الخليل' => 'Hebron', 'بيت لحم' => 'Bethlehem', 'غزة' => 'Gaza',
+            'جنين' => 'Jenin', 'طولكرم' => 'Tulkarm', 'قلقيلية' => 'Qalqilya',
+            'أريحا' => 'Jericho', 'سلفيت' => 'Salfit', 'طوباس' => 'Tubas',
+            'تصميم' => 'design', 'فن' => 'art', 'حرف' => 'craft',
+            'أزياء' => 'fashion', 'تصوير' => 'photography', 'عمارة' => 'architecture',
+            'خدمة' => 'service', 'مشروع' => 'project', 'منتج' => 'product',
+            'أثاث' => 'furniture', 'ديكور' => 'decoration', 'إضاءة' => 'lighting',
+            'خشب' => 'wood', 'زجاج' => 'glass', 'نجارة' => 'carpentry',
+            'صيانة' => 'maintenance', 'تركيب' => 'installation', 'استشارات' => 'consultation',
+            'تدريب' => 'training', 'ورشة' => 'workshop', 'إعلان' => 'announcement',
+            'جامعة' => 'university', 'كلية' => 'college',
+        ];
+
+        $searchTerms = $query . '*';
+        $lowerQuery = mb_strtolower($query);
+
+        foreach ($arEnMap as $ar => $en) {
+            if (mb_strpos($lowerQuery, $ar) !== false) {
+                $searchTerms = $query . '* ' . $en . '*';
+                break;
+            }
+            if (stripos($lowerQuery, $en) !== false) {
+                $searchTerms = $query . '* ' . $ar . '*';
+                break;
+            }
+        }
+
+        return $searchTerms;
     }
 }
