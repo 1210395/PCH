@@ -108,7 +108,7 @@ class WebhookController extends Controller
             // Process the tender - create or update
             $tender = $this->processWebhookTender($data);
 
-            og::debug('Tender webhook processed successfully', [
+            Log::debug('Tender webhook processed successfully', [
                 'external_id' => $data['id'],
                 'tender_id' => $tender->id,
                 'action' => $tender->wasRecentlyCreated ? 'created' : 'updated',
