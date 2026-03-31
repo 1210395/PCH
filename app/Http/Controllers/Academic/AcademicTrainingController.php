@@ -113,6 +113,11 @@ class AcademicTrainingController extends AcademicBaseController
         $validated['academic_account_id'] = $this->getAccountId();
         $validated['has_certificate'] = $request->boolean('has_certificate');
 
+        // Convert category to English for consistent storage
+        if (!empty($validated['category'])) {
+            $validated['category'] = \App\Models\DropdownOption::toEnglish($validated['category'], 'training_category');
+        }
+
         // Auto-approve if admin setting is enabled
         $autoAcceptEnabled = \App\Models\AdminSetting::isAutoAcceptEnabled('trainings');
         $validated['approval_status'] = $autoAcceptEnabled ? 'approved' : 'pending';
@@ -229,6 +234,11 @@ class AcademicTrainingController extends AcademicBaseController
         ]);
 
         $validated['has_certificate'] = $request->boolean('has_certificate');
+
+        // Convert category to English
+        if (!empty($validated['category'])) {
+            $validated['category'] = \App\Models\DropdownOption::toEnglish($validated['category'], 'training_category');
+        }
 
         // Handle requirements - convert text to array (split by newlines)
         if (!empty($validated['requirements'])) {

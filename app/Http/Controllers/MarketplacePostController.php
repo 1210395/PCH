@@ -50,7 +50,9 @@ class MarketplacePostController extends Controller
             $approvalStatus = $designer->is_trusted ? 'approved' : 'pending';
 
             // Tags are already an array from validation
-            $tags = !empty($validated['tags']) ? array_filter(array_map('trim', $validated['tags'])) : [];
+            $tags = !empty($validated['tags'])
+                ? array_filter(array_map(fn($t) => \App\Models\DropdownOption::toEnglish(trim($t), 'marketplace_tag'), $validated['tags']))
+                : [];
 
             // Handle image path
             $imagePath = null;
@@ -165,7 +167,9 @@ class MarketplacePostController extends Controller
             ]);
 
             // Tags are already an array from validation
-            $tags = !empty($validated['tags']) ? array_filter(array_map('trim', $validated['tags'])) : [];
+            $tags = !empty($validated['tags'])
+                ? array_filter(array_map(fn($t) => \App\Models\DropdownOption::toEnglish(trim($t), 'marketplace_tag'), $validated['tags']))
+                : [];
 
             // Handle image path
             $imagePath = $post->image; // Keep existing if not changed

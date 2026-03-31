@@ -74,6 +74,17 @@ class MarketplacePost extends Model
     }
 
     /**
+     * Get tags localized to the current locale.
+     * DB stores English tags; this returns Arabic when locale is 'ar'.
+     */
+    public function getLocalizedTagsAttribute(): array
+    {
+        $tags = $this->tags ?? [];
+        if (!is_array($tags)) return [];
+        return array_map(fn($tag) => DropdownOption::localize($tag, 'marketplace_tag'), $tags);
+    }
+
+    /**
      * Get the designer who created this post
      */
     public function designer()

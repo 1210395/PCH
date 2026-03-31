@@ -80,10 +80,11 @@ class MarketplaceController extends Controller
             $query->search($searchTerm);
         }
 
-        // Filter by tags
+        // Filter by tags (convert Arabic→English for DB query)
         if (!empty($validated['tags'])) {
             $tags = array_map('strip_tags', explode(',', $validated['tags']));
             $tags = array_filter($tags);
+            $tags = array_map(fn($t) => \App\Models\DropdownOption::toEnglish(trim($t), 'marketplace_tag'), $tags);
             $query->withTags($tags);
         }
 

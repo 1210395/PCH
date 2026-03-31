@@ -52,7 +52,7 @@ class TrainingController extends Controller
 
             // Filter by category
             if (!empty($validated['category']) && $validated['category'] !== 'all') {
-                $trainingsQuery->where('category', strip_tags($validated['category']));
+                $trainingsQuery->where('category', \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'training_category'));
             }
 
             // Filter by level
@@ -93,7 +93,7 @@ class TrainingController extends Controller
 
             // Filter by category
             if (!empty($validated['category']) && $validated['category'] !== 'all') {
-                $workshopsQuery->where('category', strip_tags($validated['category']));
+                $workshopsQuery->where('category', \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'training_category'));
             }
 
             // Search
@@ -128,7 +128,7 @@ class TrainingController extends Controller
 
             // Filter by category
             if (!empty($validated['category']) && $validated['category'] !== 'all') {
-                $announcementsQuery->where('category', strip_tags($validated['category']));
+                $announcementsQuery->where('category', \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'training_category'));
             }
 
             // Search

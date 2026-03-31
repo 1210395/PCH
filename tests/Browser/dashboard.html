@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dusk Test Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{font-family:'Segoe UI',system-ui,sans-serif}
+        .modal-bg{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.85)}
+        .modal-bg.active{display:flex;align-items:center;justify-content:center}
+        .modal-bg img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:8px}
+        .test-row:hover{background:#f8fafc}
+        .fbtn.active{background:#3b82f6;color:#fff}
+        .pulse{animation:pulse 1.5s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+        .new-test{animation:slideIn .3s ease-out}
+        @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+        #live-log{font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto}
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-white border-b shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">Dusk Test Dashboard</h1>
+            <p id="status" class="text-sm text-gray-500">Ready</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btn-start" onclick="startStream()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">Start Tests</button>
+            <button id="btn-stop" onclick="stopAll()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 hidden">Stop</button>
+            <button onclick="clearAll()" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Clear</button>
+            <button onclick="togglePanel('hist')" class="px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm hover:bg-indigo-200">History</button>
+            <label class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 cursor-pointer">Load <input type="file" class="hidden" accept=".txt" onchange="loadFile(this)"></label>
+        </div>
+    </div>
+</header>
+
+<!-- History -->
+<div id="hist" class="hidden max-w-7xl mx-auto px-4 pt-4">
+    <div class="bg-white rounded-lg shadow-sm p-4"><h3 class="font-semibold text-gray-700 mb-2">Past Runs</h3><div id="hist-list" class="divide-y text-sm"></div></div>
+</div>
+
+<!-- Stats -->
+<div class="max-w-7xl mx-auto px-4 py-4 grid grid-cols-3 md:grid-cols-6 gap-3">
+    <div class="bg-white rounded-lg shadow-sm p-3 text-center"><div id="s-total" class="text-2xl font-bold text-gray-800">0</div><div class="text-[10px] text-gray-500">Total</div></div>
+    <div class="bg-white rounded-lg shadow-sm p-3 text-center"><div id="s-pass" class="text-2xl font-bold text-green-600">0</div><div class="text-[10px] text-gray-500">Passed</div></div>
+    <div class="bg-white rounded-lg shadow-sm p-3 text-center"><div id="s-fail" class="text-2xl font-bold text-red-600">0</div><div class="text-[10px] text-gray-500">Failed</div></div>
+    <div class="bg-white rounded-lg shadow-sm p-3 text-center"><div id="s-rate" class="text-2xl font-bold text-blue-600">-</div><div class="text-[10px] text-gray-500">Rate</div></div>
+    <div class="bg-white rounded-lg shadow-sm p-3 text-center"><div id="s-dur" class="text-2xl font-bold text-purple-600">-</div><div class="text-[10px] text-gray-500">Duration</div></div>
+    <div class="bg-white rounded-lg shadow-sm p-3 text-center"><div id="s-time" class="text-2xl font-bold text-orange-600">0:00</div><div class="text-[10px] text-gray-500">Elapsed</div></div>
+</div>
+
+<!-- Progress bar -->
+<div class="max-w-7xl mx-auto px-4 pb-3">
+    <div class="bg-gray-200 rounded-full h-3 overflow-hidden flex">
+        <div id="bar-pass" class="h-full bg-green-500 transition-all duration-300" style="width:0"></div>
+        <div id="bar-fail" class="h-full bg-red-500 transition-all duration-300" style="width:0"></div>
+    </div>
+</div>
+
+<!-- Current file indicator -->
+<div class="max-w-7xl mx-auto px-4 pb-3">
+    <div id="current-file" class="text-sm text-gray-500 hidden"><span class="pulse">Running:</span> <span id="cf-name" class="font-mono font-medium text-gray-700"></span></div>
+</div>
+
+<!-- Filters -->
+<div class="max-w-7xl mx-auto px-4 pb-3">
+    <div class="bg-white rounded-lg shadow-sm p-3 flex flex-wrap gap-2 items-center">
+        <button class="fbtn active px-3 py-1 rounded-full text-sm border" data-f="all" onclick="setFilter(this)">All</button>
+        <button class="fbtn px-3 py-1 rounded-full text-sm border" data-f="pass" onclick="setFilter(this)">Passed</button>
+        <button class="fbtn px-3 py-1 rounded-full text-sm border" data-f="fail" onclick="setFilter(this)">Failed</button>
+        <input id="search" type="text" placeholder="Search..." class="flex-1 min-w-[150px] px-3 py-1 border rounded-lg text-sm" oninput="renderList()">
+        <select id="ffile" class="px-2 py-1 border rounded-lg text-sm" onchange="renderList()"><option value="">All Files</option></select>
+        <span id="cnt" class="text-xs text-gray-400"></span>
+    </div>
+</div>
+
+<!-- Live test results -->
+<div class="max-w-7xl mx-auto px-4 pb-8">
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="px-4 py-2 border-b bg-gray-50 flex justify-between">
+            <span class="font-semibold text-sm text-gray-700">Tests</span>
+            <button class="text-xs text-gray-400 hover:text-gray-600" onclick="document.getElementById('fb').classList.toggle('hidden')">File Breakdown</button>
+        </div>
+        <div id="fb" class="divide-y hidden border-b"></div>
+        <div id="tests" class="divide-y text-sm"></div>
+        <div id="empty" class="p-6 text-center text-gray-400 text-sm">Click <b>Start Tests</b> to run, or <b>Load</b> to view past results</div>
+    </div>
+</div>
+
+<!-- Screenshot modal -->
+<div id="ss-modal" class="modal-bg" onclick="this.classList.remove('active')">
+    <div class="relative">
+        <img id="ss-img" class="rounded-lg shadow-2xl">
+        <div id="ss-err" class="hidden text-white p-6 text-center bg-gray-800 rounded-lg">Screenshot not found</div>
+        <button class="absolute top-2 right-2 bg-black/60 text-white rounded-full w-8 h-8" onclick="event.stopPropagation();document.getElementById('ss-modal').classList.remove('active')">&times;</button>
+    </div>
+</div>
+
+<!-- Fail modal -->
+<div id="fail-modal" class="modal-bg" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="bg-white rounded-lg max-w-3xl w-full mx-4 max-h-[90vh] overflow-auto p-6">
+        <div class="flex justify-between mb-3"><h3 id="f-title" class="font-bold text-red-600 text-sm"></h3><button onclick="document.getElementById('fail-modal').classList.remove('active')" class="text-gray-400 text-xl">&times;</button></div>
+        <div id="f-body"></div>
+    </div>
+</div>
+
+<script>
+// API endpoint - use same origin for file ops, port 8889 for SSE stream
+const API = 'run-tests.php';
+const STREAM_API = 'http://localhost:8889/run-tests.php';
+let tests = [];
+let currentFile = '';
+let evtSource = null;
+let startTime = 0;
+let timer = null;
+
+// ==========================================
+// SSE STREAMING
+// ==========================================
+function startStream() {
+    tests = [];
+    currentFile = '';
+    renderList();
+    updateStats();
+
+    document.getElementById('btn-start').classList.add('hidden');
+    document.getElementById('btn-stop').classList.remove('hidden');
+    document.getElementById('status').innerHTML = '<span class="pulse text-green-600 font-medium">Starting tests...</span>';
+    document.getElementById('empty').classList.add('hidden');
+
+    startTime = Date.now();
+    timer = setInterval(updateElapsed, 1000);
+
+    evtSource = new EventSource(STREAM_API + '?action=stream');
+
+    evtSource.addEventListener('status', e => {
+        const d = JSON.parse(e.data);
+        document.getElementById('status').innerHTML = `<span class="pulse text-green-600 font-medium">${d.msg}</span>`;
+    });
+
+    evtSource.addEventListener('file', e => {
+        const d = JSON.parse(e.data);
+        currentFile = d.file;
+        document.getElementById('current-file').classList.remove('hidden');
+        document.getElementById('cf-name').textContent = d.file;
+    });
+
+    evtSource.addEventListener('test', e => {
+        const d = JSON.parse(e.data);
+        tests.push({ name: d.name, file: currentFile, status: d.status, dur: d.duration, err: null });
+        updateStats();
+        renderList();
+        // Auto-scroll to bottom
+        const el = document.getElementById('tests');
+        el.scrollTop = el.scrollHeight;
+    });
+
+    evtSource.addEventListener('fail-detail', e => {
+        const d = JSON.parse(e.data);
+        // Find the matching failed test and add error
+        const match = [...tests].reverse().find(t => t.file === d.file && t.status === 'fail');
+        if (match) match.err = (match.err || '') + d.line + '\n';
+    });
+
+    evtSource.addEventListener('duration', e => {
+        const d = JSON.parse(e.data);
+        document.getElementById('s-dur').textContent = d.duration;
+    });
+
+    evtSource.addEventListener('done', e => {
+        const d = JSON.parse(e.data);
+        endStream();
+        document.getElementById('status').innerHTML = `<span class="text-green-700 font-bold">Done! ${d.passed} passed, ${d.failed} failed</span>`;
+        loadHistory();
+    });
+
+    evtSource.addEventListener('error', e => {
+        const d = JSON.parse(e.data || '{}');
+        document.getElementById('status').innerHTML = `<span class="text-red-600">${d.msg || 'Connection error'}</span>`;
+    });
+
+    evtSource.onerror = () => {
+        // SSE connection closed (tests finished or error)
+        if (evtSource.readyState === EventSource.CLOSED) {
+            endStream();
+            if (tests.length > 0) {
+                const p = tests.filter(t=>t.status==='pass').length;
+                const f = tests.filter(t=>t.status==='fail').length;
+                document.getElementById('status').innerHTML = `<span class="text-green-700 font-bold">Done! ${p} passed, ${f} failed</span>`;
+            }
+        }
+    };
+}
+
+function endStream() {
+    if (evtSource) { evtSource.close(); evtSource = null; }
+    if (timer) { clearInterval(timer); timer = null; }
+    document.getElementById('btn-start').classList.remove('hidden');
+    document.getElementById('btn-stop').classList.add('hidden');
+    document.getElementById('current-file').classList.add('hidden');
+}
+
+async function stopAll() {
+    endStream();
+    await fetch(API + '?action=stop');
+    document.getElementById('status').textContent = 'Stopped';
+}
+
+async function clearAll() {
+    endStream();
+    await fetch(API + '?action=clear');
+    tests = [];
+    renderList();
+    updateStats();
+    document.getElementById('s-dur').textContent = '-';
+    document.getElementById('s-time').textContent = '-';
+    document.getElementById('status').textContent = 'Cleared';
+    document.getElementById('empty').classList.remove('hidden');
+}
+
+function updateElapsed() {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('s-time').textContent = Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+
+// ==========================================
+// STATS & RENDER
+// ==========================================
+function updateStats() {
+    const t = tests.length, p = tests.filter(x=>x.status==='pass').length, f = t - p;
+    const r = t ? ((p/t)*100).toFixed(1) : '0';
+    document.getElementById('s-total').textContent = t;
+    document.getElementById('s-pass').textContent = p;
+    document.getElementById('s-fail').textContent = f;
+    document.getElementById('s-rate').textContent = r + '%';
+    document.getElementById('bar-pass').style.width = (t ? p/t*100 : 0) + '%';
+    document.getElementById('bar-fail').style.width = (t ? f/t*100 : 0) + '%';
+}
+
+function renderList() {
+    const ff = document.querySelector('.fbtn.active')?.dataset.f || 'all';
+    const q = document.getElementById('search').value.toLowerCase();
+    const fileF = document.getElementById('ffile').value;
+
+    let filtered = tests;
+    if (ff === 'pass') filtered = filtered.filter(t => t.status === 'pass');
+    if (ff === 'fail') filtered = filtered.filter(t => t.status === 'fail');
+    if (q) filtered = filtered.filter(t => t.name.toLowerCase().includes(q) || t.file.toLowerCase().includes(q));
+    if (fileF) filtered = filtered.filter(t => t.file === fileF);
+
+    document.getElementById('cnt').textContent = filtered.length + ' of ' + tests.length;
+    document.getElementById('empty').classList.toggle('hidden', tests.length > 0);
+
+    // Update file filter dropdown
+    const files = [...new Set(tests.map(t => t.file))].sort();
+    const sel = document.getElementById('ffile');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All Files</option>' + files.map(f => `<option value="${f}">${f}</option>`).join('');
+    sel.value = cur;
+
+    // File breakdown
+    const fbs = {};
+    tests.forEach(t => { fbs[t.file] = fbs[t.file]||{p:0,f:0,t:0}; fbs[t.file].t++; fbs[t.file][t.status==='pass'?'p':'f']++; });
+    document.getElementById('fb').innerHTML = Object.entries(fbs).sort((a,b)=>a[0].localeCompare(b[0])).map(([f,s]) =>
+        `<div class="px-4 py-1 flex items-center gap-2 text-xs hover:bg-gray-50 cursor-pointer" onclick="document.getElementById('ffile').value='${f}';renderList()">
+            <span class="font-mono text-gray-600 flex-1 truncate">${f}</span>
+            <span class="${s.f?'text-red-600':'text-green-600'} font-medium">${s.p}/${s.t}</span>
+            <div class="w-16 bg-gray-200 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width:${(s.p/s.t*100).toFixed(0)}%"></div></div>
+        </div>`
+    ).join('');
+
+    // Test rows
+    document.getElementById('tests').innerHTML = filtered.map((t, i) => {
+        const gi = tests.indexOf(t);
+        const isNew = gi >= tests.length - 1;
+        return `<div class="test-row px-4 py-2 flex items-center gap-2 ${t.status==='fail'?'bg-red-50':''} ${isNew?'new-test':''}">
+            <span class="${t.status==='pass'?'text-green-600':'text-red-600'} text-sm w-5 text-center font-bold">${t.status==='pass'?'&#10003;':'&#10007;'}</span>
+            <span class="font-mono text-[10px] text-gray-400 w-28 truncate">${t.file}</span>
+            <span class="flex-1 text-gray-700 text-xs">${t.name}</span>
+            <span class="text-[10px] text-gray-400 w-12 text-right">${t.dur}</span>
+            ${t.status==='fail'?`<button class="text-[10px] px-1.5 py-0.5 bg-red-100 text-red-700 rounded hover:bg-red-200" onclick="showFail(${gi})">Error</button>`:''}
+            <button class="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="showSS(${gi})">Screenshot</button>
+        </div>`;
+    }).join('');
+}
+
+function setFilter(btn) {
+    document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderList();
+}
+
+// ==========================================
+// SCREENSHOTS
+// ==========================================
+function showSS(i) {
+    const t = tests[i];
+    const dirMap = {A01:'public',A02:'registration',A03:'auth',A04:'profile',A05:'crud',A06:'messaging',A07:'admin',A08:'academic',A09:'mobile',A10:'rtl',A11:'errors',B01:'details',B02:'crud',B03:'interactions',B04:'messaging',B05:'admin-crud',B06:'academic-crud',B07:'profile-full',C01:'static',C02:'admin-analytics',C03:'translations',C04:'mobile-ar',C05:'navigation',C06:'auth-edge',C07:'admin-workflow',C08:'seo',C09:'admin-ar',C10:'detail-sections',C11:'e2e',C12:'mobile-detail',C13:'misc'};
+    const prefix = (t.file.match(/([A-C]\d{2})/)||[])[1]||'';
+    const dir = dirMap[prefix]||'';
+    const slug = t.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+
+    const paths = [];
+    if (dir) paths.push('screenshots/'+dir+'/'+slug+'.png');
+    paths.push('screenshots/'+slug+'.png');
+    // Failure screenshots
+    paths.push('screenshots/failure-Tests_Browser_'+t.file+'_test_'+t.name.replace(/\s+/g,'_')+'-0.png');
+
+    const img = document.getElementById('ss-img');
+    const err = document.getElementById('ss-err');
+    img.classList.remove('hidden'); err.classList.add('hidden');
+    let idx = 0;
+    (function tryNext() {
+        if (idx >= paths.length) { img.classList.add('hidden'); err.classList.remove('hidden'); err.textContent='Screenshot not found.\nTried: '+paths.join(', '); return; }
+        img.src = paths[idx]; img.onerror = () => { idx++; tryNext(); };
+    })();
+    document.getElementById('ss-modal').classList.add('active');
+}
+
+function showFail(i) {
+    const t = tests[i];
+    document.getElementById('f-title').textContent = t.name;
+    document.getElementById('f-body').innerHTML = `<p class="text-xs mb-2"><b>File:</b> ${t.file}</p><div class="bg-red-50 border border-red-200 rounded p-3"><pre class="text-red-800 text-[11px]">${(t.err||'No error details captured').replace(/</g,'&lt;')}</pre></div>`;
+    document.getElementById('fail-modal').classList.add('active');
+}
+
+// ==========================================
+// LOAD FILE / HISTORY
+// ==========================================
+function loadFile(input) {
+    const f = input.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = e => { loadFromText(e.target.result); document.getElementById('status').textContent = 'Loaded: ' + f.name; };
+    r.readAsText(f);
+}
+
+function loadFromText(raw) {
+    tests = [];
+    const clean = raw.replace(/\x1b\[[0-9;]*m/g,'').replace(/\r/g,'');
+    let file = '', dur = '';
+    for (const line of clean.split('\n')) {
+        const t = line.trim(); if (!t) continue;
+        const fh = t.match(/(?:PASS|FAIL)\s+Tests\\Browser\\(\w+)/);
+        if (fh) { file = fh[1]; continue; }
+        const pm = t.match(/^[\u2713\u2714\u2705]\s+(.+?)\s+([\d.]+s)\s*$/);
+        if (pm) { tests.push({name:pm[1].trim(),file,status:'pass',dur:pm[2],err:null}); continue; }
+        const fm = t.match(/^[\u2717\u2715\u2718\u00d7]\s+(.+?)\s+([\d.]+s)\s*$/);
+        if (fm) { tests.push({name:fm[1].trim(),file,status:'fail',dur:fm[2],err:null}); continue; }
+        const fb = t.match(/^FAILED\s+Tests\\Browser\\(\w+)\s+>\s+(.+?)(?:\s{2,}(\w+))?\s*$/);
+        if (fb) {
+            const n = fb[2].replace(/\u2026/g,'...').trim();
+            const ex = tests.find(x=>x.file===fb[1]&&x.status==='fail'&&x.name.substring(0,15)===n.substring(0,15));
+            if (ex) ex.err = (ex.err||'')+(fb[3]||'')+'\n';
+            else tests.push({name:n,file:fb[1],status:'fail',dur:'-',err:fb[3]||''});
+            continue;
+        }
+        const dm = t.match(/Duration:\s*([\d.]+s)/);
+        if (dm) dur = dm[1];
+    }
+    document.getElementById('s-dur').textContent = dur || '-';
+    updateStats(); renderList();
+}
+
+function togglePanel(id) { document.getElementById(id).classList.toggle('hidden'); }
+
+async function loadHistory() {
+    try {
+        const r = await fetch(API+'?action=history');
+        const list = await r.json();
+        document.getElementById('hist-list').innerHTML = list.length ? list.map(h =>
+            `<div class="py-2 flex items-center gap-3 hover:bg-gray-50 cursor-pointer" onclick="loadHistFile('${h.file}')">
+                <span class="text-xs text-gray-500 w-40">${h.date.replace(/_/g,' ').replace(/-/g,':')}</span>
+                <span class="text-xs font-medium ${h.failed?'text-red-600':'text-green-600'}">${h.passed} pass${h.failed?' / '+h.failed+' fail':''}</span>
+                <span class="text-xs text-gray-400">${h.size}</span>
+            </div>`
+        ).join('') : '<p class="text-gray-400 py-2 text-xs">No past runs</p>';
+    } catch(e) {}
+}
+
+async function loadHistFile(file) {
+    const r = await fetch(API+'?action=load-history&file='+file);
+    loadFromText(await r.text());
+    document.getElementById('status').textContent = 'Viewing: ' + file;
+    document.getElementById('hist').classList.add('hidden');
+}
+
+// Auto-load on page open
+(async () => {
+    try {
+        const r = await fetch(API+'?action=results&_='+Date.now());
+        const txt = await r.text();
+        if (txt.length > 50) loadFromText(txt);
+    } catch(e) {}
+    loadHistory();
+})();
+</script>
+</body>
+</html>

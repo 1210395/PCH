@@ -1,0 +1,32 @@
+[
+    {
+        "level": "WARNING",
+        "message": "https:\/\/cdn.tailwindcss.com\/ 63:1710 \"cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https:\/\/tailwindcss.com\/docs\/installation\"",
+        "source": "console-api",
+        "timestamp": 1774872681349
+    },
+    {
+        "level": "WARNING",
+        "message": "https:\/\/cdn.tailwindcss.com\/ 63:1710 \"cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https:\/\/tailwindcss.com\/docs\/installation\"",
+        "source": "console-api",
+        "timestamp": 1774872686323
+    },
+    {
+        "level": "WARNING",
+        "message": "https:\/\/cdn.tailwindcss.com\/ 63:1710 \"cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https:\/\/tailwindcss.com\/docs\/installation\"",
+        "source": "console-api",
+        "timestamp": 1774872691838
+    },
+    {
+        "level": "WARNING",
+        "message": "https:\/\/cdn.tailwindcss.com\/ 63:1710 \"cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https:\/\/tailwindcss.com\/docs\/installation\"",
+        "source": "console-api",
+        "timestamp": 1774872704875
+    },
+    {
+        "level": "WARNING",
+        "message": "https:\/\/cdn.tailwindcss.com\/ 63:1710 \"cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https:\/\/tailwindcss.com\/docs\/installation\"",
+        "source": "console-api",
+        "timestamp": 1774872711054
+    }
+]
