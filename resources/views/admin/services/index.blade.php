@@ -51,7 +51,7 @@
                 <option value="">{{ __('All Categories') }}</option>
                 @foreach($categories as $cat)<option value="{{ $cat }}" {{ request('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>@endforeach
             </select>
-            ("admin.partials.completeness-filter")
+            @include("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg"><i class="fas fa-filter mr-2"></i>{{ __('Filter') }}</button>
             @if(request()->hasAny(['search', 'status', 'category']))<a href="{{ route('admin.services.index', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 text-gray-600">{{ __('Clear') }}</a>@endif
         </form>

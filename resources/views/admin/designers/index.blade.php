@@ -71,7 +71,7 @@
             </select>
 
             <!-- Submit -->
-            ("admin.partials.completeness-filter")
+            @include("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-filter mr-2"></i>{{ __('Filter') }}
             </button>
