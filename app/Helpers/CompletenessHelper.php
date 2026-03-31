@@ -42,8 +42,18 @@ class CompletenessHelper
      */
     public static function hasOther($model, string $type): bool
     {
-        $categoryFields = ['category', 'sector', 'type', 'role', 'institution_type'];
-        foreach ($categoryFields as $field) {
+        $otherFields = [
+            'designer' => ['sector'],
+            'product' => ['category'],
+            'project' => ['category', 'role'],
+            'service' => ['category'],
+            'marketplace_post' => ['category', 'type'],
+            'fablab' => ['type'],
+            'academic_account' => ['institution_type'],
+            'training' => ['category'],
+            'tender' => [],
+        ];
+        foreach ($otherFields[$type] ?? [] as $field) {
             $value = $model->$field ?? null;
             if ($value !== null && strtolower($value) === 'other') return true;
         }
@@ -86,12 +96,26 @@ class CompletenessHelper
                 $query->whereNotNull($field)->where($field, '!=', '');
             }
         } elseif ($completeness === 'others') {
-            $categoryFields = ['category', 'sector', 'type', 'role', 'institution_type'];
-            $query->where(function ($q) use ($categoryFields) {
-                foreach ($categoryFields as $field) {
-                    $q->orWhere($field, 'other')->orWhere($field, 'Other');
-                }
-            });
+            // Only check fields that exist for this model type
+            $otherFields = [
+                'designer' => ['sector'],
+                'product' => ['category'],
+                'project' => ['category', 'role'],
+                'service' => ['category'],
+                'marketplace_post' => ['category', 'type'],
+                'fablab' => ['type'],
+                'academic_account' => ['institution_type'],
+                'training' => ['category'],
+                'tender' => [],
+            ];
+            $fieldsToCheck = $otherFields[$type] ?? [];
+            if (!empty($fieldsToCheck)) {
+                $query->where(function ($q) use ($fieldsToCheck) {
+                    foreach ($fieldsToCheck as $field) {
+                        $q->orWhere($field, 'other')->orWhere($field, 'Other');
+                    }
+                });
+            }
         }
         // 'all' = no filter
 
