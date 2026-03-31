@@ -49,6 +49,11 @@ class AdminTrainingController extends AdminBaseController
             $query->where('featured', $request->boolean('featured'));
         }
 
+        // Filter by completeness
+        if ($completeness = $request->get('completeness')) {
+            \App\Helpers\CompletenessHelper::applyFilter($query, 'training', $completeness);
+        }
+
         // Sorting
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('dir', 'desc');

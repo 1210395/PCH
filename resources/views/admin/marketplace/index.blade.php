@@ -55,6 +55,7 @@
                 <option value="">{{ __('All Types') }}</option>
                 @foreach($types as $type)<option value="{{ $type['value'] }}" {{ request('type') === $type['value'] ? 'selected' : '' }}>{{ $type['label'] }}</option>@endforeach
             </select>
+            ("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg"><i class="fas fa-filter mr-2"></i>{{ __('Filter') }}</button>
             @if(request()->hasAny(['search', 'status', 'category', 'type']))<a href="{{ route('admin.marketplace.index', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 text-gray-600">{{ __('Clear') }}</a>@endif
         </form>

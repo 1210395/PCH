@@ -49,6 +49,7 @@
                 <option value="1" {{ request('featured') === '1' ? 'selected' : '' }}>{{ __('Featured') }}</option>
                 <option value="0" {{ request('featured') === '0' ? 'selected' : '' }}>{{ __('Not Featured') }}</option>
             </select>
+            ("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg"><i class="fas fa-filter mr-2"></i>{{ __('Filter') }}</button>
             @if(request()->hasAny(['search', 'category', 'level', 'type', 'featured']))<a href="{{ route('admin.trainings.index', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 text-gray-600">{{ __('Clear') }}</a>@endif
         </form>

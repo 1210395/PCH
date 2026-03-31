@@ -49,6 +49,11 @@ class AdminMarketplaceController extends AdminBaseController
             $query->where('type', strip_tags($type));
         }
 
+        // Filter by completeness
+        if ($completeness = $request->get('completeness')) {
+            \App\Helpers\CompletenessHelper::applyFilter($query, 'marketplace_post', $completeness);
+        }
+
         // Sorting
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('dir', 'desc');

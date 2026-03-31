@@ -70,6 +70,7 @@
             </select>
 
             <!-- Submit -->
+            ("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-filter mr-2"></i>{{ __('Filter') }}
             </button>
@@ -131,7 +132,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($products as $product)
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="{{ \App\Helpers\CompletenessHelper::isIncomplete($product, 'product') ? 'bg-amber-50 hover:bg-amber-100' : 'hover:bg-gray-50' }} transition-colors">
                             <td class="px-4 py-4">
                                 <input type="checkbox"
                                        value="{{ $product->id }}"

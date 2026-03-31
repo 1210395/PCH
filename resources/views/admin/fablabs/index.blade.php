@@ -39,6 +39,7 @@
                 <option value="1" {{ request('verified') === '1' ? 'selected' : '' }}>{{ __('Verified') }}</option>
                 <option value="0" {{ request('verified') === '0' ? 'selected' : '' }}>{{ __('Not Verified') }}</option>
             </select>
+            ("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg"><i class="fas fa-filter mr-2"></i>{{ __('Filter') }}</button>
             @if(request()->hasAny(['search', 'city', 'type', 'verified']))<a href="{{ route('admin.fablabs.index', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 text-gray-600">{{ __('Clear') }}</a>@endif
         </form>

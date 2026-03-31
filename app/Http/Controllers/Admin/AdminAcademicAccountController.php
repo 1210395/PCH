@@ -48,6 +48,11 @@ class AdminAcademicAccountController extends AdminBaseController
             }
         }
 
+        // Filter by completeness
+        if ($completeness = $request->get('completeness')) {
+            \App\Helpers\CompletenessHelper::applyFilter($query, 'academic_account', $completeness);
+        }
+
         // Sorting
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');

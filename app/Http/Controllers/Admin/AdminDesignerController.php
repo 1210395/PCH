@@ -57,6 +57,11 @@ class AdminDesignerController extends AdminBaseController
             $query->where('is_admin', $request->boolean('is_admin'));
         }
 
+        // Filter by completeness
+        if ($completeness = $request->get('completeness')) {
+            \App\Helpers\CompletenessHelper::applyFilter($query, 'designer', $completeness);
+        }
+
         // Sorting
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('dir', 'desc');

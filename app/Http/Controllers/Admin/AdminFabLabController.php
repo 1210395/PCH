@@ -49,6 +49,11 @@ class AdminFabLabController extends AdminBaseController
             $query->where('verified', $request->boolean('verified'));
         }
 
+        // Filter by completeness
+        if ($completeness = $request->get('completeness')) {
+            \App\Helpers\CompletenessHelper::applyFilter($query, 'fablab', $completeness);
+        }
+
         // Sorting
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('dir', 'desc');

@@ -52,6 +52,7 @@
                 <option value="api" {{ request('source') === 'api' ? 'selected' : '' }}>{{ __('From API') }}</option>
                 <option value="manual" {{ request('source') === 'manual' ? 'selected' : '' }}>{{ __('Manual') }}</option>
             </select>
+            ("admin.partials.completeness-filter")
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg"><i class="fas fa-filter mr-2"></i>{{ __('Filter') }}</button>
             @if(request()->hasAny(['search', 'tender_status', 'publisher_type', 'visibility', 'source']))<a href="{{ route('admin.tenders.index', ['locale' => app()->getLocale()]) }}" class="px-4 py-2 text-gray-600">{{ __('Clear') }}</a>@endif
         </form>
