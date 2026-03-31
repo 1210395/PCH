@@ -19,7 +19,7 @@
 @endphp
 
 <a href="{{ route('designer.portfolio', ['locale' => app()->getLocale(), 'id' => $designer->id]) }}"
-    class="flex flex-col bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
+    class="flex flex-col bg-white rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full">
     {{-- Cover Image --}}
     <div class="relative h-32 bg-gradient-to-br from-blue-500 to-green-400 overflow-hidden rounded-t-xl flex-shrink-0">
         @if($coverImage)
@@ -36,7 +36,8 @@
                 class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-blue-600 to-green-500 overflow-hidden flex items-center justify-center text-white text-2xl font-bold relative z-10">
                 @if($avatar)
                     <img src="{{ $avatar }}" alt="{{ $designer->name }}" class="w-full h-full object-cover"
-                        onerror="this.style.display='none'; this.parentElement.innerHTML='{{ strtoupper(substr($designer->name, 0, 2)) }}';">
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <span style="display:none" class="w-full h-full items-center justify-center">{{ strtoupper(substr($designer->name, 0, 2)) }}</span>
                 @else
                     {{ strtoupper(substr($designer->name, 0, 2)) }}
                 @endif

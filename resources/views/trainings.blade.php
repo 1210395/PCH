@@ -87,7 +87,7 @@
             </div>
 
             {{-- Collapsible Filters --}}
-            <div x-show="filtersOpen" x-collapse class="md:!block mt-4 md:mt-0" :class="{ 'hidden': !filtersOpen }">
+            <div class="filter-panel hidden md:block mt-4 md:mt-0" :class="{ '!block': filtersOpen }">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
                     {{-- Content Type Filter --}}
                     <div>

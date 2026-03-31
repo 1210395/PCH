@@ -84,6 +84,22 @@
         display: none !important;
     }
 
+    /* Ensure filter panels are always visible on desktop regardless of Alpine state */
+    @media (min-width: 768px) {
+        .filter-panel {
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+    }
+    @media (min-width: 1024px) {
+        .filter-panel-lg {
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+    }
+
     /* RTL utility overrides */
     html[dir="rtl"] .rtl\:text-right { text-align: right; }
     html[dir="rtl"] .rtl\:text-left { text-align: left; }

@@ -74,7 +74,7 @@
             </div>
 
             {{-- Collapsible Filters --}}
-            <div x-show="filtersOpen" x-collapse class="md:!block" :class="{ 'hidden': !filtersOpen }">
+            <div class="filter-panel hidden md:block" :class="{ '!block': filtersOpen }">
                 <div class="flex flex-col md:flex-row gap-4">
                     {{-- Category Filter --}}
                     <div class="md:w-48">

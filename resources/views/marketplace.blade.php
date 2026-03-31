@@ -72,7 +72,7 @@
                 </div>
 
                 {{-- Collapsible Filters --}}
-                <div x-show="filtersOpen" x-collapse class="lg:!block mt-4 lg:mt-0" :class="{ 'hidden': !filtersOpen }">
+                <div class="filter-panel-lg hidden lg:block mt-4 lg:mt-0" :class="{ '!block': filtersOpen }">
                 <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch lg:items-center">
                     {{-- Category Filter --}}
                     <div class="w-full lg:w-auto">

@@ -103,7 +103,7 @@
             </div>
 
             <!-- Collapsible Filter Tabs & Sort -->
-            <div x-show="filtersOpen" x-collapse class="md:!block" :class="{ 'hidden': !filtersOpen }">
+            <div class="filter-panel hidden md:block" :class="{ '!block': filtersOpen }">
                 <!-- Filter Tabs -->
                 <div class="mt-6 flex flex-wrap gap-2">
                     <a href="{{ route('designers', ['locale' => app()->getLocale(), 'type' => 'all', 'sort' => $sort, 'search' => request('search')]) }}"
