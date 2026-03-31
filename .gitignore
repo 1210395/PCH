@@ -21,3 +21,7 @@ _ide_helper_models.php
 clear-cache.php
 debug-assets.php
 database/database.sqlite
+
+# Test artifacts (Dusk screenshots & console logs)
+tests/Browser/screenshots/
+tests/Browser/console/
