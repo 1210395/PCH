@@ -49,9 +49,10 @@ class ServiceController extends Controller
                   });
         }
 
-        // Filter by category
+        // Filter by category (Arabic→English conversion for DB query)
         if ($request->has('category') && $request->category !== 'all') {
-            $query->where('category', $request->category);
+            $category = \App\Models\DropdownOption::toEnglish(strip_tags($request->category), 'service_category');
+            $query->where('category', $category);
         }
 
         // Search

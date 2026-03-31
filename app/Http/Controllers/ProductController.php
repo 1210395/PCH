@@ -57,9 +57,9 @@ class ProductController extends Controller
                   });
         }
 
-        // Filter by category (with XSS protection)
+        // Filter by category (with XSS protection + Arabic→English conversion)
         if (!empty($validated['category']) && $validated['category'] !== 'all') {
-            $category = strip_tags($validated['category']);
+            $category = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'product_category');
             $query->where('category', $category);
         }
 

@@ -63,9 +63,9 @@ class MarketplaceController extends Controller
                   });
         }
 
-        // Filter by category (with XSS protection)
+        // Filter by category (with XSS protection + Arabic→English conversion)
         if (!empty($validated['category']) && $validated['category'] !== 'All') {
-            $category = strip_tags($validated['category']);
+            $category = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'marketplace_category');
             $query->byCategory($category);
         }
 
