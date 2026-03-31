@@ -74,7 +74,7 @@ class MarketplacePostController extends Controller
                 'designer_id' => $designer->id,
                 'title' => strip_tags($validated['title']),
                 'description' => strip_tags($validated['description']),
-                'category' => strip_tags($validated['category']),
+                'category' => \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'marketplace_category'),
                 'type' => $validated['type'],
                 'tags' => $tags,
                 'image' => $imagePath,
@@ -194,7 +194,7 @@ class MarketplacePostController extends Controller
             $post->update([
                 'title' => strip_tags($validated['title']),
                 'description' => strip_tags($validated['description']),
-                'category' => strip_tags($validated['category']),
+                'category' => \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'marketplace_category'),
                 'type' => $validated['type'],
                 'tags' => $tags,
                 'image' => $imagePath,

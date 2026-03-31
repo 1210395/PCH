@@ -323,6 +323,76 @@ class DropdownOption extends Model
         return $result;
     }
 
+    /**
+     * Convert an Arabic label to its English equivalent for storage.
+     * Always store English in the DB; translate to Arabic only when displaying.
+     *
+     * @param string $label The label (could be EN or AR)
+     * @param string $type The dropdown type (e.g., 'product_category')
+     * @return string The English label, or original if no match found
+     */
+    public static function toEnglish(string $label, string $type): string
+    {
+        if (empty($label)) return $label;
+
+        $cacheKey = "dropdown_ar_to_en_{$type}";
+
+        $map = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($type) {
+            $items = static::ofType($type)->active()->rootLevel()->get(['label', 'label_ar']);
+            $result = [];
+            foreach ($items as $item) {
+                if (!empty($item->label_ar)) {
+                    $result[strtolower($item->label_ar)] = $item->label;
+                }
+            }
+            return $result;
+        });
+
+        $key = strtolower(trim($label));
+        return $map[$key] ?? $label;
+    }
+
+    /**
+     * Convert an English label to its Arabic equivalent for display.
+     *
+     * @param string $label The English label stored in DB
+     * @param string $type The dropdown type
+     * @return string The Arabic label, or original if no match
+     */
+    public static function toArabic(string $label, string $type): string
+    {
+        if (empty($label)) return $label;
+
+        $cacheKey = "dropdown_en_to_ar_{$type}";
+
+        $map = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($type) {
+            $items = static::ofType($type)->active()->rootLevel()->get(['label', 'label_ar']);
+            $result = [];
+            foreach ($items as $item) {
+                if (!empty($item->label) && !empty($item->label_ar)) {
+                    $result[strtolower($item->label)] = $item->label_ar;
+                }
+            }
+            return $result;
+        });
+
+        $key = strtolower(trim($label));
+        return $map[$key] ?? $label;
+    }
+
+    /**
+     * Get the localized version of a stored English label.
+     * Use this when displaying categories to users.
+     */
+    public static function localize(string $label, string $type): string
+    {
+        if (empty($label)) return $label;
+        if (app()->getLocale() === 'ar') {
+            return static::toArabic($label, $type);
+        }
+        return $label;
+    }
+
     // =====================
     // Cache Management
     // =====================

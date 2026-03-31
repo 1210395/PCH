@@ -55,6 +55,15 @@ class Product extends Model
         'approved_at' => 'datetime',
     ];
 
+    /**
+     * Get the category label localized to the current locale.
+     * DB stores English; this returns Arabic when locale is 'ar'.
+     */
+    public function getLocalizedCategoryAttribute(): string
+    {
+        return DropdownOption::localize($this->category ?? '', 'product_category');
+    }
+
     public function designer()
     {
         return $this->belongsTo(Designer::class);

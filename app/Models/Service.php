@@ -50,6 +50,11 @@ class Service extends Model
         'approved_at' => 'datetime',
     ];
 
+    public function getLocalizedCategoryAttribute(): string
+    {
+        return DropdownOption::localize($this->category ?? '', 'service_category');
+    }
+
     public function designer()
     {
         return $this->belongsTo(Designer::class);

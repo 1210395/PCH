@@ -137,7 +137,7 @@ class ServiceController extends Controller
         // Sanitize text fields to prevent XSS
         $validated['name'] = strip_tags($validated['name']);
         $validated['description'] = strip_tags($validated['description']);
-        $validated['category'] = strip_tags($validated['category']);
+        $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'service_category');
 
         // Auto-approve if admin setting is enabled OR user is trusted
         $designer = auth('designer')->user();
@@ -202,7 +202,7 @@ class ServiceController extends Controller
         // Sanitize text fields to prevent XSS
         $validated['name'] = strip_tags($validated['name']);
         $validated['description'] = strip_tags($validated['description']);
-        $validated['category'] = strip_tags($validated['category']);
+        $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'service_category');
 
         // Update service details
         $service->update([

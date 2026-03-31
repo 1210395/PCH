@@ -156,7 +156,7 @@
                     @if($product->category)
                     <div class="absolute bottom-4 left-4 z-10">
                         <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-white/90 backdrop-blur-sm text-gray-800 shadow-sm">
-                            {{ $product->category }}
+                            {{ $product->localized_category }}
                         </span>
                     </div>
                     @endif
@@ -266,7 +266,7 @@
                         @if($product->category)
                         <div class="p-4 bg-gray-50 rounded-xl">
                             <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ __('Category') }}</div>
-                            <div class="font-medium text-gray-900">{{ $product->category }}</div>
+                            <div class="font-medium text-gray-900">{{ $product->localized_category }}</div>
                         </div>
                         @endif
 

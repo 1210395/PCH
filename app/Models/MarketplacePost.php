@@ -66,6 +66,14 @@ class MarketplacePost extends Model
     ];
 
     /**
+     * Get the category label localized to the current locale.
+     */
+    public function getLocalizedCategoryAttribute(): string
+    {
+        return DropdownOption::localize($this->category ?? '', 'marketplace_category');
+    }
+
+    /**
      * Get the designer who created this post
      */
     public function designer()

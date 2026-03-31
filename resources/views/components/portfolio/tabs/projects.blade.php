@@ -64,8 +64,8 @@
                     $categoryName = null;
                     try {
                         // First check if category is a string (from registration)
-                        if (is_string($project->category) && !empty($project->category)) {
-                            $categoryName = $project->category;
+                        if (is_string($project->attributes['category'] ?? null) && !empty($project->attributes['category'])) {
+                            $categoryName = $project->localized_category;
                         }
                         // Otherwise try to get from relationship if category_id exists
                         elseif ($project->category_id && method_exists($project, 'category')) {

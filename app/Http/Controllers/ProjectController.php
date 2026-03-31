@@ -222,9 +222,9 @@ class ProjectController extends Controller
         // Sanitize text fields to prevent XSS
         $validated['title'] = strip_tags($validated['title']);
         $validated['description'] = strip_tags($validated['description']);
-        $validated['role'] = strip_tags($validated['role']);
+        $validated['role'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['role']), 'project_role');
         if (!empty($validated['category'])) {
-            $validated['category'] = strip_tags($validated['category']);
+            $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'project_category');
         }
 
         // Auto-approve if admin setting is enabled OR user is trusted
@@ -326,9 +326,9 @@ class ProjectController extends Controller
         // Sanitize text fields to prevent XSS
         $validated['title'] = strip_tags($validated['title']);
         $validated['description'] = strip_tags($validated['description']);
-        $validated['role'] = strip_tags($validated['role']);
+        $validated['role'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['role']), 'project_role');
         if (!empty($validated['category'])) {
-            $validated['category'] = strip_tags($validated['category']);
+            $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'project_category');
         }
 
         // Update project details
