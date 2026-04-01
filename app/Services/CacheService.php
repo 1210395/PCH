@@ -219,7 +219,7 @@ class CacheService
     {
         return Cache::remember('homepage_featured', self::TTL_LONG, function() {
             return [
-                'topDesigners' => Designer::select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
+                'topDesigners' => Designer::select('id', 'name', 'title', 'avatar', 'cover_image', 'sector', 'sub_sector', 'city', 'bio', 'followers_count', 'email_verified_at')
                     ->where('is_admin', false)
                     ->where('is_active', true)
                     ->where('sector', '!=', 'guest')
@@ -232,7 +232,7 @@ class CacheService
                     ->limit(8)
                     ->get(),
 
-                'topManufacturers' => Designer::select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
+                'topManufacturers' => Designer::select('id', 'name', 'title', 'avatar', 'cover_image', 'sector', 'sub_sector', 'city', 'bio', 'followers_count', 'email_verified_at')
                     ->where('is_admin', false)
                     ->where('is_active', true)
                     ->where(function($q) {
@@ -323,7 +323,7 @@ class CacheService
                 ->where('is_active', true)
                 ->where('sector', '!=', 'guest')
                 ->where('sector', $sector ?? '')
-                ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'followers_count')
+                ->select('id', 'name', 'title', 'avatar', 'cover_image', 'sector', 'sub_sector', 'city', 'followers_count', 'email_verified_at')
                 ->orderByDesc('followers_count')
                 ->limit(10)
                 ->get();
