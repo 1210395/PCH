@@ -140,22 +140,33 @@ class WebhookController extends Controller
      */
     protected function processWebhookTender(array $data): Tender
     {
-        $externalId = $data['id'];
+        $externalId = $data['id'] ?? null;
+        if (empty($externalId)) {
+            throw new \InvalidArgumentException('Missing required field: id');
+        }
+
         $externalSource = 'jobs.ps';
 
         // Determine status based on deadline
-        $deadline = \Carbon\Carbon::parse($data['deadline']);
-        $daysUntilDeadline = now()->diffInDays($deadline, false);
-
+        $deadline = null;
         $status = 'open';
-        if ($daysUntilDeadline < 0) {
-            $status = 'closed';
-        } elseif ($daysUntilDeadline <= 14) {
-            $status = 'closing_soon';
+        if (!empty($data['deadline'])) {
+            $deadline = \Carbon\Carbon::parse($data['deadline']);
+            $daysUntilDeadline = now()->diffInDays($deadline, false);
+
+            if ($daysUntilDeadline < 0) {
+                $status = 'closed';
+            } elseif ($daysUntilDeadline <= 14) {
+                $status = 'closing_soon';
+            }
         }
 
         // Clean and format the content
         $title = $this->cleanApiText($data['title'] ?? '');
+        if (empty($title)) {
+            throw new \InvalidArgumentException('Missing required field: title');
+        }
+
         $content = $this->cleanApiText($data['content'] ?? '');
         $shortDescription = $this->createShortDescription($content);
         $companyName = $this->cleanApiText($data['company']['name'] ?? '');
@@ -171,8 +182,8 @@ class WebhookController extends Controller
             'company_url' => $data['company']['url'] ?? null,
             'publisher' => $companyName ?: 'Jobs.ps',
             'publisher_type' => 'other',
-            'deadline' => $deadline->toDateString(),
-            'source_url' => $data['url'],
+            'deadline' => $deadline?->toDateString(),
+            'source_url' => $data['url'] ?? null,
             'locations' => $data['locations'] ?? [],
             'location' => !empty($data['locations']) ? implode(', ', $data['locations']) : null,
             'status' => $status,

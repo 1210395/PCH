@@ -38,8 +38,8 @@ class TrainingController extends Controller
         $locale = app()->getLocale();
         // Uses full Arabic Unicode block (U+0600–U+06FF) to catch all Arabic characters
         $arabicFilter = $locale === 'ar'
-            ? "title REGEXP '[\\x{0600}-\\x{06FF}]'"
-            : "title NOT REGEXP '[\\x{0600}-\\x{06FF}]'";
+            ? "title REGEXP '[؀-ۿ]'"
+            : "title NOT REGEXP '[؀-ۿ]'";
 
         // Get trainings if type is all or training
         if ($contentType === 'all' || $contentType === 'training' || in_array($contentType, ['online', 'in-person', 'hybrid'])) {

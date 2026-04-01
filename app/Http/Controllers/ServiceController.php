@@ -26,9 +26,9 @@ class ServiceController extends Controller
         // Uses full Arabic Unicode block (U+0600–U+06FF) to catch all Arabic characters
         $locale = app()->getLocale();
         if ($locale === 'ar') {
-            $query->whereRaw("name REGEXP '[\\x{0600}-\\x{06FF}]'");
+            $query->whereRaw("name REGEXP '[؀-ۿ]'");
         } else {
-            $query->whereRaw("name NOT REGEXP '[\\x{0600}-\\x{06FF}]'");
+            $query->whereRaw("name NOT REGEXP '[؀-ۿ]'");
         }
 
         // Filter by approval status - show approved content + own pending/rejected content
