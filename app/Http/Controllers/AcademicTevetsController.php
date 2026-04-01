@@ -49,13 +49,15 @@ class AcademicTevetsController extends Controller
             ->where('is_active', true)
             ->whereIn('sector', ['manufacturer', 'showroom']);
 
-        // Filter by city
+        // Filter by city — match both English and Arabic variants since DB may contain either
         if (!empty($validated['city']) && $validated['city'] !== 'All Cities') {
-            $city = strip_tags($validated['city']);
-            $academicQuery->where('city', $city);
-            $tevetQuery->where('city', $city);
-            $ebdcQuery->where('city', $city);
-            $privateSectorQuery->where('city', $city);
+            $cityEn = strip_tags($validated['city']);
+            $cityAr = \App\Models\DropdownOption::toArabic($cityEn, 'city');
+            $cityVariants = array_unique(array_filter([$cityEn, $cityAr]));
+            $academicQuery->whereIn('city', $cityVariants);
+            $tevetQuery->whereIn('city', $cityVariants);
+            $ebdcQuery->whereIn('city', $cityVariants);
+            $privateSectorQuery->whereIn('city', $cityVariants);
         }
 
         // Search
@@ -103,6 +105,7 @@ class AcademicTevetsController extends Controller
         }
 
         // Get unique cities for filter (from all sources)
+        // Normalize to English first for deduplication, then localize for display
         $allCities = AcademicAccount::active()->distinct()->pluck('city')->filter();
         $privateSectorCities = Designer::where('is_tevet', true)
             ->where('is_active', true)
@@ -110,7 +113,10 @@ class AcademicTevetsController extends Controller
             ->distinct()->pluck('city')->filter();
 
         $cities = $allCities->merge($privateSectorCities)
-            ->unique()->sort()->values();
+            ->map(fn($city) => \App\Models\DropdownOption::toEnglish($city, 'city'))
+            ->unique()
+            ->sort()
+            ->values();
 
         // Stats
         $totalAcademic = AcademicAccount::active()
