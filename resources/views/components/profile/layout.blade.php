@@ -679,7 +679,7 @@ window.profileEditData = function() {
 
         deleteMarketplacePost(id, index) {
             if (!confirm('{{ __("Are you sure you want to delete this marketplace post?") }}')) return;
-            fetch(window.__profileBaseUrl + '/marketplace-posts/' + id, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': window.__profileCsrfToken, 'Accept': 'application/json' } })
+            fetch(window.__profileBaseUrl + '/marketplace-posts/' + id + '/delete', { method: 'POST', headers: { 'X-CSRF-TOKEN': window.__profileCsrfToken, 'Accept': 'application/json' } })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

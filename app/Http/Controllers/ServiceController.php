@@ -22,14 +22,7 @@ class ServiceController extends Controller
     {
         $query = Service::with('designer');
 
-        // Filter by language based on current locale
-        // Uses full Arabic Unicode block (U+0600–U+06FF) to catch all Arabic characters
-        $locale = app()->getLocale();
-        if ($locale === 'ar') {
-            $query->whereRaw("name REGEXP '[؀-ۿ]'");
-        } else {
-            $query->whereRaw("name NOT REGEXP '[؀-ۿ]'");
-        }
+        // No language filter — user-generated content should be visible in both locales
 
         // Filter by approval status - show approved content + own pending/rejected content
         // Also filter out services from inactive or admin accounts (unless viewing own)

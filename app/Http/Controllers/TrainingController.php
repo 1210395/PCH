@@ -34,18 +34,13 @@ class TrainingController extends Controller
         $contentType = $validated['type'] ?? 'all';
         $allItems = collect();
 
-        // Determine language filter based on current locale
-        $locale = app()->getLocale();
-        // Uses full Arabic Unicode block (U+0600–U+06FF) to catch all Arabic characters
-        $arabicFilter = $locale === 'ar'
-            ? "title REGEXP '[؀-ۿ]'"
-            : "title NOT REGEXP '[؀-ۿ]'";
+        // No language filter — content should be visible in both locales
 
         // Get trainings if type is all or training
         if ($contentType === 'all' || $contentType === 'training' || in_array($contentType, ['online', 'in-person', 'hybrid'])) {
             $trainingsQuery = AcademicTraining::with('academicAccount')
                 ->where('approval_status', 'approved')
-                ->whereRaw($arabicFilter)
+
                 ->where(function ($q) {
                     $q->whereNull('end_date')
                       ->orWhere('end_date', '>=', now()->toDateString());
@@ -121,7 +116,7 @@ class TrainingController extends Controller
         if ($contentType === 'all' || $contentType === 'announcement') {
             $announcementsQuery = AcademicAnnouncement::with('academicAccount')
                 ->where('approval_status', 'approved')
-                ->whereRaw($arabicFilter)
+
                 ->where(function ($q) {
                     $q->whereNull('expiry_date')
                       ->orWhere('expiry_date', '>=', now()->toDateString());

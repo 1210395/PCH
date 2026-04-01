@@ -351,7 +351,7 @@ Route::group(['prefix' => '{locale}'], function () {
         // Marketplace post management routes
         Route::post('/marketplace-posts', [\App\Http\Controllers\MarketplacePostController::class, 'store'])->middleware('throttle:30,1')->name('marketplace-posts.store');
         Route::match(['PUT', 'POST'], '/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'update'])->name('marketplace-posts.update');
-        Route::delete('/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'destroy'])->name('marketplace-posts.destroy');
+        Route::match(['DELETE', 'POST'], '/marketplace-posts/{id}/delete', [\App\Http\Controllers\MarketplacePostController::class, 'destroy'])->name('marketplace-posts.destroy');
         Route::get('/marketplace-posts/source-data', [\App\Http\Controllers\MarketplacePostController::class, 'getSourceData'])->name('marketplace-posts.source-data');
         Route::post('/marketplace-posts/{id}/share', [\App\Http\Controllers\MarketplacePostController::class, 'shareToUsers'])->middleware('throttle:30,1')->name('marketplace-posts.share');
 
