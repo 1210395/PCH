@@ -129,7 +129,7 @@
                                             {{ $tender->title }}
                                         </h3>
                                         <p class="text-gray-600 text-sm line-clamp-2 mb-3" dir="{{ $descDir }}" style="text-align: {{ $descDir == 'rtl' ? 'right' : 'left' }};">
-                                            {{ $tender->short_description ?: Str::limit($tender->description, 150) }}
+                                            {{ $tender->short_description ?: Str::limit(strip_tags($tender->description), 150) }}
                                         </p>
                                     </div>
                                 </div>

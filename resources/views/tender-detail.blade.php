@@ -76,8 +76,13 @@
                 {{-- Overview --}}
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">{{ __('Overview') }}</h2>
+                    @php
+                        // Description is stored as HTML from Quill editor — sanitize with allowed tags
+                        $allowedTags = '<p><br><strong><b><em><i><u><s><ul><ol><li><a><h1><h2><h3><h4><h5><h6><blockquote><pre><code><table><thead><tbody><tr><th><td><div><span>';
+                        $cleanDescription = strip_tags($tender->description ?? '', $allowedTags);
+                    @endphp
                     <div class="prose prose-sm max-w-none text-gray-600" dir="{{ $descDir }}" style="text-align: {{ $descDir == 'rtl' ? 'right' : 'left' }};">
-                        <p class="whitespace-pre-line">{!! nl2br(e($tender->description)) !!}</p>
+                        {!! $cleanDescription !!}
                     </div>
                 </div>
 
