@@ -223,7 +223,7 @@
         </div>
 
         {{-- Scrollable Content --}}
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto" style="min-height: 350px;">
 
             {{-- People Tab --}}
             <div x-show="activeTab === 'people'" class="p-5 space-y-4">
@@ -261,10 +261,10 @@
                                    placeholder="{{ __('Search by name, sector, or city...') }}"
                                    class="w-full pl-11 pr-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white outline-none transition-all">
 
-                            {{-- Search results dropdown --}}
+                            {{-- Search results --}}
                             <div x-show="searchResults.length > 0"
                                  x-transition
-                                 class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-10 max-h-56 overflow-y-auto">
+                                 class="mt-2 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-h-56 overflow-y-auto">
                                 <template x-for="user in searchResults" :key="user.id">
                                     <button @click="selectUser(user)" type="button"
                                             class="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 transition-colors border-b border-gray-50 last:border-0">
