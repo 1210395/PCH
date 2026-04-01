@@ -276,6 +276,14 @@ class CacheService
     }
 
     /**
+     * Clear cached unread notification count for a designer
+     */
+    public static function clearUnreadNotificationCount(int $designerId): void
+    {
+        Cache::forget("designer_{$designerId}_unread_notifications");
+    }
+
+    /**
      * Get marketplace categories with caching
      */
     public static function getMarketplaceCategories(): \Illuminate\Support\Collection

@@ -2782,5 +2782,26 @@
 
     "3D Printer, Laser Cutter, CNC Router": "طابعة ثلاثية الأبعاد، قاطع ليزر، راوتر CNC",
     "3D Printing, Prototyping, Training": "طباعة ثلاثية الأبعاد، نماذج أولية، تدريب",
-    "WiFi, Parking, 24/7 Access": "واي فاي، مواقف سيارات، دخول على مدار الساعة"
+    "WiFi, Parking, 24/7 Access": "واي فاي، مواقف سيارات، دخول على مدار الساعة",
+
+    "Someone viewed your profile!": "شخص ما شاهد ملفك الشخصي!",
+    "Your profile is getting attention. Keep it updated!": "ملفك الشخصي يحظى بالاهتمام. حافظ على تحديثه!",
+    "Someone viewed your project!": "شخص ما شاهد مشروعك!",
+    "Your project is getting noticed. Great work!": "مشروعك يحظى بالملاحظة. عمل رائع!",
+    "Someone viewed your product!": "شخص ما شاهد منتجك!",
+    "Your product is getting attention!": "منتجك يحظى بالاهتمام!",
+    "Someone liked your profile!": "شخص ما أعجب بملفك الشخصي!",
+    "Keep creating great content to attract more engagement.": "استمر في إنشاء محتوى رائع لجذب المزيد من التفاعل.",
+    "You have a new follower!": "لديك متابع جديد!",
+    "Someone started following your profile. Check them out!": "شخص ما بدأ بمتابعة ملفك. تفقدهم!",
+    "shared a post with you": "شارك منشوراً معك",
+    "New message request": "طلب رسالة جديد",
+    "wants to connect with you": "يريد التواصل معك",
+    "Message request accepted": "تم قبول طلب الرسالة",
+    "accepted your message request": "قبل طلب الرسالة الخاص بك",
+    "New FabLab added!": "تم إضافة مختبر تصنيع جديد!",
+    "Check out the new fabrication lab in your area.": "تفقد مختبر التصنيع الجديد في منطقتك.",
+    "Rate your conversation": "قيّم محادثتك",
+    "How was your conversation? Share your feedback!": "كيف كانت محادثتك؟ شاركنا رأيك!",
+    "Mark all read": "تحديد الكل كمقروء"
 }
