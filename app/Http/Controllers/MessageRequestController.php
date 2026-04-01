@@ -228,7 +228,23 @@ class MessageRequestController extends Controller
         if (!$currentDesigner) {
             return response()->json([
                 'success' => false,
-                'has_pending_request' => false
+                'has_pending_request' => false,
+                'has_conversation' => false,
+            ]);
+        }
+
+        // Check for existing conversation first
+        $conversation = Conversation::where(function ($query) use ($currentDesigner, $designerId) {
+            $query->where('designer_1_id', min($currentDesigner->id, (int) $designerId))
+                  ->where('designer_2_id', max($currentDesigner->id, (int) $designerId));
+        })->first();
+
+        if ($conversation) {
+            return response()->json([
+                'success' => true,
+                'has_pending_request' => false,
+                'has_conversation' => true,
+                'conversation_url' => url($locale . '/messages/chat/' . $designerId),
             ]);
         }
 
@@ -239,7 +255,8 @@ class MessageRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'has_pending_request' => $hasPendingRequest
+            'has_pending_request' => $hasPendingRequest,
+            'has_conversation' => false,
         ]);
     }
 

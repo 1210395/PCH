@@ -2804,5 +2804,16 @@
     "Rate your conversation": "قيّم محادثتك",
     "How was your conversation? Share your feedback!": "كيف كانت محادثتك؟ شاركنا رأيك!",
     "Mark all read": "تحديد الكل كمقروء",
-    "Start a conversation by visiting a designer's profile and sending them a message request.": "ابدأ محادثة بزيارة الملف الشخصي لمصمم وإرسال طلب رسالة إليه."
+    "Start a conversation by visiting a designer's profile and sending them a message request.": "ابدأ محادثة بزيارة الملف الشخصي لمصمم وإرسال طلب رسالة إليه.",
+    "Message request sent successfully! They will be notified.": "تم إرسال طلب الرسالة بنجاح! سيتم إعلامهم.",
+    "You already have a conversation with this designer": "لديك محادثة بالفعل مع هذا المصمم",
+    "You already have a pending message request with this designer": "لديك طلب رسالة معلّق بالفعل مع هذا المصمم",
+    "Open Chat": "فتح المحادثة",
+    "Chat": "محادثة",
+    "New Message Request": "طلب رسالة جديد",
+    "sent you a message request.": "أرسل لك طلب رسالة.",
+    "This designer is not accepting messages": "هذا المصمم لا يقبل الرسائل",
+    "Please login to send message requests": "يرجى تسجيل الدخول لإرسال طلبات الرسائل",
+    "You cannot message yourself": "لا يمكنك إرسال رسالة لنفسك",
+    "An error occurred while sending the message request. Please try again.": "حدث خطأ أثناء إرسال طلب الرسالة. يرجى المحاولة مرة أخرى."
 }

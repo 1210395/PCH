@@ -318,12 +318,32 @@ async function checkPendingMessageRequest(designerId) {
 
         const data = await response.json();
 
-        if (data.success && data.has_pending_request) {
+        if (data.success && data.has_conversation) {
+            updateMessageButtonToOpenChat(data.conversation_url);
+        } else if (data.success && data.has_pending_request) {
             updateMessageButtonToPending();
         }
     } catch (error) {
         console.error('Error checking pending request:', error);
     }
+}
+
+// Update button to show "Open Chat" when conversation exists
+function updateMessageButtonToOpenChat(chatUrl) {
+    const btn = document.getElementById('messageRequestBtn');
+    if (!btn) return;
+
+    const link = document.createElement('a');
+    link.href = chatUrl;
+    link.className = 'inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-xs sm:text-sm md:text-base';
+    link.innerHTML = `
+        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        <span class="hidden sm:inline">{{ __("Open Chat") }}</span>
+        <span class="sm:hidden">{{ __("Chat") }}</span>
+    `;
+    btn.replaceWith(link);
 }
 
 // Update button to show pending state
