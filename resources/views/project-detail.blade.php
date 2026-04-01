@@ -354,7 +354,7 @@
         @if(count($imageUrls) > 2)
         <div class="mt-10 pt-8 border-t border-gray-200">
             <h2 class="text-xl font-bold text-gray-900 mb-4">{{ __('More Images') }}</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-4">
                 @foreach($imageUrls as $index => $url)
                     @if($index > 0)
                     <button

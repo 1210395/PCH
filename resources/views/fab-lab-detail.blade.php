@@ -28,7 +28,7 @@
 </section>
 
 {{-- Cover Image & Header --}}
-<section class="relative h-64 sm:h-96 bg-gray-200">
+<section class="relative h-40 sm:h-64 md:h-96 bg-gray-200">
     @if($fabLab->cover_image)
         <img src="{{ url('media/' . $fabLab->cover_image) }}" alt="{{ $fabLab->name }}" class="w-full h-full object-cover">
     @else

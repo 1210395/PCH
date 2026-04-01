@@ -928,8 +928,8 @@
 
 @auth('designer')
 <!-- Slide-out Chat Panel -->
-<div id="chatPanel" class="fixed bottom-0 right-4 z-[9999] hidden">
-    <div class="w-[340px] bg-white rounded-t-xl shadow-2xl border border-gray-200 border-b-0 flex flex-col" style="height: 450px;">
+<div id="chatPanel" class="fixed bottom-0 left-2 right-2 sm:left-auto sm:right-4 z-[9999] hidden">
+    <div class="w-full sm:w-[340px] bg-white rounded-t-xl shadow-2xl border border-gray-200 border-b-0 flex flex-col" style="height: min(450px, 70vh);">
         <!-- Chat Header -->
         <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-t-xl cursor-pointer" onclick="toggleChatMinimize()">
             <div class="flex items-center gap-3">

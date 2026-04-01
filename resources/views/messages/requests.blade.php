@@ -33,17 +33,17 @@
         <div class="mb-6">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-1.5 inline-flex gap-1">
                 <button onclick="switchTab('received')" id="receivedTab"
-                        class="tab-btn px-6 py-2.5 rounded-xl font-semibold text-sm transition-all bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md">
-                    {{ __('Received') }}
+                        class="tab-btn px-3 sm:px-6 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all bg-gradient-to-r from-blue-600 to-green-500 text-white shadow-md inline-flex items-center gap-1 sm:gap-2">
+                    <span>{{ __('Received') }}</span>
                     @if($receivedRequests->count() > 0)
-                        <span class="ml-2 px-2 py-0.5 text-xs bg-white/20 text-white rounded-full">{{ $receivedRequests->count() }}</span>
+                        <span class="px-1.5 py-0.5 text-xs bg-white/20 text-white rounded-full">{{ $receivedRequests->count() }}</span>
                     @endif
                 </button>
                 <button onclick="switchTab('sent')" id="sentTab"
-                        class="tab-btn px-6 py-2.5 rounded-xl font-semibold text-sm transition-all text-gray-600 hover:bg-gray-100">
-                    {{ __('Sent') }}
+                        class="tab-btn px-3 sm:px-6 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all text-gray-600 hover:bg-gray-100 inline-flex items-center gap-1 sm:gap-2">
+                    <span>{{ __('Sent') }}</span>
                     @if($sentRequests->count() > 0)
-                        <span class="ml-2 px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">{{ $sentRequests->count() }}</span>
+                        <span class="px-1.5 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">{{ $sentRequests->count() }}</span>
                     @endif
                 </button>
             </div>

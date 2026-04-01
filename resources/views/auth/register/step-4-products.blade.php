@@ -146,7 +146,7 @@
                                                      @click.away="isOpen = false"
                                                      x-transition
                                                      style="z-index: 9999;"
-                                                     class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                                     class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 sm:max-h-60 overflow-auto">
                                                     <template x-for="(option, index) in filteredOptions" :key="option">
                                                         <div @mousedown.prevent="selectOption(option)"
                                                              :class="{'bg-blue-50': index === highlightedIndex}"

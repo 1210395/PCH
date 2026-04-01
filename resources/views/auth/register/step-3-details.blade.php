@@ -58,7 +58,7 @@
         <div
             @click="$refs.coverImageInput.click()"
             :class="errors.cover_image ? 'border-red-500' : 'border-gray-300'"
-            class="w-full h-48 rounded-lg overflow-hidden bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all duration-300 group">
+            class="w-full h-32 sm:h-40 md:h-48 rounded-lg overflow-hidden bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all duration-300 group">
             <template x-if="heroImagePreview">
                 <div class="relative w-full h-full">
                     <img :src="heroImagePreview" alt="{{ __('Hero') }}" class="w-full h-full object-cover">
@@ -224,7 +224,7 @@
                                      @click.away="isOpen = false"
                                      x-transition
                                      style="z-index: 9999;"
-                                     class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                     class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 sm:max-h-60 overflow-auto">
                                     <template x-for="(option, index) in filteredOptions" :key="option">
                                         <div @mousedown.prevent="selectOption(option)"
                                              :class="{'bg-blue-50': index === highlightedIndex}"
@@ -288,7 +288,7 @@
                                      @click.away="isOpen = false"
                                      x-transition
                                      style="z-index: 9999;"
-                                     class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                     class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 sm:max-h-60 overflow-auto">
                                     <template x-for="(option, index) in filteredOptions" :key="option">
                                         <div @mousedown.prevent="selectOption(option)"
                                              :class="{'bg-blue-50': index === highlightedIndex}"
@@ -351,7 +351,7 @@
                                          @click.away="isOpen = false"
                                          x-transition
                                          style="z-index: 9999;"
-                                         class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                         class="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 sm:max-h-60 overflow-auto">
                                         <template x-for="(option, index) in filteredOptions" :key="option">
                                             <div @mousedown.prevent="selectOption(option)"
                                                  :class="{'bg-blue-50': index === highlightedIndex}"

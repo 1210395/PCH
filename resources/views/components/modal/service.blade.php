@@ -17,7 +17,7 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 transform scale-100"
          x-transition:leave-end="opacity-0 transform scale-95"
-         class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+         class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[100dvh] sm:max-h-[90vh] overflow-hidden flex flex-col">
 
         {{-- Modal Header with Gradient --}}
         <div class="relative p-4 sm:p-6 md:p-8 bg-gradient-to-r from-blue-600 to-green-500 text-white overflow-hidden">

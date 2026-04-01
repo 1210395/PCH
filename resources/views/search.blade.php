@@ -51,7 +51,7 @@
                 @if($projects->count() > 0)
                 <div>
                     <h2 class="text-xl font-bold text-gray-900 mb-6">{{ __('Projects') }}</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 auto-rows-fr">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 auto-rows-fr">
                         @foreach($projects as $project)
                             <x-home.project-card :project="$project" :designer="$project->designer" />
                         @endforeach
@@ -63,7 +63,7 @@
                 @if($products->count() > 0)
                 <div>
                     <h2 class="text-xl font-bold text-gray-900 mb-6">{{ __('Products') }}</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 auto-rows-fr">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 auto-rows-fr">
                         @foreach($products as $product)
                             <x-home.product-card :product="$product" :designer="$product->designer" />
                         @endforeach
@@ -104,7 +104,7 @@
             {{-- Projects Only Tab --}}
             <div x-show="activeTab === 'projects'" class="mt-8">
                 @if($projects->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                     @foreach($projects as $project)
                         <x-home.project-card :project="$project" :designer="$project->designer" />
                     @endforeach
@@ -123,7 +123,7 @@
             {{-- Products Only Tab --}}
             <div x-show="activeTab === 'products'" class="mt-8">
                 @if($products->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                     @foreach($products as $product)
                         <x-home.product-card :product="$product" :designer="$product->designer" />
                     @endforeach

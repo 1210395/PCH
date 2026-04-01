@@ -180,7 +180,7 @@
 
             {{-- Sidebar --}}
             <div class="space-y-6">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Key Information') }}</h3>
 
                     <div class="space-y-4">

@@ -287,7 +287,7 @@
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showContactModal = false"></div>
 
         {{-- Modal --}}
-        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all"
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 transform transition-all"
              x-transition:enter="ease-out duration-300"
              x-transition:enter-start="opacity-0 scale-95"
              x-transition:enter-end="opacity-100 scale-100"

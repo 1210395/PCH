@@ -234,7 +234,7 @@
 
                 {{-- Delete Account Modal --}}
                 <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5)">
-                    <div @click.away="showModal = false" class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                    <div @click.away="showModal = false" class="bg-white rounded-xl shadow-2xl max-w-sm sm:max-w-md w-full p-4 sm:p-6">
                         <div class="text-center mb-4">
                             <div class="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
                                 <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -131,9 +131,9 @@
 
             {{-- Conversation Rating Popup --}}
             <div id="ratingSection" class="hidden relative px-4 pb-2 flex-shrink-0">
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 relative">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-4 relative">
                     {{-- Close button --}}
-                    <button type="button" id="ratingDismissBtn" onclick="dismissRatingPopup()" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                    <button type="button" id="ratingDismissBtn" onclick="dismissRatingPopup()" class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>

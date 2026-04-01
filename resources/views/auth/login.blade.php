@@ -18,7 +18,7 @@
         </div>
 
         <!-- Login Form -->
-        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-8 border border-gray-100">
             @if(session('status'))
             <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
                 {{ session('status') }}

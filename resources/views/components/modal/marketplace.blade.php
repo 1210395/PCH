@@ -28,7 +28,7 @@
             </div>
 
             {{-- Form --}}
-            <form @submit.prevent="saveMarketplacePost()" class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+            <form @submit.prevent="saveMarketplacePost()" class="p-4 sm:p-6 space-y-4 sm:space-y-5 max-h-[calc(100dvh-8rem)] sm:max-h-[70vh] overflow-y-auto">
                 {{-- Import from Product/Project --}}
                 <div x-show="!marketplaceForm.id" class="bg-purple-50 rounded-xl p-4 border border-purple-100">
                     <label class="block text-sm font-medium text-purple-800 mb-3">
