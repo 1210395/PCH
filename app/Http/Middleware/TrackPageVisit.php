@@ -48,7 +48,16 @@ class TrackPageVisit
 
     private function isAdmin(): bool
     {
-        $user = Auth::guard('designer')->user();
-        return $user && $user->is_admin;
+        $designer = Auth::guard('designer')->user();
+        if ($designer && $designer->is_admin) {
+            return true;
+        }
+
+        // Also skip tracking for authenticated academic users
+        if (Auth::guard('academic')->check()) {
+            return true;
+        }
+
+        return false;
     }
 }

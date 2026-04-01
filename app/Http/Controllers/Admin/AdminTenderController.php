@@ -82,7 +82,7 @@ class AdminTenderController extends AdminBaseController
     }
 
     /**
-     * Display a single tender
+     * Display a single tender — redirects to edit since no separate show view exists.
      */
     public function show(Request $request, $locale, $id)
     {
@@ -96,7 +96,7 @@ class AdminTenderController extends AdminBaseController
             return $this->jsonResponse(['tender' => $tender]);
         }
 
-        return view('admin.tenders.show', compact('tender'));
+        return redirect()->route('admin.tenders.edit', ['locale' => $locale, 'id' => $id]);
     }
 
     /**

@@ -35,7 +35,7 @@
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                     {{ $product->approval_status === 'approved' ? 'bg-green-100 text-green-800' :
                        ($product->approval_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                    {{ ucfirst($product->approval_status ?? 'pending') }}
+                    {{ __(ucfirst($product->approval_status ?? 'pending')) }}
                 </span>
                 @if($product->rejection_reason)
                     <span class="text-sm text-red-600">{{ __('Reason:') }} {{ $product->rejection_reason }}</span>

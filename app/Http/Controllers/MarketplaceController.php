@@ -37,11 +37,12 @@ class MarketplaceController extends Controller
         $query = MarketplacePost::with('designer');
 
         // Filter by language based on current locale
+        // Uses full Arabic Unicode block (U+0600–U+06FF) to catch all Arabic characters
         $locale = app()->getLocale();
         if ($locale === 'ar') {
-            $query->whereRaw("title REGEXP '[ء-ي]'");
+            $query->whereRaw("title REGEXP '[\\x{0600}-\\x{06FF}]'");
         } else {
-            $query->whereRaw("title NOT REGEXP '[ء-ي]'");
+            $query->whereRaw("title NOT REGEXP '[\\x{0600}-\\x{06FF}]'");
         }
 
         // Filter by approval status - show approved content + own pending/rejected content

@@ -170,7 +170,7 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                     {{ $product->approval_status === 'approved' ? 'bg-green-100 text-green-800' :
                                        ($product->approval_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                    {{ ucfirst($product->approval_status ?? 'pending') }}
+                                    {{ __(ucfirst($product->approval_status ?? 'pending')) }}
                                 </span>
                                 @if($product->rejection_reason)
                                     <p class="text-xs text-red-500 mt-1 truncate max-w-[150px]" title="{{ $product->rejection_reason }}">

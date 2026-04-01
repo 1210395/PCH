@@ -1,10 +1,32 @@
 <script>
 // Toast notification function
 function showToast(message, type = 'info') {
-    // For now, use console and alert
-    if (type === 'error' || type === 'warning') {
-        alert(message);
-    }
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 z-[9999] max-w-sm px-4 py-3 rounded-lg shadow-lg text-white text-sm transition-all duration-300 transform translate-x-full';
+    toast.style.direction = 'ltr';
+
+    const colors = {
+        error: 'bg-red-600',
+        warning: 'bg-yellow-500 text-gray-900',
+        success: 'bg-green-600',
+        info: 'bg-blue-600',
+    };
+    toast.classList.add(colors[type] || colors.info);
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Slide in
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-x-full');
+        toast.classList.add('translate-x-0');
+    });
+
+    // Auto-dismiss after 4s
+    setTimeout(() => {
+        toast.classList.remove('translate-x-0');
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
 }
 
 function signupWizard() {

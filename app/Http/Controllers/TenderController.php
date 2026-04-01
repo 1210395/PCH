@@ -27,16 +27,10 @@ class TenderController extends Controller
             'sort' => 'nullable|string|in:deadline,published_date,title',
         ]);
 
-        // Query all tenders (admin-managed, no approval needed)
-        $query = Tender::query();
-
-        // Filter by language based on current locale
-        $locale = app()->getLocale();
-        if ($locale === 'ar') {
-            $query->whereRaw("title REGEXP '[ء-ي]'");
-        } else {
-            $query->whereRaw("title NOT REGEXP '[ء-ي]'");
-        }
+        // Query visible tenders only (admin-managed, no approval needed)
+        // No language filter — tenders are admin-managed content and should
+        // be visible in both locales regardless of title language.
+        $query = Tender::visible();
 
         // Filter by status
         if (!empty($validated['status']) && $validated['status'] !== 'all') {
@@ -60,7 +54,7 @@ class TenderController extends Controller
             case 'deadline':
                 $query->orderBy('deadline', 'desc');
                 break;
-            case 'newest':
+            case 'published_date':
                 $query->orderBy('published_date', 'desc')->orderBy('created_at', 'desc');
                 break;
             case 'title':
@@ -73,8 +67,8 @@ class TenderController extends Controller
         $tenders = $query->paginate(12)->withQueryString();
 
         // Get stats for hero section
-        $openTenders = Tender::open()->count();
-        $closingSoon = Tender::closingSoon()->count();
+        $openTenders = Tender::visible()->open()->count();
+        $closingSoon = Tender::visible()->closingSoon()->count();
 
         return view('tenders', compact('tenders', 'openTenders', 'closingSoon'));
     }
@@ -93,7 +87,7 @@ class TenderController extends Controller
             abort(404);
         }
 
-        $tender = Tender::findOrFail($id);
+        $tender = Tender::visible()->findOrFail($id);
 
         // Increment view count
         $tender->incrementViews();

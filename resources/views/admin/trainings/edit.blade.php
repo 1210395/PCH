@@ -26,7 +26,7 @@
             <div class="flex items-center gap-3">
                 <span class="text-sm text-gray-600">{{ __('Status:') }}</span>
                 <span class="px-3 py-1 rounded-full text-sm font-medium {{ $training->approval_status === 'approved' ? 'bg-green-100 text-green-800' : ($training->approval_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                    {{ ucfirst($training->approval_status) }}
+                    {{ __(ucfirst($training->approval_status)) }}
                 </span>
                 @if($training->rejection_reason)
                     <span class="text-sm text-red-600"><i class="fas fa-info-circle mr-1"></i>{{ $training->rejection_reason }}</span>

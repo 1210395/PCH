@@ -93,7 +93,7 @@
             <p class="text-3xl font-bold text-gray-800">
                 {{ $counts['products'] + $counts['projects'] + $counts['services'] + $counts['marketplace_posts'] }}
             </p>
-            <p class="text-xs text-gray-400 mt-1">{{ $counts['products'] }} prod · {{ $counts['projects'] }} proj</p>
+            <p class="text-xs text-gray-400 mt-1">{{ $counts['products'] }} {{ __('Prod') }} · {{ $counts['projects'] }} {{ __('Proj') }}</p>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm p-5">
@@ -188,7 +188,7 @@
                     <span class="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0
                         {{ $product->approval_status === 'approved' ? 'bg-green-100 text-green-700' :
                            ($product->approval_status === 'pending'  ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
-                        {{ ucfirst($product->approval_status ?? 'pending') }}
+                        {{ __(ucfirst($product->approval_status ?? 'pending')) }}
                     </span>
                 </div>
                 @empty

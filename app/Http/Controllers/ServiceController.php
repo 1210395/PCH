@@ -23,11 +23,12 @@ class ServiceController extends Controller
         $query = Service::with('designer');
 
         // Filter by language based on current locale
+        // Uses full Arabic Unicode block (U+0600–U+06FF) to catch all Arabic characters
         $locale = app()->getLocale();
         if ($locale === 'ar') {
-            $query->whereRaw("name REGEXP '[ء-ي]'");
+            $query->whereRaw("name REGEXP '[\\x{0600}-\\x{06FF}]'");
         } else {
-            $query->whereRaw("name NOT REGEXP '[ء-ي]'");
+            $query->whereRaw("name NOT REGEXP '[\\x{0600}-\\x{06FF}]'");
         }
 
         // Filter by approval status - show approved content + own pending/rejected content

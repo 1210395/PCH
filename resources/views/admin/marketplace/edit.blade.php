@@ -27,7 +27,7 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">{{ __('Approval Status') }}</h3>
             <div class="flex items-center gap-4">
                 <span class="px-3 py-1 rounded-full text-sm font-medium {{ $post->approval_status === 'approved' ? 'bg-green-100 text-green-800' : ($post->approval_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                    {{ ucfirst($post->approval_status) }}
+                    {{ __(ucfirst($post->approval_status)) }}
                 </span>
                 @if($post->rejection_reason)
                 <span class="text-sm text-red-600">{{ __('Reason') }}: {{ $post->rejection_reason }}</span>

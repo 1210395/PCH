@@ -50,7 +50,7 @@
             @if($training->approval_status === 'approved') bg-green-100 text-green-700
             @elseif($training->approval_status === 'rejected') bg-red-100 text-red-700
             @else bg-orange-100 text-orange-700 @endif">
-            {{ ucfirst($training->approval_status) }}
+            {{ __(ucfirst($training->approval_status)) }}
         </span>
         @if($training->is_expired)
             <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">

@@ -44,26 +44,25 @@
         </a>
     </div>
 
-    @if(isset($tender) && $tender->approval_status)
+    @if(isset($tender))
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <span class="text-sm text-gray-600">{{ __('Status') }}:</span>
-                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $tender->approval_status === 'approved' ? 'bg-green-100 text-green-800' : ($tender->approval_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                    {{ ucfirst($tender->approval_status) }}
-                </span>
-                @if($tender->rejection_reason)
-                    <span class="text-sm text-red-600"><i class="fas fa-info-circle mr-1"></i>{{ $tender->rejection_reason }}</span>
+                <span class="text-sm text-gray-600">{{ __('Visibility') }}:</span>
+                @if($tender->is_visible)
+                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">{{ __('Visible') }}</span>
+                @else
+                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">{{ __('Hidden') }}</span>
                 @endif
+                <span class="text-sm text-gray-500">·</span>
+                @php
+                    $statusColors = ['open' => 'bg-green-100 text-green-800', 'closing_soon' => 'bg-orange-100 text-orange-800', 'closed' => 'bg-gray-100 text-gray-800'];
+                @endphp
+                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $statusColors[$tender->status] ?? 'bg-gray-100 text-gray-800' }}">{{ $tender->status_label }}</span>
             </div>
-            <div class="flex gap-2">
-                @if($tender->approval_status !== 'approved')
-                    <button @click="quickApprove()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"><i class="fas fa-check mr-2"></i>{{ __('Approve') }}</button>
-                @endif
-                @if($tender->approval_status !== 'rejected')
-                    <button @click="showRejectModal = true" class="px-4 py-2 bg-yellow-600 text-white rounded-lg text-sm hover:bg-yellow-700"><i class="fas fa-times mr-2"></i>{{ __('Reject') }}</button>
-                @endif
-            </div>
+            @if($tender->external_id)
+                <span class="px-2 py-0.5 text-xs rounded bg-blue-100 text-blue-700">{{ __('API') }} · {{ $tender->external_source }}</span>
+            @endif
         </div>
     </div>
     @endif
@@ -171,17 +170,7 @@
         </div>
     </form>
 
-    <!-- Reject Modal -->
-    <div x-show="showRejectModal" x-cloak @click.self="showRejectModal = false" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div @click.stop class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 class="text-lg font-semibold mb-4">{{ __('Reject Tender') }}</h3>
-            <textarea x-model="rejectReason" placeholder="{{ __('Reason for rejection (optional)...') }}" rows="3" class="w-full px-4 py-3 border rounded-lg mb-4"></textarea>
-            <div class="flex justify-end gap-3">
-                <button @click="showRejectModal = false" class="px-4 py-2 text-gray-600">{{ __('Cancel') }}</button>
-                <button @click="quickReject()" class="px-6 py-2 bg-yellow-600 text-white rounded-lg">{{ __('Reject') }}</button>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 @push('scripts')
@@ -238,7 +227,7 @@ function tenderForm() {
             source_url: tender?.source_url || '',
             is_visible: tender?.is_visible !== false
         },
-        submitting: false, showRejectModal: false, rejectReason: '',
+        submitting: false,
 
         async submitForm() {
             this.submitting = true;
@@ -297,25 +286,6 @@ function tenderForm() {
             }
         },
 
-        async quickApprove() {
-            try {
-                await adminFetch(`{{ url('') }}/{{ app()->getLocale() }}/admin/tenders/{{ $tender->id ?? 0 }}/approve`, { method: 'POST' });
-                showToast('{{ __("Approved") }}', 'success');
-                setTimeout(() => location.reload(), 1000);
-            } catch (e) { showToast(e.message, 'error'); }
-        },
-
-        async quickReject() {
-            try {
-                await adminFetch(`{{ url('') }}/{{ app()->getLocale() }}/admin/tenders/{{ $tender->id ?? 0 }}/reject`, {
-                    method: 'POST',
-                    body: JSON.stringify({ reason: this.rejectReason })
-                });
-                showToast('{{ __("Rejected") }}', 'success');
-                this.showRejectModal = false;
-                setTimeout(() => location.reload(), 1000);
-            } catch (e) { showToast(e.message, 'error'); }
-        }
     }
 }
 </script>

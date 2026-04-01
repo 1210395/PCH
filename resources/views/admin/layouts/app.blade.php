@@ -65,9 +65,15 @@
         html[dir="rtl"] .fa-arrow-left::before,
         html[dir="rtl"] .fa-chevron-left::before { transform: scaleX(-1); }
 
-        /* RTL: Gradient direction flip */
+        /* RTL: Gradient direction flip — only flip the sidebar active item.
+           Do NOT blanket-override .bg-gradient-to-r — it breaks Tailwind v4's
+           layered --tw-gradient-stops variables, causing white/transparent backgrounds
+           on buttons, pagination, banners, and toast notifications. */
         html[dir="rtl"] .sidebar-item.active { background: linear-gradient(to left, #2563eb, #10b981); }
-        html[dir="rtl"] .bg-gradient-to-r { background-image: linear-gradient(to left, var(--tw-gradient-stops)); }
+
+        /* RTL: Flip left borders to right borders for accent cards */
+        html[dir="rtl"] .border-l-4 { border-left-width: 0; border-right-width: 4px; }
+        html[dir="rtl"] .border-l-2 { border-left-width: 0; border-right-width: 2px; }
 
         /* RTL: Form inputs text direction */
         html[dir="rtl"] input[type="text"],

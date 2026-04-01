@@ -35,7 +35,7 @@
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                     {{ $project->approval_status === 'approved' ? 'bg-green-100 text-green-800' :
                        ($project->approval_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                    {{ ucfirst($project->approval_status ?? 'pending') }}
+                    {{ __(ucfirst($project->approval_status ?? 'pending')) }}
                 </span>
                 @if($project->rejection_reason)
                     <span class="text-sm text-red-600">{{ __('Reason:') }} {{ $project->rejection_reason }}</span>

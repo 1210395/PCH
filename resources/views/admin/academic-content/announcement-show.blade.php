@@ -47,7 +47,7 @@
             @if($announcement->approval_status === 'approved') bg-green-100 text-green-700
             @elseif($announcement->approval_status === 'rejected') bg-red-100 text-red-700
             @else bg-orange-100 text-orange-700 @endif">
-            {{ ucfirst($announcement->approval_status) }}
+            {{ __(ucfirst($announcement->approval_status)) }}
         </span>
         @if($announcement->is_expired)
             <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
