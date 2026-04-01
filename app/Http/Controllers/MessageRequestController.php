@@ -61,14 +61,14 @@ class MessageRequestController extends Controller
             if (!$currentDesigner) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please login to send message requests'
+                    'message' => __('Please login to send message requests')
                 ], 401);
             }
 
             if ($currentDesigner->id == $designerId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You cannot message yourself'
+                    'message' => __('You cannot message yourself')
                 ], 400);
             }
 
@@ -84,7 +84,7 @@ class MessageRequestController extends Controller
             if (!$recipient->allow_messages) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This designer is not accepting messages'
+                    'message' => __('This designer is not accepting messages')
                 ], 403);
             }
 
@@ -97,7 +97,7 @@ class MessageRequestController extends Controller
             if ($conversation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You already have a conversation with this designer'
+                    'message' => __('You already have a conversation with this designer')
                 ], 400);
             }
 
@@ -110,7 +110,7 @@ class MessageRequestController extends Controller
             if ($existingRequest) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You already have a pending message request with this designer'
+                    'message' => __('You already have a pending message request with this designer')
                 ], 400);
             }
 
@@ -133,13 +133,13 @@ class MessageRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Message request sent successfully! They will be notified.'
+                'message' => __('Message request sent successfully! They will be notified.')
             ]);
         } catch (\Exception $e) {
             \Log::error('Error sending message request: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while sending the message request. Please try again.'
+                'message' => __('An error occurred while sending the message request. Please try again.')
             ], 500);
         }
     }
@@ -177,7 +177,7 @@ class MessageRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Message request accepted',
+            'message' => __('Message request accepted'),
             'redirect' => route('messages.chat', [
                 'locale' => $locale,
                 'designerId' => $messageRequest->from_designer_id
@@ -210,7 +210,7 @@ class MessageRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Message request declined'
+            'message' => __('Message request declined')
         ]);
     }
 

@@ -31,6 +31,8 @@
 <section class="relative h-40 sm:h-64 md:h-96 bg-gray-200">
     @if($fabLab->cover_image)
         <img src="{{ url('media/' . $fabLab->cover_image) }}" alt="{{ $fabLab->name }}" class="w-full h-full object-cover">
+    @elseif($fabLab->image)
+        <img src="{{ url('media/' . $fabLab->image) }}" alt="{{ $fabLab->name }}" class="w-full h-full object-cover">
     @else
         <div class="w-full h-full bg-gradient-to-br from-blue-500 to-green-400"></div>
     @endif
