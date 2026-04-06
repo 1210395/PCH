@@ -11,6 +11,9 @@
     images: @js($heroImages),
     currentIndex: 0,
     interval: null,
+    isVideo(url) {
+        return url && /\.(mp4|webm|mov)(\?|$)/i.test(url);
+    },
     init() {
         if (this.images.length > 1) {
             this.startCarousel();
@@ -25,16 +28,27 @@
         if (this.interval) clearInterval(this.interval);
     }
 }" x-init="init()" @destroy.window="destroy()">
-    {{-- Background Image Carousel with Gradient Overlay --}}
+    {{-- Background Media Carousel with Gradient Overlay --}}
     <div class="absolute inset-0">
         <template x-for="(image, index) in images" :key="index">
-            <img
-                :src="image"
-                alt="{{ __('Palestine Creative Hub') }}"
-                class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000"
-                :class="currentIndex === index ? 'opacity-100' : 'opacity-0'"
-                onerror="this.style.display='none'"
-            />
+            <div class="absolute inset-0 transition-opacity duration-1000"
+                 :class="currentIndex === index ? 'opacity-100' : 'opacity-0'">
+                <template x-if="!isVideo(image)">
+                    <img
+                        :src="image"
+                        alt="{{ __('Palestine Creative Hub') }}"
+                        class="w-full h-full object-cover object-center"
+                        onerror="this.style.display='none'"
+                    />
+                </template>
+                <template x-if="isVideo(image)">
+                    <video
+                        :src="image"
+                        class="w-full h-full object-cover object-center"
+                        autoplay muted loop playsinline
+                    ></video>
+                </template>
+            </div>
         </template>
         {{-- Gradient overlay for better text readability --}}
         <div class="absolute inset-0 bg-gradient-to-r from-white/90 via-white/80 to-white/70 sm:from-white/80 sm:via-white/70 sm:to-white/60"></div>

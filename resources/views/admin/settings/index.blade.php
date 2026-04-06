@@ -624,7 +624,7 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-red-500">
             <h2 class="text-lg font-semibold text-white">{{ __('Hero Image Carousels') }}</h2>
-            <p class="text-white/80 text-sm">{{ __('Upload up to 5 hero images per page. Images auto-rotate every 5 seconds. (Recommended: 1920x600px)') }}</p>
+            <p class="text-white/80 text-sm">{{ __('Upload up to 5 hero images or videos per page. Media auto-rotates every 5 seconds. (Images: max 10MB, Videos: MP4/WebM/MOV max 50MB)') }}</p>
         </div>
 
         {{-- Hero image data passed safely via script tag to avoid breaking x-data HTML attribute --}}
@@ -634,8 +634,8 @@
             window.__heroRemoveUrl = '{{ route('admin.settings.hero.remove', ['locale' => app()->getLocale()]) }}';
             window.__heroMessages = {
                 maxImages: '{{ __('Maximum 5 images allowed. Please remove an image first.') }}',
-                invalidType: '{{ __('Invalid file type. Please upload a JPG, PNG, GIF, or WebP image.') }}',
-                fileTooLarge: '{{ __('File too large. Maximum size is 10MB.') }}',
+                invalidType: '{{ __('Invalid file type. Please upload an image (JPG, PNG, GIF, WebP) or video (MP4, WebM, MOV).') }}',
+                fileTooLarge: '{{ __('File too large. Maximum size is 10MB for images, 50MB for videos.') }}',
                 uploadFailed: '{{ __('Failed to upload image. Please try again.') }}',
                 removeFailed: '{{ __('Failed to remove image. Please try again.') }}',
                 failedGeneric: '{{ __('Failed to upload image') }}',
@@ -655,6 +655,11 @@
                         return this.images.length < this.maxImages;
                     },
 
+                    isVideo(url) {
+                        if (!url) return false;
+                        return /\.(mp4|webm|mov)(\?|$)/i.test(url);
+                    },
+
                     async uploadImage(event) {
                         const file = event.target.files[0];
                         if (!file) return;
@@ -665,14 +670,15 @@
                             return;
                         }
 
-                        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+                        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg', 'video/mp4', 'video/webm', 'video/quicktime'];
                         if (!validTypes.includes(file.type)) {
                             showToast(window.__heroMessages.invalidType, 'error');
                             event.target.value = '';
                             return;
                         }
-                        if (file.size > 10 * 1024 * 1024) {
-                            showToast(window.__heroMessages.fileTooLarge, 'error');
+                        const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+                        if (file.size > maxSize) {
+                            showToast(file.type.startsWith('video/') ? 'Video must be under 50MB' : window.__heroMessages.fileTooLarge, 'error');
                             event.target.value = '';
                             return;
                         }
@@ -762,10 +768,13 @@
                         <span class="text-xs px-2 py-1 rounded bg-gray-200 text-gray-600">{{ $page }}</span>
                     </div>
 
-                    {{-- Main Image Preview --}}
+                    {{-- Main Media Preview --}}
                     <div class="relative aspect-[16/6] bg-gray-200 rounded-lg overflow-hidden mb-3">
-                        <template x-if="images.length > 0">
+                        <template x-if="images.length > 0 && !isVideo(images[currentIndex]?.url)">
                             <img :src="images[currentIndex]?.url" class="w-full h-full object-cover" alt="{{ $data['label'] }} {{ __('hero') }}">
+                        </template>
+                        <template x-if="images.length > 0 && isVideo(images[currentIndex]?.url)">
+                            <video :src="images[currentIndex]?.url" class="w-full h-full object-cover" muted loop autoplay playsinline></video>
                         </template>
                         <template x-if="images.length === 0">
                             <div class="w-full h-full flex items-center justify-center">
@@ -814,15 +823,22 @@
                     {{-- Thumbnail Strip --}}
                     <div class="flex gap-2 mb-3 overflow-x-auto pb-1" x-show="images.length > 0">
                         <template x-for="(img, index) in images" :key="'thumb-{{ $page }}-'+index">
-                            <button @click="selectImage(index)" type="button" class="flex-shrink-0 w-16 h-10 rounded overflow-hidden border-2 transition-colors" :class="currentIndex === index ? 'border-orange-500' : 'border-transparent hover:border-gray-300'">
-                                <img :src="img.url" class="w-full h-full object-cover" alt="{{ __('Thumbnail') }}">
+                            <button @click="selectImage(index)" type="button" class="flex-shrink-0 w-16 h-10 rounded overflow-hidden border-2 transition-colors relative" :class="currentIndex === index ? 'border-orange-500' : 'border-transparent hover:border-gray-300'">
+                                <template x-if="!isVideo(img.url)">
+                                    <img :src="img.url" class="w-full h-full object-cover" alt="{{ __('Thumbnail') }}">
+                                </template>
+                                <template x-if="isVideo(img.url)">
+                                    <div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </template>
                             </button>
                         </template>
 
                         {{-- Add More Placeholder --}}
                         <template x-if="canAddMore">
                             <label class="flex-shrink-0 w-16 h-10 rounded border-2 border-dashed border-gray-300 hover:border-orange-400 flex items-center justify-center cursor-pointer transition-colors">
-                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" @change="uploadImage($event)" class="hidden" :disabled="uploading || removing">
+                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime" @change="uploadImage($event)" class="hidden" :disabled="uploading || removing">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
@@ -833,7 +849,7 @@
                     {{-- Actions --}}
                     <div class="flex gap-2">
                         <label class="flex-1 cursor-pointer" :class="{'opacity-50 cursor-not-allowed': !canAddMore || uploading || removing}">
-                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" @change="uploadImage($event)" class="hidden" :disabled="uploading || removing || !canAddMore">
+                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime" @change="uploadImage($event)" class="hidden" :disabled="uploading || removing || !canAddMore">
                             <span class="block w-full text-center px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors" :class="{'opacity-50 cursor-not-allowed': uploading || removing || !canAddMore}">
                                 <span x-show="!uploading && !removing && canAddMore">
                                     <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -77,14 +77,14 @@ class AdminSettingsController extends AdminBaseController
     {
         $request->validate([
             'page' => 'required|string|in:' . implode(',', array_keys($this->heroPages)),
-            'image' => 'required|image|max:10240',
+            'image' => 'required|file|mimes:jpeg,jpg,png,gif,webp,mp4,webm,mov|max:51200',
         ]);
 
         $page = $request->input('page');
 
         $currentImages = SiteSetting::getHeroImagePaths($page);
         if (count($currentImages) >= 5) {
-            return $this->errorResponse('Maximum 5 images allowed per page. Please remove an image first.', 422);
+            return $this->errorResponse('Maximum 5 media items allowed per page. Please remove one first.', 422);
         }
 
         $file = $request->file('image');

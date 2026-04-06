@@ -3,9 +3,13 @@
     $heroImage = \App\Models\SiteSetting::getHeroImage('home') ?? url('images/hero-bg.jpg');
 @endphp
 <section class="relative overflow-hidden min-h-[420px] sm:min-h-[500px] md:min-h-[600px]">
-    {{-- Background Image --}}
+    {{-- Background Media --}}
     <div class="absolute inset-0 z-0">
-        <img src="{{ $heroImage }}" alt="{{ __('Palestine Creative Hub') }}" class="w-full h-full object-cover animate-scaleIn">
+        @if(preg_match('/\.(mp4|webm|mov)$/i', $heroImage))
+            <video src="{{ $heroImage }}" class="w-full h-full object-cover animate-scaleIn" autoplay muted loop playsinline></video>
+        @else
+            <img src="{{ $heroImage }}" alt="{{ __('Palestine Creative Hub') }}" class="w-full h-full object-cover animate-scaleIn">
+        @endif
         {{-- Overlay for better text readability --}}
         <div class="absolute inset-0 bg-gradient-to-r from-white/80 via-white/70 to-white/60"></div>
     </div>
