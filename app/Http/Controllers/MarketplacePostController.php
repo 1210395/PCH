@@ -279,16 +279,24 @@ class MarketplacePostController extends Controller
 
             $post->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Marketplace post deleted successfully.'
-            ]);
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Marketplace post deleted successfully.'
+                ]);
+            }
+
+            return redirect()->route('profile', ['locale' => $locale])
+                ->with('success', __('Marketplace post deleted successfully.'));
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Post not found or you do not have permission to delete it.'
-            ], 404);
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post not found or you do not have permission to delete it.'
+                ], 404);
+            }
+            return redirect()->back()->with('error', __('Post not found or you do not have permission to delete it.'));
         } catch (\Exception $e) {
             \Log::error('Marketplace post deletion failed', [
                 'designer_id' => auth('designer')->id(),
@@ -296,10 +304,13 @@ class MarketplacePostController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting the post.'
-            ], 500);
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while deleting the post.'
+                ], 500);
+            }
+            return redirect()->back()->with('error', __('An error occurred while deleting the post.'));
         }
     }
 
