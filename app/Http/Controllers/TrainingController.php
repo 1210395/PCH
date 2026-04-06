@@ -84,8 +84,7 @@ class TrainingController extends Controller
         // Get workshops if type is all or workshop
         if ($contentType === 'all' || $contentType === 'workshop') {
             $workshopsQuery = AcademicWorkshop::with('academicAccount')
-                ->where('approval_status', 'approved')
-                ->whereRaw($arabicFilter);
+                ->where('approval_status', 'approved');
 
             // Filter by category
             if (!empty($validated['category']) && $validated['category'] !== 'all') {

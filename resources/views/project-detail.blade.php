@@ -148,7 +148,8 @@
                     <img
                         :src="activeImage"
                         alt="{{ $project->title }}"
-                        class="w-full h-full object-cover transition-opacity duration-300"
+                        class="w-full h-full object-cover transition-opacity duration-300 cursor-pointer"
+                        @click="$dispatch('open-lightbox', { images: images, index: currentIndex })"
                         onerror="this.parentElement.classList.add('bg-gradient-to-br', 'from-blue-600', 'to-green-500'); this.style.display='none';"
                     >
 
@@ -444,4 +445,6 @@
         </div>
     </div>
 </div>
+
+<x-image-lightbox />
 @endsection

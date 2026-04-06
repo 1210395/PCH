@@ -53,7 +53,7 @@
             </div>
 
             {{-- Headline --}}
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-snug mb-4 sm:mb-6 bg-gradient-to-r from-gray-900 via-blue-900 to-teal-900 bg-clip-text text-transparent animate-slideUp">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-relaxed mb-4 sm:mb-6 pb-1 bg-gradient-to-r from-gray-900 via-blue-900 to-teal-900 bg-clip-text text-transparent animate-slideUp">
                 {{ \App\Models\SiteSetting::getHeroTitle('home', 'Showcase Your Creative Excellence') }}
             </h1>
 

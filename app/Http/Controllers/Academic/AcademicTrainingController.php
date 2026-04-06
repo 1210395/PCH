@@ -6,6 +6,7 @@ use App\Models\AcademicTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\ImageService;
 use App\Services\NotificationSubscriptionService;
 
 /**
@@ -137,9 +138,7 @@ class AcademicTrainingController extends AcademicBaseController
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = 'academic_training_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
-            $path = $image->storeAs('academic-trainings', $filename, 'public');
+            $path = ImageService::process($request->file('image'), ImageService::CARD, 'academic-trainings', 'academic_training_' . Str::random(16));
             $validated['image'] = $path;
         }
 
@@ -260,9 +259,7 @@ class AcademicTrainingController extends AcademicBaseController
                 Storage::disk('public')->delete($training->image);
             }
 
-            $image = $request->file('image');
-            $filename = 'academic_training_' . $id . '_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
-            $path = $image->storeAs('academic-trainings', $filename, 'public');
+            $path = ImageService::process($request->file('image'), ImageService::CARD, 'academic-trainings', 'academic_training_' . Str::random(16));
             $validated['image'] = $path;
         }
 

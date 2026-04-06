@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -121,7 +122,7 @@ class ImageUploadController extends Controller
             // Step 3: Validate request
             try {
                 $validated = $request->validate([
-                    'image' => 'required|image|mimes:jpeg,jpg,png,gif|max:5120', // 5MB max
+                    'image' => 'required|image|mimes:jpeg,jpg,png,gif,webp|max:5120', // 5MB max
                     'type' => 'required|in:avatar,profile,cover,product,project,service,marketplace',
                     'session_id' => 'required|string',
                     'file_hash' => 'nullable|string',
@@ -558,15 +559,39 @@ class ImageUploadController extends Controller
                 mkdir($fullPermanentPath, 0755, true);
             }
 
-            // Move file from temp to permanent with structured name
+            // Determine the image ratio based on type
+            $ratio = ImageService::ratioFor($type);
+
+            // Strip extension from structured filename (ImageService appends .webp)
+            $filenameNoExt = pathinfo($structuredFilename, PATHINFO_FILENAME);
+
+            // Process image: center-crop, resize, convert to WebP
+            $processedPath = ImageService::processFromTemp(
+                $tempPath,
+                $ratio,
+                $folderName,
+                $filenameNoExt
+            );
+
+            if ($processedPath) {
+                Log::debug('Image processed and moved to permanent storage', [
+                    'from' => $tempPath,
+                    'to' => $processedPath,
+                    'ratio' => $ratio,
+                    'entity_id' => $entityId,
+                    'image_number' => $imageNumber,
+                    'user_id' => $userId
+                ]);
+
+                return $processedPath;
+            }
+
+            // Fallback: move without processing if ImageService fails
             Storage::disk('public')->move($tempPath, $permanentPath);
 
-            Log::debug('Image moved to permanent storage with structured name', [
+            Log::warning('ImageService failed, moved file without processing', [
                 'from' => $tempPath,
                 'to' => $permanentPath,
-                'entity_id' => $entityId,
-                'image_number' => $imageNumber,
-                'user_id' => $userId
             ]);
 
             return $permanentPath;

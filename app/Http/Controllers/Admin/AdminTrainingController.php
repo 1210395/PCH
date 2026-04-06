@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Training;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\DropdownHelper;
@@ -341,27 +342,21 @@ class AdminTrainingController extends AdminBaseController
             if ($training && $training->image) {
                 Storage::disk('public')->delete($training->image);
             }
-            $file = $request->file('image');
-            $filename = 'training_' . time() . '_image.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
-            $paths['image'] = $file->storeAs('trainings', $filename, 'public');
+            $paths['image'] = ImageService::process($request->file('image'), ImageService::CARD, 'trainings', 'training_' . time() . '_image');
         }
 
         if ($request->hasFile('cover_image')) {
             if ($training && $training->cover_image) {
                 Storage::disk('public')->delete($training->cover_image);
             }
-            $file = $request->file('cover_image');
-            $filename = 'training_' . time() . '_cover.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
-            $paths['cover_image'] = $file->storeAs('trainings', $filename, 'public');
+            $paths['cover_image'] = ImageService::process($request->file('cover_image'), ImageService::BANNER, 'trainings', 'training_' . time() . '_cover');
         }
 
         if ($request->hasFile('instructor_image')) {
             if ($training && $training->instructor_image) {
                 Storage::disk('public')->delete($training->instructor_image);
             }
-            $file = $request->file('instructor_image');
-            $filename = 'training_' . time() . '_instructor.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
-            $paths['instructor_image'] = $file->storeAs('trainings/instructors', $filename, 'public');
+            $paths['instructor_image'] = ImageService::process($request->file('instructor_image'), ImageService::SQUARE, 'trainings/instructors', 'training_' . time() . '_instructor');
         }
 
         return $paths;

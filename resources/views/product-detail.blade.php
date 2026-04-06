@@ -27,7 +27,7 @@
 <meta name="twitter:image" content="{{ $ogImage }}">
 <style>
     .gallery-main {
-        aspect-ratio: 16/10;
+        aspect-ratio: 4/3;
     }
     .gallery-thumb {
         aspect-ratio: 1/1;
@@ -115,7 +115,7 @@
             }">
                 {{-- Main Image --}}
                 <div class="relative bg-white rounded-2xl overflow-hidden shadow-lg group/gallery">
-                    <div class="gallery-main">
+                    <div class="gallery-main cursor-pointer" @click="$dispatch('open-lightbox', { images: images, index: currentIndex })">
                         <img
                             :src="activeImage"
                             alt="{{ $product->name ?? $product->title }}"
@@ -404,4 +404,6 @@
     </section>
     @endif
 </div>
+
+<x-image-lightbox />
 @endsection

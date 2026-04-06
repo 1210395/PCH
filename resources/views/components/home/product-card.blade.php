@@ -18,7 +18,7 @@
 
 <a href="{{ route('product.detail', ['locale' => app()->getLocale(), 'id' => $product->id]) }}" class="group bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full">
     {{-- Product Image --}}
-    <div class="relative h-48 overflow-hidden bg-gray-100 flex-shrink-0">
+    <div class="relative aspect-[4/3] overflow-hidden bg-gray-100 flex-shrink-0">
         @if($firstImage)
             <img
                 src="{{ $firstImage }}"

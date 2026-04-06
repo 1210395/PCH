@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\ImageService;
 
 /**
  * Admin CRUD management for academic institution accounts.
@@ -110,17 +111,13 @@ class AdminAcademicAccountController extends AdminBaseController
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $filename = 'academic_' . time() . '_logo.' . ($logo->guessExtension() ?? $logo->getClientOriginalExtension());
-            $path = $logo->storeAs('academic-accounts', $filename, 'public');
+            $path = ImageService::process($request->file('logo'), ImageService::SQUARE, 'academic-accounts', 'academic_' . time() . '_logo');
             $validated['logo'] = $path;
         }
 
         // Handle banner upload
         if ($request->hasFile('banner')) {
-            $banner = $request->file('banner');
-            $filename = 'academic_' . time() . '_banner.' . ($banner->guessExtension() ?? $banner->getClientOriginalExtension());
-            $path = $banner->storeAs('academic-accounts', $filename, 'public');
+            $path = ImageService::process($request->file('banner'), ImageService::BANNER, 'academic-accounts', 'academic_' . time() . '_banner');
             $validated['banner'] = $path;
         }
 
@@ -214,9 +211,7 @@ class AdminAcademicAccountController extends AdminBaseController
                 Storage::disk('public')->delete($account->logo);
             }
 
-            $logo = $request->file('logo');
-            $filename = 'academic_' . $id . '_' . time() . '_logo.' . ($logo->guessExtension() ?? $logo->getClientOriginalExtension());
-            $path = $logo->storeAs('academic-accounts', $filename, 'public');
+            $path = ImageService::process($request->file('logo'), ImageService::SQUARE, 'academic-accounts', 'academic_' . time() . '_logo');
             $validated['logo'] = $path;
         }
 
@@ -227,9 +222,7 @@ class AdminAcademicAccountController extends AdminBaseController
                 Storage::disk('public')->delete($account->banner);
             }
 
-            $banner = $request->file('banner');
-            $filename = 'academic_' . $id . '_' . time() . '_banner.' . ($banner->guessExtension() ?? $banner->getClientOriginalExtension());
-            $path = $banner->storeAs('academic-accounts', $filename, 'public');
+            $path = ImageService::process($request->file('banner'), ImageService::BANNER, 'academic-accounts', 'academic_' . time() . '_banner');
             $validated['banner'] = $path;
         }
 

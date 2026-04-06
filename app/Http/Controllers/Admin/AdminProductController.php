@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -154,8 +155,7 @@ class AdminProductController extends AdminBaseController
             foreach ($files as $file) {
                 if ($uploaded >= $availableSlots) break;
 
-                $filename = 'product_' . $product->id . '_' . time() . '_' . $uploaded . '.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
-                $path = $file->storeAs('products', $filename, 'public');
+                $path = ImageService::process($file, ImageService::CARD, 'products', 'product_' . $product->id . '_' . time() . '_' . $uploaded);
 
                 \App\Models\ProductImage::create([
                     'product_id' => $product->id,

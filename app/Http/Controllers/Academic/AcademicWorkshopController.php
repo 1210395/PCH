@@ -6,6 +6,7 @@ use App\Models\AcademicWorkshop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\ImageService;
 use App\Services\NotificationSubscriptionService;
 
 /**
@@ -127,9 +128,7 @@ class AcademicWorkshopController extends AcademicBaseController
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = 'academic_workshop_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
-            $path = $image->storeAs('academic-workshops', $filename, 'public');
+            $path = ImageService::process($request->file('image'), ImageService::CARD, 'academic-workshops', 'academic_workshop_' . Str::random(16));
             $validated['image'] = $path;
         }
 
@@ -244,9 +243,7 @@ class AcademicWorkshopController extends AcademicBaseController
                 Storage::disk('public')->delete($workshop->image);
             }
 
-            $image = $request->file('image');
-            $filename = 'academic_workshop_' . $id . '_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
-            $path = $image->storeAs('academic-workshops', $filename, 'public');
+            $path = ImageService::process($request->file('image'), ImageService::CARD, 'academic-workshops', 'academic_workshop_' . Str::random(16));
             $validated['image'] = $path;
         }
 

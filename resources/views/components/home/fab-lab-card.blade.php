@@ -16,7 +16,7 @@
    class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col h-full">
 
     {{-- Lab Image - Fixed height with aspect ratio --}}
-    <div class="relative h-48 flex-shrink-0 overflow-hidden bg-gray-100">
+    <div class="relative aspect-[4/3] flex-shrink-0 overflow-hidden bg-gray-100">
         @if($imageUrl)
             <img
                 src="{{ $imageUrl }}"

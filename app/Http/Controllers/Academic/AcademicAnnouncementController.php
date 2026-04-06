@@ -6,6 +6,7 @@ use App\Models\AcademicAnnouncement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\ImageService;
 use App\Services\NotificationSubscriptionService;
 
 /**
@@ -113,9 +114,7 @@ class AcademicAnnouncementController extends AcademicBaseController
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = 'academic_announcement_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
-            $path = $image->storeAs('academic-announcements', $filename, 'public');
+            $path = ImageService::process($request->file('image'), ImageService::CARD, 'academic-announcements', 'academic_announcement_' . Str::random(16));
             $validated['image'] = $path;
         }
 
@@ -205,9 +204,7 @@ class AcademicAnnouncementController extends AcademicBaseController
                 Storage::disk('public')->delete($announcement->image);
             }
 
-            $image = $request->file('image');
-            $filename = 'academic_announcement_' . $id . '_' . Str::random(16) . '.' . ($image->guessExtension() ?? $image->getClientOriginalExtension());
-            $path = $image->storeAs('academic-announcements', $filename, 'public');
+            $path = ImageService::process($request->file('image'), ImageService::CARD, 'academic-announcements', 'academic_announcement_' . Str::random(16));
             $validated['image'] = $path;
         }
 

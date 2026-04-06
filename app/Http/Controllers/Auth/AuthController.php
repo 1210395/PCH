@@ -407,10 +407,12 @@ class AuthController extends Controller
                 );
             } elseif ($request->hasFile('profile_image')) {
                 // Fallback: upload now if not pre-uploaded
-                $file = $request->file('profile_image');
-                $extension = ($file->guessExtension() ?? $file->getClientOriginalExtension());
-                $filename = "profile_{$designer->id}.{$extension}";
-                $avatarPath = $file->storeAs('profiles', $filename, 'public');
+                $avatarPath = \App\Services\ImageService::process(
+                    $request->file('profile_image'),
+                    \App\Services\ImageService::SQUARE,
+                    'profiles',
+                    "profile_{$designer->id}"
+                );
             }
 
             // Update designer with avatar path
@@ -433,10 +435,12 @@ class AuthController extends Controller
                 );
             } elseif ($request->hasFile('cover_image')) {
                 // Fallback: upload now if not pre-uploaded
-                $file = $request->file('cover_image');
-                $extension = ($file->guessExtension() ?? $file->getClientOriginalExtension());
-                $filename = "hero_{$designer->id}.{$extension}";
-                $coverPath = $file->storeAs('covers', $filename, 'public');
+                $coverPath = \App\Services\ImageService::process(
+                    $request->file('cover_image'),
+                    \App\Services\ImageService::BANNER,
+                    'covers',
+                    "hero_{$designer->id}"
+                );
             }
 
             // Update designer with cover image path
@@ -534,7 +538,12 @@ class AuthController extends Controller
                                     $designer->id
                                 );
                             } elseif ($request->hasFile("products.{$index}.image")) {
-                                $productImage = $request->file("products.{$index}.image")->store('products', 'public');
+                                $productImage = \App\Services\ImageService::process(
+                                    $request->file("products.{$index}.image"),
+                                    \App\Services\ImageService::CARD,
+                                    'products',
+                                    "product_{$designer->id}_{$index}"
+                                );
                             }
 
                             // Create product
@@ -636,7 +645,12 @@ class AuthController extends Controller
                                     $designer->id
                                 );
                             } elseif ($request->hasFile("projects.{$index}.image")) {
-                                $projectImage = $request->file("projects.{$index}.image")->store('projects', 'public');
+                                $projectImage = \App\Services\ImageService::process(
+                                    $request->file("projects.{$index}.image"),
+                                    \App\Services\ImageService::CARD,
+                                    'projects',
+                                    "project_{$designer->id}_{$index}"
+                                );
                             }
 
                             // Determine category - use user selected category or default to General
@@ -753,10 +767,12 @@ class AuthController extends Controller
                                 $createdService->id // Use service ID for structured naming
                             );
                         } elseif ($request->hasFile("services.{$index}.image")) {
-                            $file = $request->file("services.{$index}.image");
-                            $extension = ($file->guessExtension() ?? $file->getClientOriginalExtension());
-                            $filename = "service_{$createdService->id}.{$extension}";
-                            $serviceImage = $file->storeAs('services', $filename, 'public');
+                            $serviceImage = \App\Services\ImageService::process(
+                                $request->file("services.{$index}.image"),
+                                \App\Services\ImageService::CARD,
+                                'services',
+                                "service_{$createdService->id}"
+                            );
                         }
 
                         // Update service with image path

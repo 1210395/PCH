@@ -26,7 +26,7 @@
     {{-- Grid View Card --}}
     <div class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full {{ $isOwner && $isRejected ? 'ring-2 ring-red-300' : ($isOwner && $isPending ? 'ring-2 ring-yellow-300' : '') }}">
         {{-- Post Image --}}
-        <a href="{{ route('marketplace.show', ['locale' => app()->getLocale(), 'id' => $post->id]) }}" class="relative block h-48 overflow-hidden flex-shrink-0">
+        <a href="{{ route('marketplace.show', ['locale' => app()->getLocale(), 'id' => $post->id]) }}" class="relative block aspect-[4/3] overflow-hidden flex-shrink-0">
             @if($postImage)
                 <x-optimized-image
                     :src="$postImage"

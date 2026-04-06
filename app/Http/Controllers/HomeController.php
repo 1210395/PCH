@@ -136,74 +136,117 @@ class HomeController extends Controller
         // Build bilingual search terms (Arabic ↔ English)
         $searchTerms = $this->buildBilingualSearch($query);
 
-        // Search designers using FULLTEXT index (excluding admin and inactive accounts)
-        $designers = Designer::where('is_admin', false)
-            ->where('is_active', true)
-            ->where('sector', '!=', 'guest')
-            ->where(function ($q) use ($query, $searchTerms) {
-                $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
-                  ->orWhere('name', 'LIKE', "%{$query}%")
-                  ->orWhere('company_name', 'LIKE', "%{$query}%");
-            })
-            ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
-            ->with('skills:id,name')
-            ->limit(20)
-            ->get();
+        // Search designers (FULLTEXT with LIKE fallback)
+        try {
+            $designers = Designer::where('is_admin', false)
+                ->where('is_active', true)
+                ->where('sector', '!=', 'guest')
+                ->where(function ($q) use ($query, $searchTerms) {
+                    try {
+                        $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms]);
+                    } catch (\Throwable $e) {
+                        // FULLTEXT index may not exist
+                    }
+                    $q->orWhere('name', 'LIKE', "%{$query}%");
+                    // company_name may not exist on all deployments
+                    if (\Schema::hasColumn('designers', 'company_name')) {
+                        $q->orWhere('company_name', 'LIKE', "%{$query}%");
+                    }
+                })
+                ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
+                ->with('skills:id,name')
+                ->limit(20)
+                ->get();
+        } catch (\Throwable $e) {
+            // Fallback: simple LIKE search if FULLTEXT fails
+            $designers = Designer::where('is_admin', false)
+                ->where('is_active', true)
+                ->where('sector', '!=', 'guest')
+                ->where('name', 'LIKE', "%{$query}%")
+                ->select('id', 'name', 'avatar', 'sector', 'sub_sector', 'city', 'bio', 'followers_count')
+                ->with('skills:id,name')
+                ->limit(20)
+                ->get();
+        }
 
-        // Search projects using FULLTEXT index (only approved)
-        $projects = Project::where('approval_status', 'approved')
-            ->whereHas('designer', function($q) {
-                $q->where('is_admin', false)->where('is_active', true);
-            })
-            ->where(function ($q) use ($searchTerms, $query) {
-                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
-                  ->orWhere('title', 'LIKE', "%{$query}%")
-                  ->orWhere('category', 'LIKE', "%{$query}%");
-            })
-            ->with(['designer:id,name,avatar', 'images'])
-            ->limit(20)
-            ->get();
+        // Search projects (FULLTEXT with LIKE fallback)
+        try {
+            $projects = Project::where('approval_status', 'approved')
+                ->whereHas('designer', function($q) {
+                    $q->where('is_admin', false)->where('is_active', true);
+                })
+                ->where(function ($q) use ($searchTerms, $query) {
+                    $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                      ->orWhere('title', 'LIKE', "%{$query}%")
+                      ->orWhere('category', 'LIKE', "%{$query}%");
+                })
+                ->with(['designer:id,name,avatar', 'images'])
+                ->limit(20)
+                ->get();
+        } catch (\Throwable $e) {
+            $projects = Project::where('approval_status', 'approved')
+                ->where('title', 'LIKE', "%{$query}%")
+                ->with(['designer:id,name,avatar', 'images'])
+                ->limit(20)
+                ->get();
+        }
 
-        // Search products using FULLTEXT index (only approved)
-        $products = \App\Models\Product::where('approval_status', 'approved')
-            ->whereHas('designer', function($q) {
-                $q->where('is_admin', false)->where('is_active', true);
-            })
-            ->where(function ($q) use ($searchTerms, $query) {
-                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
-                  ->orWhere('title', 'LIKE', "%{$query}%")
-                  ->orWhere('category', 'LIKE', "%{$query}%");
-            })
-            ->with(['designer:id,name,avatar', 'images'])
-            ->limit(20)
-            ->get();
+        // Search products (FULLTEXT with LIKE fallback)
+        try {
+            $products = \App\Models\Product::where('approval_status', 'approved')
+                ->whereHas('designer', function($q) {
+                    $q->where('is_admin', false)->where('is_active', true);
+                })
+                ->where(function ($q) use ($searchTerms, $query) {
+                    $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                      ->orWhere('title', 'LIKE', "%{$query}%")
+                      ->orWhere('category', 'LIKE', "%{$query}%");
+                })
+                ->with(['designer:id,name,avatar', 'images'])
+                ->limit(20)
+                ->get();
+        } catch (\Throwable $e) {
+            $products = \App\Models\Product::where('approval_status', 'approved')
+                ->where('title', 'LIKE', "%{$query}%")
+                ->with(['designer:id,name,avatar', 'images'])
+                ->limit(20)
+                ->get();
+        }
 
-        // Search services (only approved)
-        $services = \App\Models\Service::where('approval_status', 'approved')
-            ->whereHas('designer', function($q) {
-                $q->where('is_admin', false)->where('is_active', true);
-            })
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'LIKE', "%{$query}%")
-                  ->orWhere('description', 'LIKE', "%{$query}%")
-                  ->orWhere('category', 'LIKE', "%{$query}%");
-            })
-            ->with('designer:id,name,avatar')
-            ->limit(10)
-            ->get();
+        // Search services (LIKE only, no FULLTEXT)
+        try {
+            $services = \App\Models\Service::where('approval_status', 'approved')
+                ->whereHas('designer', function($q) {
+                    $q->where('is_admin', false)->where('is_active', true);
+                })
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'LIKE', "%{$query}%")
+                      ->orWhere('description', 'LIKE', "%{$query}%")
+                      ->orWhere('category', 'LIKE', "%{$query}%");
+                })
+                ->with('designer:id,name,avatar')
+                ->limit(10)
+                ->get();
+        } catch (\Throwable $e) {
+            $services = collect();
+        }
 
-        // Search marketplace posts (only approved)
-        $marketplace = \App\Models\MarketplacePost::where('approval_status', 'approved')
-            ->whereHas('designer', function($q) {
-                $q->where('is_admin', false)->where('is_active', true);
-            })
-            ->where(function ($q) use ($searchTerms, $query) {
-                $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
-                  ->orWhere('title', 'LIKE', "%{$query}%");
-            })
-            ->with('designer:id,name,avatar')
-            ->limit(10)
-            ->get();
+        // Search marketplace posts (FULLTEXT with LIKE fallback)
+        try {
+            $marketplace = \App\Models\MarketplacePost::where('approval_status', 'approved')
+                ->whereHas('designer', function($q) {
+                    $q->where('is_admin', false)->where('is_active', true);
+                })
+                ->where(function ($q) use ($searchTerms, $query) {
+                    $q->whereRaw('MATCH(title, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerms])
+                      ->orWhere('title', 'LIKE', "%{$query}%");
+                })
+                ->with('designer:id,name,avatar')
+                ->limit(10)
+                ->get();
+        } catch (\Throwable $e) {
+            $marketplace = collect();
+        }
 
         // Total results count
         $totalResults = $designers->count() + $projects->count() + $products->count() + $services->count() + $marketplace->count();
@@ -245,18 +288,30 @@ class HomeController extends Controller
         $searchTerms = $this->buildBilingualSearch($query);
 
         // Search designers using FULLTEXT (limit to 4, excluding admin and inactive accounts)
-        $designers = Designer::where('is_admin', false)
-            ->where('is_active', true)
-            ->where('sector', '!=', 'guest')
-            ->where(function ($q) use ($searchTerms, $query) {
-                $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms]);
-                // Also LIKE search for short Arabic terms
-                $q->orWhere('name', 'LIKE', "%{$query}%")
-                  ->orWhere('company_name', 'LIKE', "%{$query}%");
-            })
-            ->select('id', 'name', 'sector', 'sub_sector', 'avatar')
-            ->limit(4)
-            ->get();
+        try {
+            $designers = Designer::where('is_admin', false)
+                ->where('is_active', true)
+                ->where('sector', '!=', 'guest')
+                ->where(function ($q) use ($searchTerms, $query) {
+                    try {
+                        $q->whereRaw('MATCH(name, bio, sector, sub_sector, city) AGAINST(? IN BOOLEAN MODE)', [$searchTerms]);
+                    } catch (\Throwable $e) {}
+                    $q->orWhere('name', 'LIKE', "%{$query}%");
+                    if (\Schema::hasColumn('designers', 'company_name')) {
+                        $q->orWhere('company_name', 'LIKE', "%{$query}%");
+                    }
+                })
+                ->select('id', 'name', 'sector', 'sub_sector', 'avatar')
+                ->limit(4)
+                ->get();
+        } catch (\Throwable $e) {
+            $designers = Designer::where('is_admin', false)
+                ->where('is_active', true)
+                ->where('name', 'LIKE', "%{$query}%")
+                ->select('id', 'name', 'sector', 'sub_sector', 'avatar')
+                ->limit(4)
+                ->get();
+        }
 
         // Search projects (limit to 4, only approved)
         $projects = Project::where('approval_status', 'approved')

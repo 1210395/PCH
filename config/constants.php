@@ -43,7 +43,7 @@ return [
     'FACEBOOK_AUTH' => 1,
     'LINKEDIN_AUTH' => 2,
     'GOOGLE_AUTH' => 3,
-    'IMG_RATIO' => 1.91,
+    'IMG_RATIO' => 1.33, // 4:3 standard ratio
     'EXT_ACCEPTED'=>".jpg,.png,.doc,.docx,.xlsx,.pdf,.ppt,.pptx,.xls,.mp3,.mp4,.wmv",
 
     'captcha_secret' => env('CAPTCHA_SECRET', ''),

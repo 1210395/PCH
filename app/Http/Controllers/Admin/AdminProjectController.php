@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Project;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -157,8 +158,7 @@ class AdminProjectController extends AdminBaseController
             foreach ($files as $file) {
                 if ($uploaded >= $availableSlots) break;
 
-                $filename = 'project_' . $project->id . '_' . time() . '_' . $uploaded . '.' . ($file->guessExtension() ?? $file->getClientOriginalExtension());
-                $path = $file->storeAs('projects', $filename, 'public');
+                $path = ImageService::process($file, ImageService::CARD, 'projects', 'project_' . $project->id . '_' . time() . '_' . $uploaded);
 
                 \App\Models\ProjectImage::create([
                     'project_id' => $project->id,

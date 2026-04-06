@@ -78,7 +78,8 @@
                 {{-- Post Image --}}
                 <div class="bg-white rounded-xl overflow-hidden shadow-sm">
                     @if($post->image)
-                        <div class="relative aspect-[16/9] overflow-hidden">
+                        <div class="relative aspect-[16/9] overflow-hidden cursor-pointer"
+                             @click="$dispatch('open-lightbox', { images: ['{{ url('media/' . $post->image) }}'], index: 0 })">
                             <x-optimized-image
                                 :src="url('media/' . $post->image)"
                                 :alt="$post->title"
@@ -1031,4 +1032,6 @@ function commentsSection() {
 }
 </script>
 @endpush
+
+<x-image-lightbox />
 @endsection

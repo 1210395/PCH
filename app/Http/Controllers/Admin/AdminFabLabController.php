@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\FabLab;
 use App\Models\Designer;
 use App\Http\Controllers\NotificationController;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -118,13 +119,13 @@ class AdminFabLabController extends AdminBaseController
 
         // Handle image uploads
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('fablabs', 'public');
+            $validated['image'] = ImageService::process($request->file('image'), ImageService::CARD, 'fablabs', 'fablab_' . time());
         } else {
             unset($validated['image']);
         }
 
         if ($request->hasFile('cover_image')) {
-            $validated['cover_image'] = $request->file('cover_image')->store('fablabs/covers', 'public');
+            $validated['cover_image'] = ImageService::process($request->file('cover_image'), ImageService::BANNER, 'fablabs/covers', 'fablab_cover_' . time());
         } else {
             unset($validated['cover_image']);
         }
@@ -248,7 +249,7 @@ class AdminFabLabController extends AdminBaseController
             if ($fablab->image) {
                 Storage::disk('public')->delete($fablab->image);
             }
-            $validated['image'] = $request->file('image')->store('fablabs', 'public');
+            $validated['image'] = ImageService::process($request->file('image'), ImageService::CARD, 'fablabs', 'fablab_' . time());
         } else {
             unset($validated['image']);
         }
@@ -258,7 +259,7 @@ class AdminFabLabController extends AdminBaseController
             if ($fablab->cover_image) {
                 Storage::disk('public')->delete($fablab->cover_image);
             }
-            $validated['cover_image'] = $request->file('cover_image')->store('fablabs/covers', 'public');
+            $validated['cover_image'] = ImageService::process($request->file('cover_image'), ImageService::BANNER, 'fablabs/covers', 'fablab_cover_' . time());
         } else {
             unset($validated['cover_image']);
         }
