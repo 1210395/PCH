@@ -6,7 +6,7 @@
     $headTitle = $sanitize($project->title ?? '');
     $headDescription = $sanitize($project->description ?? '');
     $headCategory = $sanitize($project->category ?? '');
-    $headDesignerName = $sanitize($project->designer->name ?? '');
+    $headDesignerName = $sanitize($project->designer?->name ?? '');
 @endphp
 @php
     $ogImage = $project->images->first() ? url('media/' . $project->images->first()->image_path) : url('media/images/logo.png');
@@ -70,9 +70,9 @@
     $projectTitle = $sanitize($project->title);
     $projectDescription = $sanitize($project->description);
     $projectRole = $sanitize($project->role);
-    $designerName = $sanitize($designer->name ?? '');
-    $designerTitle = $sanitize($designer->title ?? 'Creative Professional');
-    $designerCity = $sanitize($designer->city ?? '');
+    $designerName = $sanitize($designer?->name ?? '');
+    $designerTitle = $sanitize($designer?->title ?? 'Creative Professional');
+    $designerCity = $sanitize($designer?->city ?? '');
 
     // Check if user has liked this project
     $hasLiked = false;

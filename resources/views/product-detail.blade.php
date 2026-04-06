@@ -6,7 +6,7 @@
     $headTitle = $sanitize($product->name ?? $product->title ?? '');
     $headDescription = $sanitize($product->description ?? '');
     $headCategory = $sanitize($product->category ?? '');
-    $headDesignerName = $sanitize($product->designer->name ?? '');
+    $headDesignerName = $sanitize($product->designer?->name ?? '');
 @endphp
 @php
     $ogImage = $product->images->first() ? url('media/' . $product->images->first()->image_path) : url('media/images/logo.png');
@@ -68,9 +68,9 @@
     $productName = $sanitize($product->name ?? $product->title ?? '');
     $productDescription = $sanitize($product->description ?? '');
     $productCategory = $sanitize($product->category ?? '');
-    $designerName = $sanitize($designer->name ?? '');
-    $designerTitle = $sanitize($designer->title ?? 'Creative Professional');
-    $designerCity = $sanitize($designer->city ?? '');
+    $designerName = $sanitize($designer?->name ?? '');
+    $designerTitle = $sanitize($designer?->title ?? 'Creative Professional');
+    $designerCity = $sanitize($designer?->city ?? '');
 
     // Check if user has liked this product
     $hasLiked = false;
