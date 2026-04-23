@@ -77,10 +77,22 @@ class Tender extends Model
      */
     public function scopeClosingSoon($query)
     {
-        return $query->where('status', 'closing_soon')
-                     ->orWhere(function ($q) {
-                         $q->where('deadline', '>=', now()->toDateString())
-                           ->where('deadline', '<=', now()->addDays(14)->toDateString());
+        // Closing-soon = deadline within the next 14 days AND not already closed.
+        return $query->where('status', '!=', 'closed')
+                     ->whereNotNull('deadline')
+                     ->where('deadline', '>=', now()->toDateString())
+                     ->where('deadline', '<=', now()->addDays(14)->toDateString());
+    }
+
+    /**
+     * Scope for tenders still open (deadline in the future AND status !== closed).
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', '!=', 'closed')
+                     ->where(function($q){
+                         $q->whereNull('deadline')
+                           ->orWhere('deadline', '>=', now()->toDateString());
                      });
     }
 

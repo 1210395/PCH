@@ -37,6 +37,8 @@ function signupWizard() {
         customSkill: '',
         profileImagePreview: null,
         heroImagePreview: null,
+        heroImageUploading: false,
+        profileImageUploading: false,
         errors: {},
         isValidating: false,
         isNavigating: false, // Lock navigation during validation
@@ -180,17 +182,18 @@ function signupWizard() {
                     else if (field === 'bio') this.setError('bio', message);
                 });
 
-                // Navigate to the step with errors
+                // Navigate to the FIRST step that has errors so the user can
+                // fix them in order. Falls back to the wizard's last reached
+                // step (restored from localStorage) for un-mapped errors.
                 if (errors.first_name || errors.last_name || errors.email || errors.password) {
                     this.currentStep = 1;
                 } else if (errors.sector || errors.sub_sector) {
                     this.currentStep = 2;
-                } else if (errors.profile_image || errors.cover_image || errors.company_name || errors.position || errors.years_of_experience || errors.bio || errors.skills) {
+                } else if (errors.profile_image || errors.cover_image || errors.company_name || errors.position || errors.phone_number || errors.city || errors.address || errors.years_of_experience || errors.bio || errors.skills) {
                     this.currentStep = 3;
-                } else if (errors.error) {
-                    // General error - stay on step 1 to show the error alert
-                    this.currentStep = 1;
                 }
+                // else: don't force currentStep — keep wherever localStorage
+                // restored us so a generic error doesn't blow away progress.
 
                 // Scroll to top to show errors
                 window.scrollTo(0, 0);
@@ -833,6 +836,9 @@ function signupWizard() {
         },
 
         async handleProfileImageChange(event) {
+            // Immediate feedback while the upload runs
+            this.profileImageUploading = true;
+            try {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -849,12 +855,10 @@ function signupWizard() {
 
             // Only add preview if upload succeeded
             if (uploadedPath) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    this.profileImagePreview = reader.result;
-                };
-                reader.readAsDataURL(file);
+                // Instant local preview — no blocking base64 encode on main thread
+                this.profileImagePreview = URL.createObjectURL(file);
             }
+            } finally { this.profileImageUploading = false; }
         },
 
         async handleHeroImageChange(event) {
@@ -865,20 +869,25 @@ function signupWizard() {
             const validation = this.validateImageFile(file);
             if (!validation.valid) {
                 showToast('{{ __("Cover Image Error:") }} ' + validation.error, 'error');
-                event.target.value = ''; // Clear the file input
+                event.target.value = '';
                 return;
             }
 
-            // Upload FIRST, then show preview only if upload succeeds
-            const uploadedPath = await this.uploadImage(file, 'cover');
+            // Show the picked image immediately (before upload completes) so
+            // the user gets instant feedback — the "site frozen" symptom was
+            // waiting for the upload with no visible indication.
+            // Instant local preview using an object URL (no base64 encoding of the file)
+            this.heroImagePreview = URL.createObjectURL(file);
+            this.heroImageUploading = true;
 
-            // Only add preview if upload succeeded
-            if (uploadedPath) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    this.heroImagePreview = reader.result;
-                };
-                reader.readAsDataURL(file);
+            try {
+                const uploadedPath = await this.uploadImage(file, 'cover');
+                if (!uploadedPath) {
+                    // Upload failed — clear the optimistic preview
+                    this.heroImagePreview = null;
+                }
+            } finally {
+                this.heroImageUploading = false;
             }
         },
 
@@ -1008,14 +1017,8 @@ function signupWizard() {
                 // Only add preview if upload succeeded
                 if (uploadedPath) {
                     // Read file and show preview
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        product.images.push({
-                            id: imageId,
-                            preview: reader.result
-                        });
-                    };
-                    reader.readAsDataURL(file);
+                    // Use object URL for instant preview (no main-thread base64 encoding)
+                    product.images.push({ id: imageId, preview: URL.createObjectURL(file) });
 
                     product.imagePaths.push(uploadedPath);
                 } else {
@@ -1129,14 +1132,8 @@ function signupWizard() {
                 // Only add preview if upload succeeded
                 if (uploadedPath) {
                     // Read file and show preview
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        project.images.push({
-                            id: imageId,
-                            preview: reader.result
-                        });
-                    };
-                    reader.readAsDataURL(file);
+                    // Use object URL for instant preview (no main-thread base64 encoding)
+                    project.images.push({ id: imageId, preview: URL.createObjectURL(file) });
 
                     project.imagePaths.push(uploadedPath);
                 } else {
@@ -1741,11 +1738,14 @@ function signupWizard() {
             // Add uploaded paths as hidden inputs to the form
             this.addUploadedPathsToForm();
 
-            // Clear localStorage before submitting (success)
-            this.clearLocalStorage();
-
-            // Clear upload session after successful submit
-            localStorage.removeItem('uploadSessionId');
+            // Mark that a submit attempt is in progress. localStorage is
+            // INTENTIONALLY left intact so that if the server bounces the
+            // request back with validation errors, the user keeps every
+            // step they completed (was: cleared here, then reset to step 1
+            // on bounce-back, looking like the wizard 'restarted').
+            // The success page (auth/register-success.blade.php) clears
+            // localStorage once the registration is confirmed.
+            sessionStorage.setItem('signupSubmitInProgress', '1');
 
             // Submit the form
             document.getElementById('registrationForm').submit();

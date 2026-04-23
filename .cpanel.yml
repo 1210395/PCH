@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    - export DEPLOY_PATH=/home/technopark/public_html/PalestineCreativeHub
+    - /bin/rsync -av --exclude='.git/' --exclude='.cpanel.yml' --exclude='node_modules/.vite/' --exclude='storage/' --exclude='.env' --exclude='storage.zip' ./ $DEPLOY_PATH/
+    - cd $DEPLOY_PATH && /opt/cpanel/ea-php82/root/usr/bin/php artisan view:clear
+    - cd $DEPLOY_PATH && /opt/cpanel/ea-php82/root/usr/bin/php artisan config:clear
+    - cd $DEPLOY_PATH && /opt/cpanel/ea-php82/root/usr/bin/php artisan route:clear
+    - cd $DEPLOY_PATH && /opt/cpanel/ea-php82/root/usr/bin/php artisan cache:clear

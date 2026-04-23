@@ -715,7 +715,11 @@ class AdminAnalyticsController extends AdminBaseController
 
         // ---- Engagement trends (monthly views + likes using event tables) ----
         // Views: use project_views table (only table with per-event timestamps)
-        $viewsByMonth = ProjectView::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+        // Use PageVisit as the source of truth for content views — project_views
+        // table is not deployed but PageVisit tracks every content-detail hit
+        // via the TrackPageVisit middleware.
+        $viewsByMonth = PageVisit::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+            ->whereIn('page_key', ['project_detail', 'product_detail', 'service_detail', 'marketplace_detail', 'designer_profile'])
             ->when($dateFrom, fn($q) => $q->where('created_at', '>=', $dateFrom))
             ->when($endOfDay, fn($q) => $q->where('created_at', '<=', $endOfDay))
             ->groupBy('month')

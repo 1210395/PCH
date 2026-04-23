@@ -32,9 +32,13 @@ class TenderController extends Controller
         // be visible in both locales regardless of title language.
         $query = Tender::visible();
 
-        // Filter by status
+        // Filter by status: when the user explicitly picks one, honour it;
+        // otherwise default to Active (exclude closed + past-deadline) so
+        // expired entries don't leak into the public feed.
         if (!empty($validated['status']) && $validated['status'] !== 'all') {
             $query->byStatus($validated['status']);
+        } else {
+            $query->active();
         }
 
         // Filter by publisher type

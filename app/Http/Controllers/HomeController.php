@@ -371,12 +371,12 @@ class HomeController extends Controller
                 $q->where('is_admin', false)->where('is_active', true);
             })
             ->where(function ($q) use ($query) {
-                $q->where('title', 'LIKE', "%{$query}%")
+                $q->where('name', 'LIKE', "%{$query}%")
                   ->orWhere('description', 'LIKE', "%{$query}%")
                   ->orWhere('category', 'LIKE', "%{$query}%");
             })
             ->with('designer:id,name')
-            ->select('id', 'title', 'designer_id', 'category', 'approval_status')
+            ->select('id', 'name as title', 'designer_id', 'category', 'approval_status')
             ->limit(3)
             ->get()
             ->map(function($service) {

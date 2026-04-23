@@ -53,6 +53,12 @@
                         <div>
                             <div class="flex items-center justify-center md:justify-start gap-2 mb-1 sm:mb-2">
                                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{{ $designer->name }}</h1>
+                                @if($designer->is_trusted)
+                                    <span class="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold bg-blue-100 text-blue-700 border border-blue-200" title="{{ __('Trusted member — verified by admin') }}">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    {{ __('Trusted') }}
+                                </span>
+                                @endif
                                 @if($designer->is_tevet && in_array($designer->sector, ['manufacturer', 'showroom']))
                                     <span class="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold bg-purple-100 text-purple-700 border border-purple-200">
                                         <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">

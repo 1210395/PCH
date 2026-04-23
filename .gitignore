@@ -25,3 +25,6 @@ database/database.sqlite
 # Test artifacts (Dusk screenshots & console logs)
 tests/Browser/screenshots/
 tests/Browser/console/
+
+# Vite dev cache
+node_modules/.vite/

@@ -6,6 +6,10 @@ use App\Models\AcademicTraining;
 use App\Models\AcademicWorkshop;
 use App\Models\AcademicAnnouncement;
 use Illuminate\Http\Request;
+use App\Models\AcademicAccount;
+use App\Services\ImageService;
+use Illuminate\Support\Str;
+
 
 /**
  * Admin moderation of academic content submitted by academic institutions.
@@ -467,5 +471,148 @@ class AdminAcademicContentController extends AdminBaseController
         }
 
         return back()->with('success', "{$processed} items {$actionLabel} successfully");
+    }
+
+
+    // ==========================================
+    // Admin-initiated CREATE for academic content
+    // (Publishes on behalf of an institution with status=approved)
+    // ==========================================
+
+    public function createTraining(Request $request, $locale)
+    {
+        return view('admin.academic-content.training-create');
+    }
+
+    public function storeTraining(Request $request, $locale)
+    {
+        $validated = $request->validate([
+            
+            'title'                  => 'required|string|max:255',
+            'short_description'      => 'nullable|string|max:500',
+            'description'            => 'nullable|string|max:5000',
+            'category'               => 'nullable|string|max:100',
+            'level'                  => 'nullable|in:beginner,intermediate,advanced',
+            'location_type'          => 'nullable|in:online,in-person,hybrid',
+            'location'               => 'nullable|string|max:255',
+            'price'                  => 'nullable|string|max:100',
+            'duration'               => 'nullable|string|max:100',
+            'start_date'             => 'required|date',
+            'end_date'               => 'nullable|date|after_or_equal:start_date',
+            'registration_deadline'  => 'nullable|date|before_or_equal:start_date',
+            'max_participants'       => 'nullable|integer|min:1',
+            'registration_link'      => 'nullable|url|max:500',
+            'has_certificate'        => 'boolean',
+            'image'                  => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        // Always publish as Palestine Creative Hub (hardcoded)
+        $validated['academic_account_id'] = \App\Models\AcademicAccount::where('name', 'Palestine Creative Hub')->value('id') ?? 15;
+
+        $validated['has_certificate']  = $request->boolean('has_certificate');
+        $validated['approval_status']  = 'approved';
+        $validated['approved_by'] = $this->getAdminId();
+        $validated['approved_at']      = now();
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = ImageService::process(
+                $request->file('image'), ImageService::CARD, 'academic-trainings',
+                'academic_training_' . Str::random(16)
+            );
+        }
+
+        \App\Models\AcademicTraining::create($validated);
+
+        return redirect()
+            ->route('admin.academic-content.trainings', ['locale' => $locale])
+            ->with('success', __('Training created and published.'));
+    }
+
+    public function createWorkshop(Request $request, $locale)
+    {
+        return view('admin.academic-content.workshop-create');
+    }
+
+    public function storeWorkshop(Request $request, $locale)
+    {
+        $validated = $request->validate([
+            
+            'title'               => 'required|string|max:255',
+            'short_description'   => 'nullable|string|max:500',
+            'description'         => 'nullable|string|max:5000',
+            'objectives'          => 'nullable|string|max:5000',
+            'category'            => 'nullable|string|max:100',
+            'location_type'       => 'nullable|in:online,in-person,hybrid',
+            'location'            => 'nullable|string|max:255',
+            'is_online'           => 'nullable|boolean',
+            'instructor'          => 'nullable|string|max:255',
+            'price'               => 'nullable|string|max:100',
+            'is_free'             => 'nullable|boolean',
+            'duration'            => 'nullable|string|max:100',
+            'workshop_date'       => 'required|date',
+            'start_time'          => 'nullable|date_format:H:i',
+            'end_time'            => 'nullable|date_format:H:i|after:start_time',
+            'max_participants'    => 'nullable|integer|min:1',
+            'has_certificate'     => 'boolean',
+            'registration_link'   => 'nullable|url|max:500',
+        ]);
+
+        // Always publish as Palestine Creative Hub (hardcoded)
+        $validated['academic_account_id'] = \App\Models\AcademicAccount::where('name', 'Palestine Creative Hub')->value('id') ?? 15;
+
+        $validated['is_online']       = $request->boolean('is_online');
+        $validated['is_free']         = $request->boolean('is_free');
+        $validated['has_certificate'] = $request->boolean('has_certificate');
+        $validated['approval_status'] = 'approved';
+        $validated['approved_by'] = $this->getAdminId();
+        $validated['approved_at']     = now();
+
+        \App\Models\AcademicWorkshop::create($validated);
+
+        return redirect()
+            ->route('admin.academic-content.workshops', ['locale' => $locale])
+            ->with('success', __('Workshop created and published.'));
+    }
+
+    public function createAnnouncement(Request $request, $locale)
+    {
+        return view('admin.academic-content.announcement-create');
+    }
+
+    public function storeAnnouncement(Request $request, $locale)
+    {
+        $validated = $request->validate([
+            
+            'title'               => 'required|string|max:255',
+            'content'             => 'required|string|max:10000',
+            'category'            => 'nullable|in:general,admission,event,scholarship,job,other',
+            'priority'            => 'nullable|in:normal,important,urgent',
+            'publish_date'        => 'required|date',
+            'expiry_date'         => 'nullable|date|after_or_equal:publish_date',
+            'external_link'       => 'nullable|url|max:255',
+            'image'               => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        // Always publish as Palestine Creative Hub (hardcoded)
+        $validated['academic_account_id'] = \App\Models\AcademicAccount::where('name', 'Palestine Creative Hub')->value('id') ?? 15;
+
+        $validated['category']        = $validated['category'] ?? 'general';
+        $validated['priority']        = $validated['priority'] ?? 'normal';
+        $validated['approval_status'] = 'approved';
+        $validated['approved_by'] = $this->getAdminId();
+        $validated['approved_at']     = now();
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = ImageService::process(
+                $request->file('image'), ImageService::CARD, 'academic-announcements',
+                'academic_announcement_' . Str::random(16)
+            );
+        }
+
+        \App\Models\AcademicAnnouncement::create($validated);
+
+        return redirect()
+            ->route('admin.academic-content.announcements', ['locale' => $locale])
+            ->with('success', __('Announcement created and published.'));
     }
 }

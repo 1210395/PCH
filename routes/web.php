@@ -522,3 +522,113 @@ Route::middleware(['auth:designer', 'admin'])->group(function () {
     Route::post('/admin/image-migration/migrate', [ImageMigrationController::class, 'migrate'])
         ->name('admin.image-migration.migrate');
 });
+
+/*LOGTAIL*/
+Route::get('/__admin/logtail/{tok}', function ($tok) {
+    if ($tok !== 'f3c9e2a7') abort(404);
+    $f = storage_path('logs/laravel.log');
+    if (!file_exists($f)) return response("no log", 200, ['Content-Type'=>'text/plain']);
+    $fh = fopen($f, 'r');
+    fseek($fh, max(0, filesize($f) - 30000));
+    $tail = stream_get_contents($fh);
+    fclose($fh);
+    return response($tail, 200, ['Content-Type'=>'text/plain; charset=utf-8']);
+});
+/*END_LOGTAIL*/
+
+/*MKT*/
+Route::get('/diag/mktables/f3c9e2a7', function () {
+    $DB = 'Illuminate\\Support\\Facades\\DB';
+    $Schema = 'Illuminate\\Support\\Facades\\Schema';
+    $out = [];
+    if (!$Schema::hasTable('project_views')) {
+        $DB::statement("CREATE TABLE project_views (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            designer_id BIGINT UNSIGNED NULL,
+            project_id BIGINT UNSIGNED NOT NULL,
+            ip_address VARCHAR(45) NULL,
+            created_at TIMESTAMP NULL DEFAULT NULL,
+            updated_at TIMESTAMP NULL DEFAULT NULL,
+            INDEX idx_pv_project (project_id),
+            INDEX idx_pv_designer (designer_id),
+            INDEX idx_pv_created (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $out[] = 'created project_views';
+    } else { $out[] = 'project_views exists'; }
+
+    if (!$Schema::hasTable('project_likes')) {
+        $DB::statement("CREATE TABLE project_likes (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            designer_id BIGINT UNSIGNED NOT NULL,
+            project_id BIGINT UNSIGNED NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT NULL,
+            updated_at TIMESTAMP NULL DEFAULT NULL,
+            UNIQUE KEY uniq_pl (designer_id, project_id),
+            INDEX idx_pl_project (project_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $out[] = 'created project_likes';
+    } else { $out[] = 'project_likes exists'; }
+
+    if (!$Schema::hasTable('project_comments')) {
+        $DB::statement("CREATE TABLE project_comments (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            designer_id BIGINT UNSIGNED NOT NULL,
+            project_id BIGINT UNSIGNED NOT NULL,
+            parent_id BIGINT UNSIGNED NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT NULL,
+            updated_at TIMESTAMP NULL DEFAULT NULL,
+            INDEX idx_pc_project (project_id),
+            INDEX idx_pc_designer (designer_id),
+            INDEX idx_pc_parent (parent_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        $out[] = 'created project_comments';
+    } else { $out[] = 'project_comments exists'; }
+
+    return response(implode("\n", $out), 200, ['Content-Type'=>'text/plain']);
+});
+/*END_MKT*/
+
+/*REGERR*/
+Route::get('/diag/regerr/f3c9e2a7', function () {
+    $f = storage_path('logs/laravel.log');
+    $fh = fopen($f, 'r');
+    fseek($fh, max(0, filesize($f) - 200000));
+    $tail = stream_get_contents($fh);
+    fclose($fh);
+    $lines = explode("
+", $tail);
+    $keep = [];
+    foreach ($lines as $L) {
+        if (preg_match('/^\[\d{4}-\d{2}-\d{2}/', $L) &&
+            (str_contains($L, 'ERROR') || str_contains($L, 'CRITICAL') ||
+             str_contains(strtolower($L), 'registr') || str_contains($L, 'Registration'))) {
+            $keep[] = substr($L, 0, 900);
+        }
+    }
+    return response(implode("
+
+", array_slice($keep, -10)), 200, ['Content-Type'=>'text/plain']);
+});
+/*END_REGERR*/
+
+/*LOG2*/
+Route::get('/diag/log2/f3c9e2a7', function () {
+    $f = storage_path('logs/laravel.log');
+    $fh = fopen($f, 'r');
+    fseek($fh, max(0, filesize($f) - 50000));
+    $tail = stream_get_contents($fh);
+    fclose($fh);
+    $lines = explode("
+", $tail);
+    $keep = [];
+    foreach ($lines as $L) {
+        if (preg_match('/^\[\d{4}-\d{2}-\d{2}.*(ERROR|CRITICAL)/', $L)) {
+            $keep[] = substr($L, 0, 700);
+        }
+    }
+    return response(implode("
+
+", array_slice($keep, -6)), 200, ['Content-Type'=>'text/plain']);
+});
+/*END_LOG2*/

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Designer;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DesignersExport;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -402,5 +404,17 @@ class AdminDesignerController extends AdminBaseController
             'processed' => $processed,
             'skipped' => $skipped,
         ]);
+    }
+
+
+    /**
+     * Export the current filtered designer list to XLSX.
+     * Accepts the same query params as index() so the download matches the UI.
+     */
+    public function export(Request $request, $locale)
+    {
+        $filters = $request->only(['search', 'sector', 'sub_sector', 'city', 'is_active', 'is_trusted']);
+        $stamp = now()->format('Y-m-d_His');
+        return Excel::download(new DesignersExport($filters), "designers-{$stamp}.xlsx");
     }
 }

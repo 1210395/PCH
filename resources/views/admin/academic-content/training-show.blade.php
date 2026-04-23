@@ -153,7 +153,7 @@
                     @if($training->price)
                         <div>
                             <p class="text-sm text-gray-500">{{ __('Price') }}</p>
-                            <p class="font-medium text-gray-800">{{ $training->is_free ? __('Free') : '$' . number_format($training->price, 2) }}</p>
+                            <p class="font-medium text-gray-800">{{ $training->is_free ? __('Free') : '$' . number_format((float) $training->price, 2) }}</p>
                         </div>
                     @endif
                     @if($training->registration_link)

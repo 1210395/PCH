@@ -95,7 +95,7 @@ class AdminAcademicAccountController extends AdminBaseController
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:academic_accounts,email',
+            'email' => ['required','email','unique:academic_accounts,email', function ($attribute, $value, $fail) { if (\App\Models\Designer::whereRaw('LOWER(email) = ?', [strtolower($value)])->exists()) { $fail(__('This email is already registered as a designer account.')); } }],
             'password' => 'required|string|min:8',
             'institution_type' => 'required|in:university,tvet,college,ebdc,other',
             'description' => 'nullable|string|max:2000',
@@ -192,7 +192,7 @@ class AdminAcademicAccountController extends AdminBaseController
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:academic_accounts,email,' . $id,
+            'email' => ['required','email','unique:academic_accounts,email,' . $id, function ($attribute, $value, $fail) { if (\App\Models\Designer::whereRaw('LOWER(email) = ?', [strtolower($value)])->exists()) { $fail(__('This email is already registered as a designer account.')); } }],
             'institution_type' => 'required|in:university,tvet,college,ebdc,other',
             'description' => 'nullable|string|max:2000',
             'website' => 'nullable|url|max:255',

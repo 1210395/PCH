@@ -63,6 +63,7 @@ Route::prefix('{locale}/admin')
         // Designers (Accounts) Management
         Route::prefix('designers')->name('admin.designers.')->group(function () {
             Route::get('/', [AdminDesignerController::class, 'index'])->name('index');
+            Route::get('/export', [AdminDesignerController::class, 'export'])->name('export');
             Route::get('/{id}', [AdminDesignerController::class, 'show'])->name('show')->where('id', '[0-9]+');
             Route::get('/{id}/edit', [AdminDesignerController::class, 'edit'])->name('edit')->where('id', '[0-9]+');
             Route::put('/{id}', [AdminDesignerController::class, 'update'])->name('update')->where('id', '[0-9]+');
@@ -233,6 +234,8 @@ Route::prefix('{locale}/admin')
         Route::prefix('academic-content')->name('admin.academic-content.')->group(function () {
             // Trainings
             Route::get('/trainings', [AdminAcademicContentController::class, 'trainings'])->name('trainings');
+            Route::get('/trainings/create', [AdminAcademicContentController::class, 'createTraining'])->name('trainings.create');
+            Route::post('/trainings', [AdminAcademicContentController::class, 'storeTraining'])->name('trainings.store');
             Route::get('/trainings/{id}', [AdminAcademicContentController::class, 'showTraining'])->name('trainings.show')->where('id', '[0-9]+');
             Route::post('/trainings/{id}/approve', [AdminAcademicContentController::class, 'approveTraining'])->name('trainings.approve')->where('id', '[0-9]+');
             Route::post('/trainings/{id}/reject', [AdminAcademicContentController::class, 'rejectTraining'])->name('trainings.reject')->where('id', '[0-9]+');
@@ -240,6 +243,8 @@ Route::prefix('{locale}/admin')
 
             // Workshops
             Route::get('/workshops', [AdminAcademicContentController::class, 'workshops'])->name('workshops');
+            Route::get('/workshops/create', [AdminAcademicContentController::class, 'createWorkshop'])->name('workshops.create');
+            Route::post('/workshops', [AdminAcademicContentController::class, 'storeWorkshop'])->name('workshops.store');
             Route::get('/workshops/{id}', [AdminAcademicContentController::class, 'showWorkshop'])->name('workshops.show')->where('id', '[0-9]+');
             Route::post('/workshops/{id}/approve', [AdminAcademicContentController::class, 'approveWorkshop'])->name('workshops.approve')->where('id', '[0-9]+');
             Route::post('/workshops/{id}/reject', [AdminAcademicContentController::class, 'rejectWorkshop'])->name('workshops.reject')->where('id', '[0-9]+');
@@ -247,6 +252,8 @@ Route::prefix('{locale}/admin')
 
             // Announcements
             Route::get('/announcements', [AdminAcademicContentController::class, 'announcements'])->name('announcements');
+            Route::get('/announcements/create', [AdminAcademicContentController::class, 'createAnnouncement'])->name('announcements.create');
+            Route::post('/announcements', [AdminAcademicContentController::class, 'storeAnnouncement'])->name('announcements.store');
             Route::get('/announcements/{id}', [AdminAcademicContentController::class, 'showAnnouncement'])->name('announcements.show')->where('id', '[0-9]+');
             Route::post('/announcements/{id}/approve', [AdminAcademicContentController::class, 'approveAnnouncement'])->name('announcements.approve')->where('id', '[0-9]+');
             Route::post('/announcements/{id}/reject', [AdminAcademicContentController::class, 'rejectAnnouncement'])->name('announcements.reject')->where('id', '[0-9]+');

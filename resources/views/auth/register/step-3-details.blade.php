@@ -12,6 +12,14 @@
         <div
             @click="$refs.profileImageInput.click()"
             class="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-blue-600 to-green-500 flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:opacity-90 hover:scale-105 transition-all duration-300 group relative flex-shrink-0">
+            <template x-if="profileImageUploading">
+                <div class="absolute inset-0 bg-white bg-opacity-75 rounded-full flex items-center justify-center z-10 pointer-events-none">
+                    <svg class="animate-spin h-8 w-8 text-blue-600" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </template>
             <template x-if="profileImagePreview">
                 <div class="relative w-full h-full">
                     <img :src="profileImagePreview" alt="{{ __('Profile') }}" class="w-full h-full object-cover">
@@ -54,11 +62,23 @@
                         <!-- Hero/Cover Image Upload -->
                         <div>
     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Hero Image (Cover Photo)') }}</label>
-    <div class="mt-2">
+    <div class="mt-2 relative">
         <div
             @click="$refs.coverImageInput.click()"
             :class="errors.cover_image ? 'border-red-500' : 'border-gray-300'"
             class="w-full h-32 sm:h-40 md:h-48 rounded-lg overflow-hidden bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all duration-300 group">
+            <!-- Upload-in-progress overlay -->
+            <template x-if="heroImageUploading">
+                <div class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-10 rounded-lg" style="backdrop-filter: blur(2px);">
+                    <div class="flex flex-col items-center gap-2 text-blue-700">
+                        <svg class="animate-spin h-10 w-10" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-sm font-medium">{{ __('Uploading…') }}</p>
+                    </div>
+                </div>
+            </template>
             <template x-if="heroImagePreview">
                 <div class="relative w-full h-full">
                     <img :src="heroImagePreview" alt="{{ __('Hero') }}" class="w-full h-full object-cover">

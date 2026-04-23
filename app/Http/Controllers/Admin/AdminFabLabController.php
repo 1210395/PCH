@@ -67,9 +67,16 @@ class AdminFabLabController extends AdminBaseController
 
         $fablabs = $query->paginate(20)->withQueryString();
 
-        // Get cities and types for filter dropdowns from database options
-        $cities = \App\Helpers\DropdownHelper::cities();
-        $types = \App\Helpers\DropdownHelper::fablabTypes();
+        // Get cities and types from DISTINCT values in fab_labs so the
+        // filters always match the actual data (the central dropdown
+        // options do not reflect the free-text values seeded into fab_labs).
+        $cities = \Illuminate\Support\Facades\DB::table('fab_labs')
+            ->whereNotNull('city')->where('city', '!=', '')
+            ->distinct()->orderBy('city')->pluck('city')->all();
+        $typeValues = \Illuminate\Support\Facades\DB::table('fab_labs')
+            ->whereNotNull('type')->where('type', '!=', '')
+            ->distinct()->orderBy('type')->pluck('type')->all();
+        $types = array_map(fn($v) => ['value' => $v, 'label' => ucwords(str_replace(['_','___'], ' ', $v))], $typeValues);
 
         if ($request->expectsJson()) {
             return $this->jsonResponse([

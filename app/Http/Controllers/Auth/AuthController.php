@@ -220,6 +220,10 @@ class AuthController extends Controller
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:designers', function ($attribute, $value, $fail) {
                     // Prevent +alias email trick (user+tag@gmail.com registers as same user@gmail.com)
                     $normalized = preg_replace('/\+[^@]*@/', '@', strtolower($value));
+                    if (\App\Models\AcademicAccount::whereRaw('LOWER(email) = ?', [strtolower($value)])->exists()) {
+                        $fail(__('This email is already registered as an academic account.'));
+                        return;
+                    }
                     $exists = \App\Models\Designer::whereRaw(
                         "LOWER(CONCAT(SUBSTRING_INDEX(SUBSTRING_INDEX(email, '@', 1), '+', 1), '@', SUBSTRING_INDEX(email, '@', -1))) = ?",
                         [$normalized]
@@ -380,6 +384,11 @@ class AuthController extends Controller
                 'title' => $validated['position'] ?? null, // Use position as title
                 // email_verified_at left null - user must verify via email link
                 // is_active is set by Designer model boot method based on admin auto-accept setting
+                // Privacy: email & phone visibility default to ENABLED on signup so the
+                // public profile is reachable out of the box. Users can turn either off
+                // later from /account/settings.
+                'show_email' => 1,
+                'show_phone' => 1,
             ]);
 
             // DEBUG: Log what was actually saved
@@ -751,34 +760,10 @@ class AuthController extends Controller
                             'name' => $service['name'],
                             'description' => $service['description'],
                             'category' => $service['category'],
-                            'image' => '', // Will be updated after image processing
                         ]);
 
-                        $serviceImage = '';
-
-                        // Use pre-uploaded path or upload now with structured naming
-                        if (!empty($service['image_path'])) {
-                            $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
-                            // Structured naming: service_123.jpg
-                            $serviceImage = $imageUploader->moveToPermStorage(
-                                $service['image_path'],
-                                'service',
-                                $designer->id,
-                                $createdService->id // Use service ID for structured naming
-                            );
-                        } elseif ($request->hasFile("services.{$index}.image")) {
-                            $serviceImage = \App\Services\ImageService::process(
-                                $request->file("services.{$index}.image"),
-                                \App\Services\ImageService::CARD,
-                                'services',
-                                "service_{$createdService->id}"
-                            );
-                        }
-
-                        // Update service with image path
-                        if ($serviceImage) {
-                            $createdService->update(['image' => $serviceImage]);
-                        }
+                        // Services are text-only on this platform — any uploaded image
+                        // from the wizard is ignored to keep the DB schema correct.
 
                         $servicesCount++;
                     }

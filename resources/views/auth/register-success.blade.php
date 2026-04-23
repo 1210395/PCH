@@ -186,4 +186,13 @@
             animation: checkmark 0.6s ease-in-out 0.3s forwards;
         }
     </style>
+<script>
+    // Registration succeeded — wipe the wizard's saved state so the
+    // user doesn't reload an old draft if they ever revisit /register.
+    try {
+        localStorage.removeItem('signupWizardData');
+        localStorage.removeItem('uploadSessionId');
+        sessionStorage.removeItem('signupSubmitInProgress');
+    } catch (e) {}
+</script>
 @endsection

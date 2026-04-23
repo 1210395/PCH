@@ -135,6 +135,9 @@ class AdminServiceController extends AdminBaseController
             'name' => strip_tags($request->input('name')),
             'description' => strip_tags($request->input('description', '')),
             'category' => strip_tags($request->input('category', '')),
+            'approval_status' => 'approved',
+            'approved_by_admin_id' => $this->getAdminId(),
+            'approved_at' => now(),
         ]);
 
         return $this->successResponse('Service updated successfully', $service->fresh());

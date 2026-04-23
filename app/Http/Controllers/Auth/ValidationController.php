@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Designer;
+use App\Models\AcademicAccount;
 use Illuminate\Http\Request;
 
 /**
@@ -38,6 +39,11 @@ class ValidationController extends Controller
         $exists = Designer::whereRaw('LOWER(email) = ?', [$inputEmail])
             ->orWhereRaw("LOWER(REPLACE(SUBSTRING_INDEX(email, '+', 1), '', '') || '@' || SUBSTRING_INDEX(email, '@', -1)) = ?", [$normalizedEmail])
             ->exists();
+
+        // Also block if an academic account exists with the same email (cross-guard uniqueness)
+        if (!$exists) {
+            $exists = AcademicAccount::whereRaw('LOWER(email) = ?', [$inputEmail])->exists();
+        }
 
         // Simpler fallback: also check if stripping + from all existing emails matches
         if (!$exists && str_contains($email, '+')) {
