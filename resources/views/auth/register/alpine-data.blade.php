@@ -1625,6 +1625,18 @@ function signupWizard() {
             }
         },
 
+        // Visible steps in the wizard. Steps 4 (Products), 5 (Projects), and
+        // 6 (Services) are intentionally skipped — those are managed from
+        // the designer dashboard after registration.
+        get visibleSteps() {
+            return this.steps.filter(s => s.number === 1 || s.number === 2 || s.number === 3 || s.number === 7);
+        },
+
+        get visibleStepIndex() {
+            const idx = this.visibleSteps.findIndex(s => s.number === this.currentStep);
+            return idx === -1 ? 0 : idx;
+        },
+
         async nextStep() {
             // Prevent concurrent navigation
             if (this.isNavigating) return;
@@ -1638,12 +1650,12 @@ function signupWizard() {
                         this.completedSteps.push(this.currentStep);
                     }
 
-                    // Clean up empty items before leaving steps 4, 5, or 6
-                    if (this.currentStep === 4 || this.currentStep === 5 || this.currentStep === 6) {
-                        this.cleanupEmptyItems();
+                    // Skip 4/5/6 — go straight from Profile Details (3) to Review (7)
+                    if (this.currentStep === 3) {
+                        this.currentStep = 7;
+                    } else {
+                        this.currentStep++;
                     }
-
-                    this.currentStep++;
 
                     // Focus management after step change
                     setTimeout(() => {
@@ -1661,32 +1673,27 @@ function signupWizard() {
 
         prevStep() {
             if (this.currentStep > 1) {
-                // Guest users go back from Review (step 7) to Profile Type (step 2)
-                if (this.formData.sector === 'guest' && this.currentStep === 7) {
-                    // Guest users skip steps 4-6 (Products, Projects, Services)
-                    // Jump directly from Review (7) to Profile Type (2)
-                    this.currentStep = 2;
-
-                    // Clear sector and sub-sector so they can choose something else
-                    this.formData.sector = '';
-                    this.formData.subSector = '';
-                    this.formData.hasShowroom = '';
-
-                    // Dispatch event to clear the combobox displays
-                    this.$nextTick(() => {
-                        this.$el.dispatchEvent(new CustomEvent('sector-cleared', { bubbles: true }));
-                    });
-
+                // From Review (7), everyone goes back to Profile Details (3) —
+                // steps 4/5/6 are skipped in this build. Guests additionally
+                // get their sector reset so they can re-choose.
+                if (this.currentStep === 7) {
+                    if (this.formData.sector === 'guest') {
+                        this.currentStep = 2;
+                        this.formData.sector = '';
+                        this.formData.subSector = '';
+                        this.formData.hasShowroom = '';
+                        this.$nextTick(() => {
+                            this.$el.dispatchEvent(new CustomEvent('sector-cleared', { bubbles: true }));
+                        });
+                    } else {
+                        this.currentStep = 3;
+                    }
                     this.clearErrors();
                     window.scrollTo(0, 0);
                     this.saveToLocalStorage();
                     return;
                 }
 
-                // Clean up empty items before going back from Review step
-                if (this.currentStep === 7) {
-                    this.cleanupEmptyItems();
-                }
                 this.currentStep--;
                 this.clearErrors(); // Clear errors when going back
                 window.scrollTo(0, 0);
@@ -2219,15 +2226,15 @@ function signupWizard() {
         // ============================================================
 
         async goToStep(targetStep) {
+            // Steps 4/5/6 are skipped in this build — ignore clicks targeting them
+            if (targetStep === 4 || targetStep === 5 || targetStep === 6) {
+                return;
+            }
+
             // Can only go back to completed steps
             if (targetStep > this.currentStep) {
                 showToast('{{ __("Please complete the current step first before moving forward.") }}', 'warning');
                 return;
-            }
-
-            // Clean up empty items when leaving product/project/service steps
-            if (this.currentStep === 4 || this.currentStep === 5 || this.currentStep === 6) {
-                this.cleanupEmptyItems();
             }
 
             // Clear errors and go to step

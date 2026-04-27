@@ -57,17 +57,7 @@
                     {{ __('Thank you for joining Palestine Creative Hub. Your account has been created successfully!') }}
                 </p>
 
-                @if(session('registration_stats'))
-                    @php $stats = session('registration_stats'); @endphp
-                    <div class="bg-gray-50 rounded-lg p-4 mb-4 text-left">
-                        <p class="text-sm text-gray-600 mb-2 font-medium">{{ __('Items saved:') }}</p>
-                        <div class="flex gap-4 justify-center text-sm">
-                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded">{{ $stats['products'] ?? 0 }} {{ __('Products') }}</span>
-                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded">{{ $stats['projects'] ?? 0 }} {{ __('Projects') }}</span>
-                            <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded">{{ $stats['services'] ?? 0 }} {{ __('Services') }}</span>
-                        </div>
-                    </div>
-                @endif
+                {{-- Products/Projects/Services stats hidden — those steps are skipped at registration. --}}
 
                 <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}">
                     <div class="flex items-start gap-3">

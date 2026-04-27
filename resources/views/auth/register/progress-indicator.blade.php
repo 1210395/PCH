@@ -4,7 +4,7 @@
             <div class="block sm:hidden">
                 <div class="text-center mb-4">
                     <p class="text-sm text-gray-600 mb-2">
-                        {{ __('Step') }} <span class="font-bold text-blue-600" x-text="currentStep"></span> {{ __('of 7') }}
+                        {{ __('Step') }} <span class="font-bold text-blue-600" x-text="visibleStepIndex + 1"></span> {{ __('of') }} <span x-text="visibleSteps.length"></span>
                     </p>
                     <h3 class="text-lg font-semibold text-gray-900" x-text="steps[currentStep - 1].title"></h3>
                 </div>
@@ -12,7 +12,7 @@
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div
                         class="bg-gradient-to-r from-blue-600 to-green-500 h-2 rounded-full transition-all duration-300"
-                        :style="`width: ${(currentStep / 7) * 100}%`"
+                        :style="`width: ${((visibleStepIndex + 1) / visibleSteps.length) * 100}%`"
                     ></div>
                 </div>
             </div>
@@ -20,7 +20,7 @@
             <!-- Desktop: Full Progress Indicator -->
             <div class="hidden sm:block">
                 <div class="flex items-center justify-between">
-                    <template x-for="(step, index) in steps" :key="step.number">
+                    <template x-for="(step, index) in visibleSteps" :key="step.number">
                         <div class="flex items-center flex-1">
                             <div class="flex flex-col items-center">
                                 <div
@@ -48,7 +48,7 @@
                                     x-text="step.title"
                                 ></span>
                             </div>
-                            <template x-if="index < steps.length - 1">
+                            <template x-if="index < visibleSteps.length - 1">
                                 <div
                                     :class="currentStep > step.number ? 'bg-green-500' : 'bg-gray-200'"
                                     class="flex-1 h-1 mx-3 md:mx-4 step-connector"
