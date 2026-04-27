@@ -2017,7 +2017,14 @@ function signupWizard() {
 
                     if (minutesDiff < 10) {
                         // Restore step and completion data
-                        this.currentStep = data.currentStep || 1;
+                        let restoredStep = data.currentStep || 1;
+                        // Steps 4/5/6 are skipped in this build — if a stale
+                        // localStorage entry from before the change pinned the
+                        // user there, snap them forward to Review (7).
+                        if (restoredStep === 4 || restoredStep === 5 || restoredStep === 6) {
+                            restoredStep = 7;
+                        }
+                        this.currentStep = restoredStep;
                         this.completedSteps = Array.isArray(data.completedSteps) ? [...data.completedSteps] : [];
 
                         // Restore formData with proper deep copy
