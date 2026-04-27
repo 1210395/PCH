@@ -39,5 +39,6 @@
     :marketplace-data="$marketplaceData ?? []"
     :asset-paths="$assetPaths"
     :is-owner="$isOwner"
+    :show-welcome-popup="$showWelcomePopup ?? false"
 />
 @endsection

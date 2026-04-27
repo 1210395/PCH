@@ -5,7 +5,8 @@
     'servicesData',
     'marketplaceData' => [],
     'assetPaths',
-    'isOwner'
+    'isOwner',
+    'showWelcomePopup' => false,
 ])
 
 <x-portfolio.layout
@@ -61,4 +62,8 @@
     <x-portfolio.modals
         :designer="$designer"
     />
+
+    @if($isOwner && $showWelcomePopup)
+        <x-portfolio.modal.welcome-popup />
+    @endif
 </x-portfolio.layout>

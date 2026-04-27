@@ -116,6 +116,19 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard', ['locale' => $locale]);
             }
 
+            // Empty-portfolio nudge: if the designer hasn't added any products,
+            // projects, or services yet, set a session flag so the portfolio
+            // page shows a one-time welcome popup inviting them to create some.
+            // Skipped for guests since they get a different upgrade banner.
+            if ($designer->sector !== 'guest') {
+                $hasContent = $designer->products()->exists()
+                    || $designer->projects()->exists()
+                    || $designer->services()->exists();
+                if (!$hasContent) {
+                    session()->put('show_welcome_popup', true);
+                }
+            }
+
             // Redirect regular users to their public portfolio page
             return redirect()->intended(route('designer.portfolio', [
                 'locale' => $locale,

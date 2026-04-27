@@ -142,6 +142,14 @@ class DesignerController extends Controller
     $avatarThumb = $designer->avatar ?? '';
     $coverThumb = $designer->cover_image ?? '';
 
+    // One-time welcome popup: read and clear the flag set by login().
+    // Only consume if the viewer is the profile owner.
+    $showWelcomePopup = false;
+    if ($isProfileOwner && session('show_welcome_popup')) {
+        $showWelcomePopup = true;
+        session()->forget('show_welcome_popup');
+    }
+
     return view('designer-portfolio-new', compact(
         'designer',
         'projectsData',
@@ -150,7 +158,8 @@ class DesignerController extends Controller
         'marketplaceData',
         'similarDesigners',
         'avatarThumb',
-        'coverThumb'
+        'coverThumb',
+        'showWelcomePopup'
     ));
 }
 
