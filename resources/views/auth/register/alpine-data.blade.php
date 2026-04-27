@@ -82,14 +82,23 @@ function signupWizard() {
             // Mark that page is loading (detect refresh vs close)
             sessionStorage.setItem('pageIsRefreshing', 'true');
 
+            // A bounced submit (validation errors) re-enters init() — at that
+            // point the previous page's signupSubmitInProgress flag is still
+            // in sessionStorage. Clear it now so a subsequent tab-close still
+            // wipes localStorage as intended (the flag is only meant to bridge
+            // the gap between submit and the next init).
+            sessionStorage.removeItem('signupSubmitInProgress');
+
             // Generate unique upload session ID
             this.uploadSession = this.getOrCreateUploadSession();
 
-            // Check for Laravel validation errors and navigate to appropriate step
-            this.handleBackendErrors();
-
-            // Load saved data from localStorage
+            // Restore wizard state FIRST so a bounced-back submit recovers all
+            // 7 steps of input. handleBackendErrors() runs second so an error
+            // on a specific field can override currentStep (e.g. jump to step 1
+            // when email validation fails) — without it, localStorage's saved
+            // step (often 7) would mask the real step the error belongs to.
             this.loadFromLocalStorage();
+            this.handleBackendErrors();
 
             // Watch for changes and auto-save
             this.$watch('formData', () => {
@@ -109,14 +118,18 @@ function signupWizard() {
                 }
             });
 
-            // Handle page unload - detect tab close vs refresh
+            // Handle page unload — distinguish real tab close from in-flight
+            // form submits and language-switch refreshes. The pageIsRefreshing
+            // flag only lives for the first 100ms after init, so on its own it
+            // does NOT survive a normal form submit. proceedWithPublish() sets
+            // signupSubmitInProgress right before form.submit() so the unload
+            // handler keeps localStorage alive across the round-trip and the
+            // user's progress survives a bounced-back submission with errors.
             window.addEventListener('unload', () => {
-                // If pageIsRefreshing is still set, it's a refresh - keep data
-                // If not set, it's a real tab close - delete data
-                if (!sessionStorage.getItem('pageIsRefreshing')) {
-                    // Tab is being closed, not refreshed - delete all cached data
-                    this.clearLocalStorage();
-                }
+                if (sessionStorage.getItem('pageIsRefreshing')) return;
+                if (sessionStorage.getItem('signupSubmitInProgress')) return;
+                // Real tab close — delete all cached wizard data
+                this.clearLocalStorage();
             });
 
             // Clear the refresh flag after page loads (must be in next tick)
