@@ -19,9 +19,19 @@
 
             <!-- Desktop: Full Progress Indicator -->
             <div class="hidden sm:block">
-                <div class="flex items-center justify-between max-w-3xl mx-auto">
+                <div class="flex items-center max-w-3xl mx-auto">
                     <template x-for="(step, index) in visibleSteps" :key="step.number">
-                        <div class="flex items-center flex-1">
+                        <div class="contents">
+                            {{-- Connector BEFORE this step (skipped on the first one).
+                                 display:contents lets icon columns and connectors all be
+                                 direct flex children, so the 3 flex-1 connectors split
+                                 the remaining width evenly. --}}
+                            <template x-if="index > 0">
+                                <div
+                                    :class="currentStep >= step.number ? 'bg-green-500' : 'bg-gray-200'"
+                                    class="flex-1 h-1 mx-3 md:mx-4 step-connector"
+                                ></div>
+                            </template>
                             <div class="flex flex-col items-center">
                                 <div
                                     @click="goToStep(step.number)"
@@ -48,12 +58,6 @@
                                     x-text="step.title"
                                 ></span>
                             </div>
-                            <template x-if="index < visibleSteps.length - 1">
-                                <div
-                                    :class="currentStep > step.number ? 'bg-green-500' : 'bg-gray-200'"
-                                    class="flex-1 h-1 mx-3 md:mx-4 step-connector"
-                                ></div>
-                            </template>
                         </div>
                     </template>
                 </div>
