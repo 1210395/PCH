@@ -795,15 +795,28 @@ class AuthController extends Controller
                 'services_submitted' => count($validated['services'] ?? []),
             ]);
 
-            // Send email verification notification
-            try {
-                $designer->sendEmailVerificationNotification();
-            } catch (\Exception $e) {
-                Log::error('Failed to send verification email', [
-                    'designer_id' => $designer->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+            // Send email verification notification AFTER the redirect response
+            // is flushed to the user. Sending it synchronously here was making
+            // the entire HTTP request block on SMTP delivery (10–60s on a slow
+            // relay) and showed up in the wild as a 'Publish' spinner that
+            // hung for two minutes. dispatch(...)->afterResponse() runs the
+            // closure during Laravel's terminate phase, so the user is on the
+            // success page within milliseconds of DB::commit() and the mail
+            // is delivered just after the connection closes.
+            $designerId = $designer->id;
+            dispatch(function () use ($designerId) {
+                try {
+                    $d = \App\Models\Designer::find($designerId);
+                    if ($d) {
+                        $d->sendEmailVerificationNotification();
+                    }
+                } catch (\Throwable $e) {
+                    \Log::error('Failed to send verification email (after-response)', [
+                        'designer_id' => $designerId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            })->afterResponse();
 
             // Redirect to success page with registration complete message
             $locale = app()->getLocale();
