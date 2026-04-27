@@ -19,7 +19,7 @@
 
             <!-- Desktop: Full Progress Indicator -->
             <div class="hidden sm:block">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between max-w-3xl mx-auto">
                     <template x-for="(step, index) in visibleSteps" :key="step.number">
                         <div class="flex items-center flex-1">
                             <div class="flex flex-col items-center">
