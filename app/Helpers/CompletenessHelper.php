@@ -16,7 +16,7 @@ class CompletenessHelper
         'designer' => ['sector', 'city', 'phone_number', 'bio', 'avatar', 'company_name', 'position'],
         'product' => ['title', 'description', 'category'],
         'project' => ['title', 'description', 'category', 'role'],
-        'service' => ['title', 'description', 'category'],
+        'service' => ['name', 'description', 'category'],
         'marketplace_post' => ['title', 'description', 'category', 'type'],
         'fablab' => ['name', 'city', 'description', 'type'],
         'academic_account' => ['name', 'email', 'institution_type', 'description', 'city'],
