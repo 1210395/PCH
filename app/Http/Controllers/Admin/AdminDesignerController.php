@@ -245,12 +245,24 @@ class AdminDesignerController extends AdminBaseController
 
         $designer = Designer::findOrFail($id);
 
+        // Match the user-side registration password rules so admins can't set
+        // a weak literal password ("password") on any account. (bugs.md H-24)
         $validated = $request->validate([
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'confirmed',
+                \Illuminate\Validation\Rules\Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
         ]);
 
         $designer->update([
             'password' => Hash::make($validated['password']),
+            // Rotate remember_token so any old "remember me" cookies the user
+            // had on this account are invalidated. (bugs.md H-26 spirit)
+            'remember_token' => \Illuminate\Support\Str::random(60),
         ]);
 
         return $this->successResponse('Password reset successfully');

@@ -17,6 +17,7 @@
                                     :aria-invalid="!!errors.firstName"
                                     :aria-describedby="errors.firstName ? 'firstName-error' : null"
                                     required
+                                    maxlength="100"
                                     class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     placeholder="{{ __('Enter your first name') }}"
                                 >
@@ -33,6 +34,7 @@
                                     :aria-invalid="!!errors.lastName"
                                     :aria-describedby="errors.lastName ? 'lastName-error' : null"
                                     required
+                                    maxlength="100"
                                     class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     placeholder="{{ __('Enter your last name') }}"
                                 >
@@ -52,6 +54,7 @@
                                     :aria-invalid="!!errors.email"
                                     :aria-describedby="errors.email ? 'email-error' : null"
                                     required
+                                    maxlength="255"
                                     class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     placeholder="your.email@example.com"
                                 >
@@ -85,6 +88,7 @@
                                     :aria-invalid="!!errors.password"
                                     :aria-describedby="errors.password ? 'password-error' : 'password-requirements'"
                                     required
+                                    maxlength="100"
                                     class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all pr-10"
                                     placeholder="{{ __('Create a strong password') }}"
                                 >
@@ -181,6 +185,7 @@
                                     x-model="formData.confirmPassword"
                                     :class="errors.confirmPassword ? 'border-red-500' : 'border-gray-300'"
                                     required
+                                    maxlength="100"
                                     class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all pr-10"
                                     placeholder="{{ __('Re-enter your password') }}"
                                 >

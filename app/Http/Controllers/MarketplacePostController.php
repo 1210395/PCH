@@ -43,7 +43,34 @@ class MarketplacePostController extends Controller
                 'tags.*' => 'string|max:100',
                 'image_path' => 'nullable|string|max:500',
                 'source_type' => 'nullable|string|in:product,project',
-                'source_id' => 'nullable|integer',
+                // source_id must reference a real product/project that the
+                // current designer owns — without this, a crafted POST could
+                // attribute someone else's portfolio item to a marketplace
+                // post. (bugs.md H-16)
+                'source_id' => [
+                    'nullable',
+                    'integer',
+                    'required_with:source_type',
+                    function ($attribute, $value, $fail) use ($request, $designer) {
+                        if (empty($value)) {
+                            return;
+                        }
+                        $type = $request->input('source_type');
+                        $table = $type === 'product' ? 'products'
+                                : ($type === 'project' ? 'projects' : null);
+                        if (!$table) {
+                            $fail(__('Invalid source type.'));
+                            return;
+                        }
+                        $owned = \Illuminate\Support\Facades\DB::table($table)
+                            ->where('id', $value)
+                            ->where('designer_id', $designer->id)
+                            ->exists();
+                        if (!$owned) {
+                            $fail(__('Selected item not found or not owned by you.'));
+                        }
+                    },
+                ],
             ]);
 
             // Determine approval status - trusted users get auto-approved

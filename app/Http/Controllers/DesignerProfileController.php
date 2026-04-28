@@ -868,6 +868,12 @@ class DesignerProfileController extends Controller
      */
     public function sendDeleteCode(Request $request)
     {
+        // Validate input shape — without this, an array body would type-error
+        // before strcmp/Hash::check. (bugs.md M-14)
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
         $designer = auth('designer')->user();
 
         if (!Hash::check($request->password, $designer->password)) {
@@ -877,10 +883,9 @@ class DesignerProfileController extends Controller
         // Generate 6-digit code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Store code in cache for 10 minutes
-        Cache::put('delete_code_' . $designer->id, $code, 600);
-
-        // Send code via email
+        // Send code via email FIRST — only persist the cache key once the
+        // email actually goes out, so a Gmail failure doesn't leave a stale
+        // valid code lingering for 10 minutes. (bugs.md M-34)
         try {
             $locale = app()->getLocale();
             $subject = $locale === 'ar'
@@ -906,6 +911,9 @@ class DesignerProfileController extends Controller
             return response()->json(['message' => __('Failed to send verification code. Please try again.')], 500);
         }
 
+        // Email succeeded — now persist the code (10-min TTL).
+        Cache::put('delete_code_' . $designer->id, $code, 600);
+
         return response()->json(['message' => __('Verification code sent')]);
     }
 
@@ -914,6 +922,13 @@ class DesignerProfileController extends Controller
      */
     public function confirmDelete(Request $request)
     {
+        // Validate input shape — without this, an array body would type-error
+        // before strcmp/Hash::check. (bugs.md M-14)
+        $request->validate([
+            'password' => 'required|string',
+            'code' => 'required|string|size:6',
+        ]);
+
         $designer = auth('designer')->user();
 
         if (!Hash::check($request->password, $designer->password)) {
@@ -921,7 +936,7 @@ class DesignerProfileController extends Controller
         }
 
         $storedCode = Cache::get('delete_code_' . $designer->id);
-        if (!$storedCode || $storedCode !== $request->code) {
+        if (!$storedCode || !hash_equals($storedCode, $request->code)) {
             return response()->json(['message' => __('Invalid or expired verification code')], 422);
         }
 
