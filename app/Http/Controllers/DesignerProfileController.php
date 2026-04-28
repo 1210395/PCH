@@ -728,10 +728,15 @@ class DesignerProfileController extends Controller
                     ->with('error', 'Please login to update privacy settings');
             }
 
-            // Retrieve fresh model from database and update
+            $request->validate([
+                'show_email' => 'nullable|boolean',
+                'show_phone' => 'nullable|boolean',
+                'show_location' => 'nullable|boolean',
+                'allow_messages' => 'nullable|boolean',
+            ]);
+
             $designer = Designer::findOrFail($designerId);
 
-            // Update privacy settings.
             // boolean() coerces "0"/"false"/empty/missing to false (unlike has(), which
             // returns true for any present value including the literal string "0").
             $designer->show_email = $request->boolean('show_email');
@@ -768,8 +773,12 @@ class DesignerProfileController extends Controller
                     ->with('error', 'Please login to update email preferences');
             }
 
-            // Update email preferences. boolean() coerces "0"/"false"/empty/missing to
-            // false (unlike has(), which would return true for the literal string "0").
+            $request->validate([
+                'email_marketing' => 'nullable|boolean',
+            ]);
+
+            // boolean() coerces "0"/"false"/empty/missing to false (unlike has(), which
+            // would return true for the literal string "0").
             $designer->email_marketing = $request->boolean('email_marketing');
             // email_notifications is always true for security, but we'll set it anyway
             $designer->email_notifications = true;

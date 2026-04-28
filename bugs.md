@@ -357,7 +357,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 
 ## 🟡 Medium — should fix
 
-### M-1. Approval not reset when product/project edited (only marketplace does)
+### M-1. ✅ Approval not reset when product/project edited (only marketplace does)
 - **Where:** `MarketplacePostController::update:196` resets to pending; `ProductController::update:270-`, `ProjectController::update:290-` do NOT.
 - **Fix:** Reset to pending on edit for products/projects/services (unless `is_trusted`).
 
@@ -404,15 +404,15 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `resources/views/tender-detail.blade.php:79-86`
 - **Fix:** Use `mews/purifier` or drop `<a>` from allow-list.
 
-### M-13. `updatePrivacySettings` + `updateEmailPreferences` skip `validate()`
+### M-13. ✅ `updatePrivacySettings` + `updateEmailPreferences` skip `validate()`
 - **Where:** `app/Http/Controllers/DesignerProfileController.php:719-785`
 - **Fix:** `$request->validate(['show_email' => 'nullable|boolean', ...])`.
 
-### M-14. `confirmDelete` + `sendDeleteCode` skip `validate()`
+### M-14. ✅ `confirmDelete` + `sendDeleteCode` skip `validate()`
 - **Where:** `DesignerProfileController.php:864-950`
 - **Fix:** `$request->validate(['password' => 'required|string', 'code' => 'required|string|size:6'])`.
 
-### M-15. `ServiceController::index` doesn't validate query params
+### M-15. ✅ `ServiceController::index` doesn't validate query params
 - **Where:** `app/Http/Controllers/ServiceController.php:21-76`
 - **Fix:** Add the matching `$request->validate([...])` block.
 
