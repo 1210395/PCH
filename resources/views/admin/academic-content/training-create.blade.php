@@ -86,11 +86,11 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Price') }}</label>
-                <input type="text" name="price" maxlength="100" value="{{ old('price') }}" placeholder="Free, $50, ..." class="w-full px-3 py-2 border rounded-lg">
+                <input type="text" name="price" maxlength="100" value="{{ old('price') }}" placeholder="{{ __('Free, $50, ...') }}" class="w-full px-3 py-2 border rounded-lg">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Duration') }}</label>
-                <input type="text" name="duration" maxlength="100" value="{{ old('duration') }}" placeholder="e.g. 4 weeks" class="w-full px-3 py-2 border rounded-lg">
+                <input type="text" name="duration" maxlength="100" value="{{ old('duration') }}" placeholder="{{ __('e.g. 4 weeks') }}" class="w-full px-3 py-2 border rounded-lg">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Max participants') }}</label>

@@ -95,7 +95,8 @@
                                     @elseif($message->created_at->isYesterday())
                                         {{ __('Yesterday') }}
                                     @else
-                                        {{ $message->created_at->format('M d, Y') }}
+                                        {{-- Locale-aware date so Arabic sees Arabic month names. (bugs.md M-20) --}}
+                                        {{ $message->created_at->locale(app()->getLocale())->isoFormat('LL') }}
                                     @endif
                                 </div>
                             </div>

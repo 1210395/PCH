@@ -207,8 +207,8 @@
             </div>
 
             <div class="password-section">
-                <label for="password">Migration Password</label>
-                <input type="password" id="password" placeholder="Enter migration password">
+                <label for="password">{{ __('Migration Password') }}</label>
+                <input type="password" id="password" placeholder="{{ __('Enter migration password') }}">
             </div>
 
             <div class="buttons">
