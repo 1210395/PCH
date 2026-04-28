@@ -566,12 +566,12 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** `designer_id` not validated to exist; some callers pass `$id` straight from URL.
 - **Fix:** Inside `createNotification` verify via `Designer::whereKey($id)->exists()`.
 
-### M-51. `images:migrate-names` lacks `--force` flag
+### M-51. ✅ `images:migrate-names` lacks `--force` flag
 - **Where:** `MigrateImageNames.php:54`
 - **What:** `$this->confirm(...)` blocks scheduler/CI.
 - **Fix:** Add `{--force}`.
 
-### M-52. `images:cleanup-orphaned` no `--force`, uses `Log::debug`
+### M-52. ✅ `images:cleanup-orphaned` no `--force`, uses `Log::debug`
 - **Where:** `CleanupOrphanedImages.php:91, 28`
 - **Fix:** Add `--force` confirmation; use `Log::info` for cleanup events.
 

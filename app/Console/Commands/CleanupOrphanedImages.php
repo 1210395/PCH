@@ -88,7 +88,10 @@ class CleanupOrphanedImages extends Command
                 $this->info("DRY RUN: Would delete {$totalDeleted} orphaned image(s) totaling {$sizeMB} MB");
             } else {
                 $this->info("Successfully deleted {$totalDeleted} orphaned image(s) totaling {$sizeMB} MB");
-                \Log::debug("Cleaned up {$totalDeleted} orphaned images ({$sizeMB} MB)");
+                // Use info (not debug) so cleanup events are visible in production
+                // log files where LOG_LEVEL is typically set to info or warning.
+                // (bugs.md M-52)
+                \Log::info("Cleaned up {$totalDeleted} orphaned images ({$sizeMB} MB)");
             }
         } else {
             $this->info('No orphaned images found.');

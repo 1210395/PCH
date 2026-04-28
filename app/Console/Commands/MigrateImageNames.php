@@ -26,7 +26,7 @@ class MigrateImageNames extends Command
      *
      * @var string
      */
-    protected $signature = 'images:migrate-names {--dry-run : Show what would be renamed without actually renaming}';
+    protected $signature = 'images:migrate-names {--dry-run : Show what would be renamed without actually renaming} {--force : Skip the interactive confirmation prompt}';
 
     /**
      * The console command description.
@@ -51,7 +51,7 @@ class MigrateImageNames extends Command
             $this->warn('DRY RUN MODE - No files or database records will be modified');
         } else {
             $this->warn('⚠️  WARNING: This will rename files and update database records!');
-            if (!$this->confirm('Do you want to continue?')) {
+            if (!$this->option('force') && !$this->confirm('Do you want to continue?')) {
                 $this->info('Migration cancelled.');
                 return Command::SUCCESS;
             }
