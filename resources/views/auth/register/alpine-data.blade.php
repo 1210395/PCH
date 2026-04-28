@@ -411,9 +411,11 @@ function signupWizard() {
                             errorMsg = errorData.message;
                         }
 
+                        // Don't surface debug_info to the user even if the
+                        // server sends it — that's a server-side leak we'd
+                        // amplify into a visible toast. (bugs.md M-7)
                         if (errorData.debug_info) {
                             console.error('Debug info:', errorData.debug_info);
-                            errorMsg += '\n\nDebug Info:\n' + JSON.stringify(errorData.debug_info, null, 2);
                         }
                     } catch (e) {
                         // Error text is not JSON
