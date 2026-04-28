@@ -440,7 +440,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** Across `admin/*`, `academic/*`, `components/portfolio/*`
 - **Fix:** Add `alt="..."` from related model.
 
-### M-22. 5 content `<img>` wrongly marked `alt=""`
+### M-22. ✅ 5 content `<img>` wrongly marked `alt=""`
 - **Where:** `admin/dashboard.blade.php:177`, `admin/fablabs/index.blade.php:77`, `admin/marketplace/edit.blade.php:120, /index.blade.php:96`, `admin/products/index.blade.php:147`
 - **Fix:** Provide meaningful alt.
 
@@ -575,7 +575,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `CleanupOrphanedImages.php:91, 28`
 - **Fix:** Add `--force` confirmation; use `Log::info` for cleanup events.
 
-### M-53. `ProcessExistingImages` corrupts paths containing dots
+### M-53. ✅ `ProcessExistingImages` corrupts paths containing dots
 - **Where:** `ProcessExistingImages.php:124-127, 148`
 - **What:** `CONCAT(SUBSTRING_INDEX(\`{$col}\`, '.', 1), '.webp')` corrupts paths like `products/v1.2/img.jpg` → `products/v1.webp`. Mass-update runs unconditionally.
 - **Fix:** Build per-row mapping from successful conversion results; only update rows whose old path was actually converted.

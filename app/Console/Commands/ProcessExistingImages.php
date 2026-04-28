@@ -123,7 +123,13 @@ class ProcessExistingImages extends Command
                     ->where($col, '!=', '')
                     ->where($col, 'NOT LIKE', '%.webp')
                     ->update([
-                        $col => \DB::raw("CONCAT(SUBSTRING_INDEX(`{$col}`, '.', 1), '.webp')")
+                        // Replace ONLY the trailing extension. The previous
+                        // SUBSTRING_INDEX(col, '.', 1) sliced at the FIRST
+                        // dot, which corrupts paths like
+                        // products/v1.2/img.jpg → products/v1.webp.
+                        // LOCATE('.', REVERSE(col)) finds the last-dot
+                        // position counted from the end. (bugs.md M-53)
+                        $col => \DB::raw("CONCAT(SUBSTRING(`{$col}`, 1, LENGTH(`{$col}`) - LOCATE('.', REVERSE(`{$col}`))), '.webp')")
                     ]);
 
                 if ($updated > 0) {
