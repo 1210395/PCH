@@ -14,7 +14,11 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'sendmail'),
+    // Default to 'gmail' (the custom transport registered in AppServiceProvider).
+    // The Laravel default 'sendmail' fails silently on most cPanel hosts where
+    // /usr/sbin/sendmail is disabled, leaving emails un-delivered with no
+    // user-visible error. (bugs.md H-31)
+    'default' => env('MAIL_MAILER', 'gmail'),
 
     /*
     |--------------------------------------------------------------------------

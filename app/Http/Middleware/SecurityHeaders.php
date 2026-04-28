@@ -30,7 +30,11 @@ class SecurityHeaders
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        // X-XSS-Protection is deprecated by all modern browsers and can
+        // introduce vulnerabilities in legacy IE/Edge. Send `0` per current
+        // OWASP / Mozilla guidance; defense-in-depth lives in the CSP below.
+        // (bugs.md M-43)
+        $response->headers->set('X-XSS-Protection', '0');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 

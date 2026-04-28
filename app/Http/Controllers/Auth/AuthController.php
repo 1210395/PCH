@@ -184,17 +184,23 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // DEBUG: Log incoming request details
+        // Debug log only while APP_DEBUG=true. PII fields (email, phone, name,
+        // address, bio) are deliberately NOT logged — `all_request_data`
+        // previously surfaced everything except the password. (bugs.md H-35)
         if (config('app.debug')) {
             Log::debug('Registration request received', [
                 'request_method' => $request->method(),
                 'request_url' => $request->fullUrl(),
                 'current_locale' => app()->getLocale(),
                 'route_locale' => $request->route('locale'),
-                'sector_from_request' => $request->input('sector'),
-                'sub_sector_from_request' => $request->input('sub_sector'),
+                'sector' => $request->input('sector'),
+                'sub_sector' => $request->input('sub_sector'),
                 'has_showroom' => $request->input('has_showroom'),
-                'all_request_data' => $request->except(['password', 'password_confirmation'])
+                'has_profile_image' => $request->has('profile_image_path') || $request->hasFile('profile_image'),
+                'has_cover_image' => $request->has('cover_image_path') || $request->hasFile('cover_image'),
+                'products_count' => is_array($request->input('products')) ? count($request->input('products')) : 0,
+                'projects_count' => is_array($request->input('projects')) ? count($request->input('projects')) : 0,
+                'services_count' => is_array($request->input('services')) ? count($request->input('services')) : 0,
             ]);
         }
 
@@ -307,10 +313,12 @@ class AuthController extends Controller
                 'upload_session_id' => ['nullable', 'string'],
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Log validation errors
+            // Log only the validation error keys + sector context. The full
+            // request body would surface PII (email, phone, name, address,
+            // bio) into laravel.log; `errors` keys alone are enough to
+            // diagnose validation issues. (bugs.md H-35)
             Log::error('Registration validation failed', [
-                'errors' => $e->errors(),
-                'request_data' => $request->except(['password', 'password_confirmation']),
+                'error_fields' => array_keys($e->errors()),
                 'sector' => $request->input('sector'),
                 'sub_sector' => $request->input('sub_sector'),
                 'has_showroom' => $request->input('has_showroom'),
@@ -796,10 +804,11 @@ class AuthController extends Controller
                 $this->cleanupTempFiles($request->upload_session_id);
             }
 
-            // Log what was created for debugging
+            // Log designer_id + counts only. Email is PII and would otherwise
+            // surface in laravel.log on every successful registration.
+            // (bugs.md H-35)
             Log::debug('Registration completed', [
                 'designer_id' => $designer->id,
-                'designer_email' => $designer->email,
                 'products_created' => $productsCount,
                 'projects_created' => $projectsCount,
                 'services_created' => $servicesCount,

@@ -91,6 +91,23 @@ class WebhookController extends Controller
                 ], 401);
             }
 
+            // Replay-attack protection: cache the signature hash and reject
+            // duplicates inside a 1-hour window. The signature is a function
+            // of the payload, so reusing the same (payload, signature) pair
+            // yields the same key. Without this, a captured valid signed
+            // payload could be replayed forever. (bugs.md H-34)
+            $replayKey = 'webhook_sig:' . hash('sha256', $signature);
+            if (\Illuminate\Support\Facades\Cache::has($replayKey)) {
+                Log::warning('Webhook replay detected — rejecting', [
+                    'ip' => $request->ip(),
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Duplicate request',
+                ], 409);
+            }
+            \Illuminate\Support\Facades\Cache::put($replayKey, true, 3600);
+
             // Parse the payload (data is already validated by jobs.ps)
             $data = json_decode($rawBody, true);
 
