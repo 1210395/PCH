@@ -70,7 +70,8 @@
                     <p class="text-sm text-gray-600 mt-1">{{ __('Update your password to keep your account secure') }}</p>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('account.password.update', ['locale' => app()->getLocale()]) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('account.password.update', ['locale' => app()->getLocale()]) }}" method="POST" class="space-y-4"
+                          x-data="{ busy: false }" @submit="busy = true">
                         @csrf
                         <div>
                             <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Current Password') }}</label>
@@ -95,8 +96,12 @@
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                {{ __('Update Password') }}
+                            <button type="submit"
+                                    :disabled="busy"
+                                    :class="busy ? 'opacity-60 cursor-not-allowed' : ''"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <span x-show="!busy">{{ __('Update Password') }}</span>
+                                <span x-show="busy" x-cloak>{{ __('Updating...') }}</span>
                             </button>
                         </div>
                     </form>
@@ -110,7 +115,8 @@
                     <p class="text-sm text-gray-600 mt-1">{{ __('Control what information is visible on your profile') }}</p>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('account.privacy.update', ['locale' => app()->getLocale()]) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('account.privacy.update', ['locale' => app()->getLocale()]) }}" method="POST" class="space-y-4"
+                          x-data="{ busy: false }" @submit="busy = true">
                         @csrf
 
                         {{-- Show Email --}}
@@ -162,8 +168,12 @@
                         </div>
 
                         <div class="flex justify-end pt-4">
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                {{ __('Save Privacy Settings') }}
+                            <button type="submit"
+                                    :disabled="busy"
+                                    :class="busy ? 'opacity-60 cursor-not-allowed' : ''"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <span x-show="!busy">{{ __('Save Privacy Settings') }}</span>
+                                <span x-show="busy" x-cloak>{{ __('Saving...') }}</span>
                             </button>
                         </div>
                     </form>
@@ -177,7 +187,8 @@
                     <p class="text-sm text-gray-600 mt-1">{{ __('Manage your email notification settings') }}</p>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('account.email.update', ['locale' => app()->getLocale()]) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('account.email.update', ['locale' => app()->getLocale()]) }}" method="POST" class="space-y-4"
+                          x-data="{ busy: false }" @submit="busy = true">
                         @csrf
 
                         {{-- Marketing Emails --}}
@@ -206,8 +217,12 @@
                         <p class="text-xs text-gray-500 italic">{{ __('Note: Account notifications cannot be disabled for security reasons') }}</p>
 
                         <div class="flex justify-end pt-4">
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                {{ __('Save Email Preferences') }}
+                            <button type="submit"
+                                    :disabled="busy"
+                                    :class="busy ? 'opacity-60 cursor-not-allowed' : ''"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <span x-show="!busy">{{ __('Save Email Preferences') }}</span>
+                                <span x-show="busy" x-cloak>{{ __('Saving...') }}</span>
                             </button>
                         </div>
                     </form>

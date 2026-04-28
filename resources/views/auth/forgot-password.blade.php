@@ -22,7 +22,10 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('password.email', ['locale' => app()->getLocale()]) }}" class="space-y-5">
+            {{-- busy guard prevents double-submit which would otherwise count
+                 as 2 attempts against the password-reset throttle. --}}
+            <form method="POST" action="{{ route('password.email', ['locale' => app()->getLocale()]) }}" class="space-y-5"
+                  x-data="{ busy: false }" @submit="busy = true">
                 @csrf
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email Address') }}</label>
@@ -43,9 +46,12 @@
 
                 <button
                     type="submit"
+                    :disabled="busy"
+                    :class="busy ? 'opacity-60 cursor-not-allowed' : ''"
                     class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg"
                 >
-                    {{ __('Send Reset Link') }}
+                    <span x-show="!busy">{{ __('Send Reset Link') }}</span>
+                    <span x-show="busy" x-cloak>{{ __('Sending...') }}</span>
                 </button>
             </form>
 
