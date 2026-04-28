@@ -18,6 +18,8 @@
 
     @include("partials._footer")
 
+    @include("partials._cookie_consent")
+
     @include("partials._javascript")
 
     @yield("footer_js")

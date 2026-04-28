@@ -38,6 +38,29 @@ class SecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
+        // Content-Security-Policy in Report-Only mode so violations show up
+        // in browser devtools / report-uri without breaking anything. Once
+        // the report stream is clean, switch the header name to
+        // `Content-Security-Policy` (no -Report-Only) to enforce.
+        // (bugs.md H-29)
+        //
+        // Permissive on purpose: 'unsafe-inline' for script + style is
+        // currently necessary because Alpine.js evaluates inline @click /
+        // x-data expressions and Tailwind injects inline styles via the
+        // @apply pattern. Tightening to nonces is a future task.
+        $csp = "default-src 'self'; "
+             . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+             . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+             . "img-src 'self' data: blob: https:; "
+             . "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; "
+             . "connect-src 'self' https:; "
+             . "media-src 'self' https:; "
+             . "frame-ancestors 'self'; "
+             . "form-action 'self'; "
+             . "base-uri 'self'; "
+             . "object-src 'none'";
+        $response->headers->set('Content-Security-Policy-Report-Only', $csp);
+
         if ($request->secure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
