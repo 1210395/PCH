@@ -132,13 +132,16 @@ class MessageRequestController extends Controller
                 'message' => $customMessage
             ]);
 
-            Notification::create([
-                'designer_id' => $designerId,
-                'type' => 'message_request',
-                'title' => 'New Message Request',
-                'message' => $currentDesigner->name . ' sent you a message request.',
-                'read' => false
-            ]);
+            // Route through createNotification helper for the 5-minute dedupe
+            // + recipient-exists check, instead of writing the row directly.
+            // (bugs.md M-49 / M-50)
+            \App\Http\Controllers\NotificationController::createNotification(
+                $designerId,
+                'message_request',
+                'New Message Request',
+                $currentDesigner->name . ' sent you a message request.',
+                ['from_designer_id' => $currentDesigner->id]
+            );
 
             return response()->json([
                 'success' => true,

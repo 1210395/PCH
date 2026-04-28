@@ -299,9 +299,11 @@
 
         confirmDelete() {
 
-            const locale = '{{ app()->getLocale() }}';
-
-            const url = `/${locale}/${this.deleteType}s/${this.deleteId}`;
+            // Use the portfolio base URL (set by the layout) so this works
+            // when the app is deployed under a subpath. The previous
+            // hardcoded `/${locale}/...` form broke under any non-root
+            // mount. (bugs.md M-8)
+            const url = `${window.__portfolioBaseUrl}/${this.deleteType}s/${this.deleteId}`;
 
             // Use FormData with _method for Laravel method spoofing
             const formData = new FormData();

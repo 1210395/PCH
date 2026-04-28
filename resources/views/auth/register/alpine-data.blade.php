@@ -2013,12 +2013,17 @@ function signupWizard() {
                 if (saved) {
                     const data = JSON.parse(saved);
 
-                    // Check if data is not too old (10 minutes)
+                    // Check if data is not too old. Bumped from 10 min to
+                    // 24 hours so a user who steps away for lunch (or hits a
+                    // 419 page-expired) doesn't lose all their wizard
+                    // progress. Password fields are stripped before save
+                    // (see saveToLocalStorage) so the longer TTL doesn't
+                    // expand the credential-leak window. (bugs.md M-5)
                     const savedTime = new Date(data.timestamp);
                     const now = new Date();
                     const minutesDiff = (now - savedTime) / 1000 / 60;
 
-                    if (minutesDiff < 10) {
+                    if (minutesDiff < 60 * 24) {
                         // Restore step and completion data
                         let restoredStep = data.currentStep || 1;
                         // Steps 4/5/6 are skipped in this build — if a stale
