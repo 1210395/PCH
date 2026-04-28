@@ -355,6 +355,12 @@ class AuthController extends Controller
         }
 
         // Wrap entire registration in a database transaction
+        // Track every permanent file we materialise during this request so we
+        // can delete them from disk if the transaction rolls back. Without
+        // this, a partial failure leaves orphaned avatars/covers/product
+        // images/cert PDFs in storage forever (DB rolls back, files stay).
+        // (bugs.md H-4)
+        $createdPermPaths = [];
         try {
             DB::beginTransaction();
 
@@ -452,6 +458,7 @@ class AuthController extends Controller
                 );
             }
             if ($avatarPath) {
+                $createdPermPaths[] = $avatarPath;
                 $designer->update(['avatar' => $avatarPath]);
             }
 
@@ -474,6 +481,7 @@ class AuthController extends Controller
                 );
             }
             if ($coverPath) {
+                $createdPermPaths[] = $coverPath;
                 $designer->update(['cover_image' => $coverPath]);
             }
 
@@ -537,6 +545,7 @@ class AuthController extends Controller
                         );
                         if (!empty($permanentPath)) {
                             $certificationPaths[] = $permanentPath;
+                            $createdPermPaths[] = $permanentPath;
                         }
                     }
                 }
@@ -573,6 +582,9 @@ class AuthController extends Controller
                                     'products',
                                     "product_{$designer->id}_{$index}"
                                 );
+                            }
+                            if (!empty($productImage)) {
+                                $createdPermPaths[] = $productImage;
                             }
 
                             // Create product
@@ -615,6 +627,7 @@ class AuthController extends Controller
 
                                     // Only save if move was successful (returns non-empty path)
                                     if (!empty($permanentPath)) {
+                                        $createdPermPaths[] = $permanentPath;
                                         $created = ProductImage::create([
                                             'product_id' => $createdProduct->id,
                                             'image_path' => $permanentPath,
@@ -681,6 +694,9 @@ class AuthController extends Controller
                                     "project_{$designer->id}_{$index}"
                                 );
                             }
+                            if (!empty($projectImage)) {
+                                $createdPermPaths[] = $projectImage;
+                            }
 
                             // Determine category - use user selected category or default to General
                             $projectCategory = !empty($project['category']) ? $project['category'] : 'General';
@@ -734,6 +750,7 @@ class AuthController extends Controller
 
                                     // Only save if move was successful (returns non-empty path)
                                     if (!empty($permanentPath)) {
+                                        $createdPermPaths[] = $permanentPath;
                                         $created = ProjectImage::create([
                                             'project_id' => $createdProject->id,
                                             'image_path' => $permanentPath,
@@ -888,6 +905,23 @@ class AuthController extends Controller
             // Cleanup temp files on failure
             if ($request->has('upload_session_id')) {
                 $this->cleanupTempFiles($request->upload_session_id);
+            }
+
+            // Cleanup any permanent files we materialised before the failure.
+            // Without this, a partial registration leaves orphaned avatars,
+            // covers, product/project images, and cert PDFs on disk forever.
+            // (bugs.md H-4)
+            foreach ($createdPermPaths as $orphanPath) {
+                try {
+                    if (\Storage::disk('public')->exists($orphanPath)) {
+                        \Storage::disk('public')->delete($orphanPath);
+                    }
+                } catch (\Throwable $cleanupErr) {
+                    Log::warning('Failed to delete orphaned image during registration rollback', [
+                        'path' => $orphanPath,
+                        'error' => $cleanupErr->getMessage(),
+                    ]);
+                }
             }
 
             // Log the error
