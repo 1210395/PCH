@@ -40,12 +40,25 @@ class CleanupOrphanedUploads extends Command
     {
         $this->info('Starting cleanup of orphaned temporary uploads...');
 
-        $count = ImageUploadController::cleanupOrphanedUploads();
+        // cleanupOrphanedUploads() is an instance method that returns
+        // ['deleted' => int, 'errors' => string[]]. Static call would error
+        // (and return value was being read as int, which it never was).
+        // (bugs.md H-38)
+        $result = app(ImageUploadController::class)->cleanupOrphanedUploads();
+        $deleted = $result['deleted'] ?? 0;
+        $errors = $result['errors'] ?? [];
 
-        if ($count > 0) {
-            $this->info("Successfully cleaned up {$count} orphaned upload session(s).");
+        if ($deleted > 0) {
+            $this->info("Successfully cleaned up {$deleted} orphaned upload file(s).");
         } else {
             $this->info('No orphaned uploads found to clean up.');
+        }
+
+        if (!empty($errors)) {
+            $this->warn(count($errors) . ' file(s) could not be deleted:');
+            foreach (array_slice($errors, 0, 10) as $err) {
+                $this->warn(' - ' . $err);
+            }
         }
 
         return Command::SUCCESS;

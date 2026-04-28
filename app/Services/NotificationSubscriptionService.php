@@ -84,10 +84,18 @@ class NotificationSubscriptionService
             }
         }
 
-        // Bulk insert in chunks of 100
+        // Bulk insert in chunks of 100. Notification::insert bypasses
+        // Eloquent's saved event, so the per-designer unread-count cache
+        // (cleared on individual Notification create) is NOT invalidated
+        // automatically — clear it manually for every recipient. (bugs.md H-32)
         if (!empty($designerNotifications)) {
             foreach (array_chunk($designerNotifications, 100) as $chunk) {
                 Notification::insert($chunk);
+            }
+            foreach ($designerNotifications as $n) {
+                if (!empty($n['designer_id'])) {
+                    \App\Services\CacheService::clearUnreadNotificationCount((int) $n['designer_id']);
+                }
             }
         }
         if (!empty($academicNotifications)) {
@@ -168,10 +176,18 @@ class NotificationSubscriptionService
             }
         }
 
-        // Bulk insert in chunks of 100
+        // Bulk insert in chunks of 100. Notification::insert bypasses
+        // Eloquent's saved event, so the per-designer unread-count cache
+        // (cleared on individual Notification create) is NOT invalidated
+        // automatically — clear it manually for every recipient. (bugs.md H-32)
         if (!empty($designerNotifications)) {
             foreach (array_chunk($designerNotifications, 100) as $chunk) {
                 Notification::insert($chunk);
+            }
+            foreach ($designerNotifications as $n) {
+                if (!empty($n['designer_id'])) {
+                    \App\Services\CacheService::clearUnreadNotificationCount((int) $n['designer_id']);
+                }
             }
         }
         if (!empty($academicNotifications)) {

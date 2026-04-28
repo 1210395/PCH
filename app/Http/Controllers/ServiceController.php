@@ -92,11 +92,23 @@ class ServiceController extends Controller
      */
     public function show($locale, $id)
     {
+        // Validate ID parameter (matches sibling Product/Project controllers).
+        if (!is_numeric($id) || $id < 1) {
+            abort(404);
+        }
+
         $service = Service::with('designer')->findOrFail($id);
 
         // Check if user can view this service (approved OR owner)
         $currentDesignerId = auth('designer')->id();
         if ($service->approval_status !== 'approved' && $service->designer_id !== $currentDesignerId) {
+            abort(404);
+        }
+
+        // Hide services belonging to deactivated designers from non-owners.
+        // (bugs.md H-6)
+        if ($service->designer_id !== $currentDesignerId
+            && (!$service->designer || !$service->designer->is_active)) {
             abort(404);
         }
 

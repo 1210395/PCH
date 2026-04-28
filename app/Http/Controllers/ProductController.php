@@ -109,6 +109,15 @@ class ProductController extends Controller
             abort(404);
         }
 
+        // Hide products belonging to deactivated / rejected designers from
+        // non-owners. Listings already filter via whereHas('designer',
+        // is_active=true) but direct /products/{id} URLs were still 200.
+        // (bugs.md H-6)
+        if ($product->designer_id !== $currentDesignerId
+            && (!$product->designer || !$product->designer->is_active)) {
+            abort(404);
+        }
+
         // Increment view count only if viewer is not the creator
         $currentDesignerId = auth('designer')->id();
         if (!$currentDesignerId || $currentDesignerId !== $product->designer_id) {

@@ -109,6 +109,13 @@ class ProjectController extends Controller
             abort(404);
         }
 
+        // Hide projects belonging to deactivated designers from non-owners.
+        // (bugs.md H-6)
+        if ($project->designer_id !== $currentDesignerId
+            && (!$project->designer || !$project->designer->is_active)) {
+            abort(404);
+        }
+
         // Increment view count only if viewer is not the creator
         if (!$currentDesignerId || $currentDesignerId !== $project->designer_id) {
             $project->increment('views_count');
