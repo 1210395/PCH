@@ -457,7 +457,7 @@ class MessagesController extends Controller
                 'type' => 'new_message',
                 'title' => 'New Message',
                 'message' => ($sender->name ?? 'Someone') . ' sent you a message.',
-                'data' => json_encode(['conversation_id' => $conversation->id]),
+                'data' => ['conversation_id' => $conversation->id],
                 'read' => false
             ]);
         }

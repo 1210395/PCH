@@ -20,11 +20,6 @@ class MarketplaceController extends Controller
      */
     public function index(Request $request)
     {
-		$designer = auth('designer')->user();
-		if (!$designer) {
-			return redirect(route('login', ['locale' => app()->getLocale()]));
-		}
-		
         // Validate and sanitize input
         $validated = $request->validate([
             'category' => 'nullable|string|max:100',
