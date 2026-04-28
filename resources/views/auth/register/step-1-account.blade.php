@@ -66,6 +66,15 @@
                                 </div>
                             </div>
                             <p x-show="errors.email" x-text="errors.email" id="email-error" role="alert" class="mt-1 text-sm text-red-600"></p>
+                            {{-- Inline format hint as the user types — fires
+                                 only after they've typed something AND it
+                                 doesn't look like an email AND there's no
+                                 server/Alpine error already shown.
+                                 (bugs.md M-25) --}}
+                            <p x-show="!errors.email && formData.email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)"
+                               x-cloak class="mt-1 text-sm text-amber-600">
+                                {{ __('Enter a valid email address (e.g. you@example.com).') }}
+                            </p>
                             @error('email')
                             <p class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
                             @enderror
@@ -208,6 +217,13 @@
                                 </button>
                             </div>
                             <p x-show="errors.confirmPassword" x-text="errors.confirmPassword" class="mt-1 text-sm text-red-600"></p>
+                            {{-- Inline mismatch hint — both fields filled,
+                                 values differ, and no server-side error
+                                 already showing. (bugs.md M-26) --}}
+                            <p x-show="!errors.confirmPassword && formData.password.length > 0 && formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword"
+                               x-cloak class="mt-1 text-sm text-amber-600">
+                                {{ __('Passwords do not match yet.') }}
+                            </p>
                         </div>
                     </div>
                 </div>
