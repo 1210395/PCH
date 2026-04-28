@@ -520,7 +520,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `config/session.php:35-37`
 - **Fix:** Consider `SESSION_EXPIRE_ON_CLOSE=true` for admins, or shorter admin lifetime.
 
-### M-42. Session cookie name leaks framework
+### M-42. ✅ Session cookie name leaks framework
 - **Where:** `config/session.php:130-133` defaults to `palestine-creative-hub-session`
 - **What:** Predictable Laravel naming aids fingerprinting.
 - **Fix:** Set `SESSION_COOKIE=pch_sid`.
@@ -616,7 +616,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** `Carbon::parse($data['deadline'])` with no validator. `2026-13-99` or `"now+999years"` throws.
 - **Fix:** Validate `'deadline' => 'date'`.
 
-### M-62. Privacy checkboxes use `$request->has()`
+### M-62. ✅ Privacy checkboxes use `$request->has()`
 - **Where:** `DesignerProfileController.php:733-736, 768`
 - **What:** `has()` returns true for any value, including `"0"`, `"false"`, empty string, or array. POST `show_email=0` sets the flag to true.
 - **Fix:** Use `$request->boolean('show_email')`.
