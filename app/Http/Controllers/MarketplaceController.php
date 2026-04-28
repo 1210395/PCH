@@ -162,31 +162,35 @@ class MarketplaceController extends Controller
         $post = MarketplacePost::findOrFail($id);
 
         // Check if already liked
-        $existingLike = \App\Models\Like::where('designer_id', $designer->id)
-            ->where('likeable_type', 'App\Models\MarketplacePost')
-            ->where('likeable_id', $post->id)
-            ->first();
+        // Wrap in a transaction with lockForUpdate so two concurrent clicks
+        // don't both create Like rows (and double-increment the counter).
+        // (bugs.md H-3, H-5)
+        $liked = \Illuminate\Support\Facades\DB::transaction(function () use ($designer, $post) {
+            $existingLike = \App\Models\Like::where('designer_id', $designer->id)
+                ->where('likeable_type', 'App\Models\MarketplacePost')
+                ->where('likeable_id', $post->id)
+                ->lockForUpdate()
+                ->first();
 
-        if ($existingLike) {
-            // Unlike
-            $existingLike->delete();
-            $post->decrement('likes_count');
-            $liked = false;
-        } else {
-            // Like
+            if ($existingLike) {
+                $existingLike->delete();
+                $post->decrement('likes_count');
+                return false;
+            }
+
             \App\Models\Like::create([
                 'designer_id' => $designer->id,
                 'likeable_type' => 'App\Models\MarketplacePost',
                 'likeable_id' => $post->id,
             ]);
             $post->increment('likes_count');
-            $liked = true;
-        }
+            return true;
+        });
 
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $post->likes_count ?? 0,
+            'likes_count' => $post->fresh()->likes_count ?? 0,
         ]);
     }
 }

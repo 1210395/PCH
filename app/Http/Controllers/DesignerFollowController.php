@@ -47,25 +47,36 @@ class DesignerFollowController extends Controller
 
             $designerToFollow = Designer::findOrFail($id);
 
-            // Check if already following
-            if ($currentUser->following()->where('following_id', $id)->exists()) {
+            // Wrap follow + counter increments in a transaction so two
+            // concurrent clicks don't both pass the existence check and
+            // double-attach / double-increment. (bugs.md H-3, H-5)
+            $created = \Illuminate\Support\Facades\DB::transaction(function () use ($currentUser, $id, $designerToFollow) {
+                $exists = $currentUser->following()
+                    ->where('following_id', $id)
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($exists) {
+                    return false;
+                }
+
+                $currentUser->following()->attach($id, [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $currentUser->increment('following_count');
+                $designerToFollow->increment('followers_count');
+                return true;
+            });
+
+            if (!$created) {
                 return response()->json([
                     'success' => false,
                     'message' => 'You are already following this designer'
                 ], 400);
             }
 
-            // Create follow relationship
-            $currentUser->following()->attach($id, [
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // Update counts
-            $currentUser->increment('following_count');
-            $designerToFollow->increment('followers_count');
-
-            // Send notification to the followed designer
+            // Notify outside the transaction so a notification failure doesn't roll back the follow.
             NotificationController::createNotification(
                 $id,
                 'new_follower',
@@ -76,7 +87,7 @@ class DesignerFollowController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully followed ' . $designerToFollow->name,
-                'followers_count' => $designerToFollow->followers_count
+                'followers_count' => $designerToFollow->fresh()->followers_count
             ]);
 
         } catch (\Exception $e) {
@@ -115,25 +126,36 @@ class DesignerFollowController extends Controller
 
             $designerToUnfollow = Designer::findOrFail($id);
 
-            // Check if actually following
-            if (!$currentUser->following()->where('following_id', $id)->exists()) {
+            // Wrap detach + counter decrements in a transaction so two
+            // concurrent clicks don't both decrement the counter when only
+            // one row was actually deleted. (bugs.md H-3, H-5)
+            $detached = \Illuminate\Support\Facades\DB::transaction(function () use ($currentUser, $id, $designerToUnfollow) {
+                $exists = $currentUser->following()
+                    ->where('following_id', $id)
+                    ->lockForUpdate()
+                    ->exists();
+
+                if (!$exists) {
+                    return false;
+                }
+
+                $currentUser->following()->detach($id);
+                $currentUser->decrement('following_count');
+                $designerToUnfollow->decrement('followers_count');
+                return true;
+            });
+
+            if (!$detached) {
                 return response()->json([
                     'success' => false,
                     'message' => 'You are not following this designer'
                 ], 400);
             }
 
-            // Remove follow relationship
-            $currentUser->following()->detach($id);
-
-            // Update counts
-            $currentUser->decrement('following_count');
-            $designerToUnfollow->decrement('followers_count');
-
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully unfollowed ' . $designerToUnfollow->name,
-                'followers_count' => $designerToUnfollow->followers_count
+                'followers_count' => $designerToUnfollow->fresh()->followers_count
             ]);
 
         } catch (\Exception $e) {
@@ -212,27 +234,33 @@ class DesignerFollowController extends Controller
 
         $designer = Designer::findOrFail($id);
 
-        $existingLike = \App\Models\Like::where('designer_id', $currentDesigner->id)
-            ->where('likeable_type', 'App\Models\Designer')
-            ->where('likeable_id', $id)
-            ->first();
+        // Wrap in a transaction with lockForUpdate so two concurrent clicks
+        // don't both create Like rows (and double-increment the counter).
+        // (bugs.md H-3, H-5)
+        $liked = \Illuminate\Support\Facades\DB::transaction(function () use ($currentDesigner, $id, $designer) {
+            $existingLike = \App\Models\Like::where('designer_id', $currentDesigner->id)
+                ->where('likeable_type', 'App\Models\Designer')
+                ->where('likeable_id', $id)
+                ->lockForUpdate()
+                ->first();
 
-        if ($existingLike) {
-            // Unlike
-            $existingLike->delete();
-            $designer->decrement('likes_count');
-            $liked = false;
-        } else {
-            // Like
+            if ($existingLike) {
+                $existingLike->delete();
+                $designer->decrement('likes_count');
+                return false;
+            }
+
             \App\Models\Like::create([
                 'designer_id' => $currentDesigner->id,
                 'likeable_type' => 'App\Models\Designer',
                 'likeable_id' => $id,
             ]);
             $designer->increment('likes_count');
-            $liked = true;
+            return true;
+        });
 
-            // Send notification to the liked designer
+        // Notify outside the transaction so a notification failure doesn't roll back the like.
+        if ($liked) {
             NotificationController::createNotification(
                 $id,
                 'profile_like',

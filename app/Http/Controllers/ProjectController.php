@@ -163,31 +163,35 @@ class ProjectController extends Controller
 
         $project = Project::findOrFail($id);
 
-        $existingLike = \App\Models\Like::where('designer_id', $designer->id)
-            ->where('likeable_type', 'App\Models\Project')
-            ->where('likeable_id', $id)
-            ->first();
+        // Wrap in a transaction with lockForUpdate so two concurrent clicks
+        // don't both create Like rows (and double-increment the counter).
+        // (bugs.md H-3, H-5)
+        $liked = \Illuminate\Support\Facades\DB::transaction(function () use ($designer, $id, $project) {
+            $existingLike = \App\Models\Like::where('designer_id', $designer->id)
+                ->where('likeable_type', 'App\Models\Project')
+                ->where('likeable_id', $id)
+                ->lockForUpdate()
+                ->first();
 
-        if ($existingLike) {
-            // Unlike
-            $existingLike->delete();
-            $project->decrement('likes_count');
-            $liked = false;
-        } else {
-            // Like
+            if ($existingLike) {
+                $existingLike->delete();
+                $project->decrement('likes_count');
+                return false;
+            }
+
             \App\Models\Like::create([
                 'designer_id' => $designer->id,
                 'likeable_type' => 'App\Models\Project',
                 'likeable_id' => $id,
             ]);
             $project->increment('likes_count');
-            $liked = true;
-        }
+            return true;
+        });
 
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $project->likes_count
+            'likes_count' => $project->fresh()->likes_count,
         ]);
     }
 

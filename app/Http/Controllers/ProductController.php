@@ -164,31 +164,35 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($id);
 
-        $existingLike = \App\Models\Like::where('designer_id', $designer->id)
-            ->where('likeable_type', 'App\Models\Product')
-            ->where('likeable_id', $id)
-            ->first();
+        // Wrap in a transaction with lockForUpdate so two concurrent clicks
+        // don't both create Like rows (and double-increment the counter).
+        // (bugs.md H-3, H-5)
+        $liked = \Illuminate\Support\Facades\DB::transaction(function () use ($designer, $id, $product) {
+            $existingLike = \App\Models\Like::where('designer_id', $designer->id)
+                ->where('likeable_type', 'App\Models\Product')
+                ->where('likeable_id', $id)
+                ->lockForUpdate()
+                ->first();
 
-        if ($existingLike) {
-            // Unlike
-            $existingLike->delete();
-            $product->decrement('likes_count');
-            $liked = false;
-        } else {
-            // Like
+            if ($existingLike) {
+                $existingLike->delete();
+                $product->decrement('likes_count');
+                return false;
+            }
+
             \App\Models\Like::create([
                 'designer_id' => $designer->id,
                 'likeable_type' => 'App\Models\Product',
                 'likeable_id' => $id,
             ]);
             $product->increment('likes_count');
-            $liked = true;
-        }
+            return true;
+        });
 
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $product->likes_count
+            'likes_count' => $product->fresh()->likes_count,
         ]);
     }
 
