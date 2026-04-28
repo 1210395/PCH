@@ -59,7 +59,13 @@
                         type="submit"
                         class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg disabled:opacity-50"
                         :disabled="sending || cooldown > 0"
-                        @click="sending = true; setTimeout(() => { sending = false; sent = true; cooldown = 60; let iv = setInterval(() => { cooldown--; if(cooldown <= 0) clearInterval(iv); }, 1000); }, 100)"
+                        {{-- Start the cooldown timer immediately on click. The
+                             previous version cleared `sending` 100ms later,
+                             leaving a brief window where a double-click would
+                             fire two POSTs. Now `sending` and `cooldown` go
+                             true together, so the button is disabled before
+                             the form actually submits. (bugs.md M-29) --}}
+                        @click="sending = true; sent = true; cooldown = 60; let iv = setInterval(() => { cooldown--; if(cooldown <= 0) { clearInterval(iv); sending = false; } }, 1000)"
                     >
                         <span x-show="!sending && !sent && cooldown <= 0">{{ __('Resend Verification Email') }}</span>
                         <span x-show="sending">{{ __('Sending...') }}</span>
@@ -81,7 +87,9 @@
                         type="submit"
                         class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 transition-all duration-300 shadow-lg disabled:opacity-50"
                         :disabled="sending || cooldown > 0"
-                        @click="sending = true; setTimeout(() => { sending = false; cooldown = 60; let iv = setInterval(() => { cooldown--; if(cooldown <= 0) clearInterval(iv); }, 1000); }, 100)"
+                        {{-- Same pattern as the form above — start cooldown
+                             immediately so the button stays disabled. (M-29) --}}
+                        @click="sending = true; cooldown = 60; let iv = setInterval(() => { cooldown--; if(cooldown <= 0) { clearInterval(iv); sending = false; } }, 1000)"
                     >
                         <span x-show="!sending && cooldown <= 0">{{ __('Resend Verification Email') }}</span>
                         <span x-show="sending">{{ __('Sending...') }}</span>

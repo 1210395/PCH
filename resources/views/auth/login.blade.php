@@ -35,7 +35,11 @@
                     <div class="flex-1">
                         <p class="text-sm text-amber-800 font-medium">{{ __('Email not verified') }}</p>
                         <p class="text-sm text-amber-700 mt-1">{{ $errors->first('email') }}</p>
-                        <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" class="mt-3" @submit="sending = true">
+                        {{-- @click sets sending=true immediately so the button
+                             disables before the form actually submits — closes
+                             the 100ms double-click race the previous setTimeout
+                             pattern left open. (bugs.md M-29) --}}
+                        <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" class="mt-3">
                             @csrf
                             <input type="hidden" name="email" value="{{ old('email') }}">
                             <button
@@ -43,7 +47,7 @@
                                 class="text-sm font-semibold text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
                                 :disabled="sending"
                                 x-show="!sent"
-                                @click="setTimeout(() => sent = true, 100)"
+                                @click="sending = true; sent = true"
                             >
                                 <span x-show="!sending">{{ __('Resend verification email') }}</span>
                                 <span x-show="sending">{{ __('Sending...') }}</span>

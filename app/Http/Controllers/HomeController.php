@@ -129,8 +129,19 @@ class HomeController extends Controller
         $query = $request->input('q', '');
         $query = strip_tags(trim($query));
 
+        // Empty query: render the search view with an empty-state hint
+        // instead of silently redirecting to home (confusing UX).
+        // (bugs.md M-24)
         if (empty($query)) {
-            return redirect()->route('home', ['locale' => app()->getLocale()]);
+            return view('search', [
+                'query' => '',
+                'designers' => collect(),
+                'projects' => collect(),
+                'products' => collect(),
+                'services' => collect(),
+                'marketplace' => collect(),
+                'totalResults' => 0,
+            ]);
         }
 
         // Build bilingual search terms (Arabic ↔ English)
