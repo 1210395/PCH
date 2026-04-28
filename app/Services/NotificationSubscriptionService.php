@@ -64,9 +64,47 @@ class NotificationSubscriptionService
         $designerNotifications = [];
         $academicNotifications = [];
 
+        $type = 'profile_subscription_' . $contentType;
+        $designerSubscriberIds = $subscriptions->where('subscriber_type', 'designer')->pluck('subscriber_id')->all();
+        $academicSubscriberIds = $subscriptions->where('subscriber_type', '!=', 'designer')->pluck('subscriber_id')->all();
+
+        // Pre-filter recipients who already received the same notification
+        // type for the same content_id within the last 5 minutes — closes
+        // the bulk-insert dedupe gap that NotificationController's
+        // createNotification() handles for individual creates.
+        // (bugs.md M-45)
+        $recentDesignerRecipients = [];
+        if (!empty($designerSubscriberIds)) {
+            $recentDesignerRecipients = Notification::whereIn('designer_id', $designerSubscriberIds)
+                ->where('type', $type)
+                ->where('data->content_id', $contentId)
+                ->where('created_at', '>', now()->subMinutes(5))
+                ->pluck('designer_id')
+                ->all();
+        }
+        $recentAcademicRecipients = [];
+        if (!empty($academicSubscriberIds)) {
+            $recentAcademicRecipients = AcademicNotification::whereIn('academic_account_id', $academicSubscriberIds)
+                ->where('type', $type)
+                ->where('data->content_id', $contentId)
+                ->where('created_at', '>', now()->subMinutes(5))
+                ->pluck('academic_account_id')
+                ->all();
+        }
+        $recentDesignerSet = array_flip($recentDesignerRecipients);
+        $recentAcademicSet = array_flip($recentAcademicRecipients);
+
         foreach ($subscriptions as $subscription) {
+            $isDesigner = $subscription->subscriber_type === 'designer';
+            $subscriberId = $subscription->subscriber_id;
+
+            // Skip if this subscriber already got the same notification
+            // within the dedupe window.
+            if ($isDesigner && isset($recentDesignerSet[$subscriberId])) continue;
+            if (!$isDesigner && isset($recentAcademicSet[$subscriberId])) continue;
+
             $notificationData = [
-                'type' => 'profile_subscription_' . $contentType,
+                'type' => $type,
                 'title' => $title,
                 'message' => $message,
                 'data' => json_encode($data),
@@ -75,11 +113,11 @@ class NotificationSubscriptionService
                 'updated_at' => now(),
             ];
 
-            if ($subscription->subscriber_type === 'designer') {
-                $notificationData['designer_id'] = $subscription->subscriber_id;
+            if ($isDesigner) {
+                $notificationData['designer_id'] = $subscriberId;
                 $designerNotifications[] = $notificationData;
             } else {
-                $notificationData['academic_account_id'] = $subscription->subscriber_id;
+                $notificationData['academic_account_id'] = $subscriberId;
                 $academicNotifications[] = $notificationData;
             }
         }
