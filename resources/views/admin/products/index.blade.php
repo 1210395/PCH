@@ -144,7 +144,7 @@
                                     <div class="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
                                         @if($product->images->first())
                                             <img src="{{ url('media/' . $product->images->first()->image_path) }}"
-                                                 class="w-full h-full object-cover" alt="">
+                                                 class="w-full h-full object-cover" alt="{{ $product->title }}">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center">
                                                 <i class="fas fa-image text-gray-400"></i>

@@ -74,7 +74,7 @@
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-3">
                                 @if($fablab->image)
-                                    <img src="{{ url('media/' . $fablab->image) }}" alt="" class="w-12 h-12 rounded-lg object-cover">
+                                    <img src="{{ url('media/' . $fablab->image) }}" alt="{{ $fablab->name }}" class="w-12 h-12 rounded-lg object-cover">
                                 @else
                                     <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center"><i class="fas fa-industry text-gray-400"></i></div>
                                 @endif
