@@ -25,7 +25,7 @@ Route::prefix('{locale}/academic')->group(function () {
     // Protected Routes (Authenticated Academic Users)
     // ==========================================
     // Academic users login through the main login page at /{locale}/login
-    Route::middleware(['auth:academic', 'academic'])->group(function () {
+    Route::middleware(['auth:academic', 'academic', 'throttle:120,1'])->group(function () {
 
         // Dashboard
         Route::get('/', [AcademicDashboardController::class, 'index'])->name('academic.dashboard');

@@ -32,8 +32,10 @@ use App\Http\Controllers\Admin\AdminAnalyticsController;
 */
 
 // Protected Admin Routes
+// throttle:300,1 — admins are trusted but per-IP cap still prevents runaway
+// scripts, accidental loops, or credential-harvesting bots if a session leaks.
 Route::prefix('{locale}/admin')
-    ->middleware(['auth:designer', 'admin'])
+    ->middleware(['auth:designer', 'admin', 'throttle:300,1'])
     ->group(function () {
 
         // Analytics

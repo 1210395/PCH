@@ -75,12 +75,14 @@ Route::get('/media/{path}', function ($path) {
 
 // Google OAuth2 callback for Gmail API (no locale prefix needed)
 Route::get('/oauth2/setup', [GoogleOAuthController::class, 'redirect'])
+    ->middleware('throttle:30,1')
     ->name('oauth2.setup');
 Route::get('/oauth2/callback', [GoogleOAuthController::class, 'callback'])
+    ->middleware('throttle:30,1')
     ->name('oauth2.callback');
 
 // XML Sitemap for search engines
-Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->middleware('throttle:60,1')->name('sitemap');
 
 // Redirect root based on browser language preference
 Route::get('/', function () {
@@ -248,13 +250,13 @@ Route::group(['prefix' => '{locale}'], function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/profile', [DesignerProfileController::class, 'showProfile'])->name('profile');
         Route::get('/account/settings', [DesignerProfileController::class, 'accountSettings'])->name('account.settings');
-        Route::post('/account/password/update', [DesignerProfileController::class, 'updatePassword'])->name('account.password.update');
-        Route::post('/account/privacy/update', [DesignerProfileController::class, 'updatePrivacySettings'])->name('account.privacy.update');
-        Route::post('/account/email/update', [DesignerProfileController::class, 'updateEmailPreferences'])->name('account.email.update');
+        Route::post('/account/password/update', [DesignerProfileController::class, 'updatePassword'])->middleware('throttle:5,1')->name('account.password.update');
+        Route::post('/account/privacy/update', [DesignerProfileController::class, 'updatePrivacySettings'])->middleware('throttle:30,1')->name('account.privacy.update');
+        Route::post('/account/email/update', [DesignerProfileController::class, 'updateEmailPreferences'])->middleware('throttle:30,1')->name('account.email.update');
         Route::post('/account/delete/send-code', [DesignerProfileController::class, 'sendDeleteCode'])->middleware('throttle:3,10')->name('account.delete.send-code');
-        Route::post('/account/delete/confirm', [DesignerProfileController::class, 'confirmDelete'])->name('account.delete.confirm');
-        Route::get('/account/upgrade', [DesignerProfileController::class, 'upgradeForm'])->name('account.upgrade');
-        Route::post('/account/upgrade', [DesignerProfileController::class, 'upgradeSubmit'])->name('account.upgrade.submit');
+        Route::post('/account/delete/confirm', [DesignerProfileController::class, 'confirmDelete'])->middleware('throttle:5,10')->name('account.delete.confirm');
+        Route::get('/account/upgrade', [DesignerProfileController::class, 'upgradeForm'])->middleware('throttle:60,1')->name('account.upgrade');
+        Route::post('/account/upgrade', [DesignerProfileController::class, 'upgradeSubmit'])->middleware('throttle:5,1')->name('account.upgrade.submit');
 
         // Notification routes (authenticated only, rate limited)
         Route::get('/notifications', [NotificationController::class, 'index'])
@@ -335,29 +337,29 @@ Route::group(['prefix' => '{locale}'], function () {
 
         // Product management routes (auth required for create/update/delete)
         Route::post('/products', [ProductController::class, 'store'])->middleware('throttle:30,1')->name('products.store');
-        Route::match(['PUT', 'POST'], '/products/{id}', [ProductController::class, 'update'])->name('products.update');
-        Route::match(['DELETE', 'POST'], '/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+        Route::match(['PUT', 'POST'], '/products/{id}', [ProductController::class, 'update'])->middleware('throttle:30,1')->name('products.update');
+        Route::match(['DELETE', 'POST'], '/products/{id}', [ProductController::class, 'destroy'])->middleware('throttle:30,1')->name('products.destroy');
 
         // Project management routes (auth required for create/update/delete)
         Route::post('/projects', [ProjectController::class, 'store'])->middleware('throttle:30,1')->name('projects.store');
-        Route::match(['PUT', 'POST'], '/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
-        Route::match(['DELETE', 'POST'], '/projects/{id}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+        Route::match(['PUT', 'POST'], '/projects/{id}', [ProjectController::class, 'update'])->middleware('throttle:30,1')->name('projects.update');
+        Route::match(['DELETE', 'POST'], '/projects/{id}', [ProjectController::class, 'destroy'])->middleware('throttle:30,1')->name('projects.destroy');
 
         // Service management routes (auth required for create/update/delete)
         Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store'])->middleware('throttle:30,1')->name('services.store');
-        Route::match(['PUT', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'update'])->name('services.update');
-        Route::match(['DELETE', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'destroy'])->name('services.destroy');
+        Route::match(['PUT', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'update'])->middleware('throttle:30,1')->name('services.update');
+        Route::match(['DELETE', 'POST'], '/services/{id}', [\App\Http\Controllers\ServiceController::class, 'destroy'])->middleware('throttle:30,1')->name('services.destroy');
 
         // Marketplace post management routes
         Route::post('/marketplace-posts', [\App\Http\Controllers\MarketplacePostController::class, 'store'])->middleware('throttle:30,1')->name('marketplace-posts.store');
-        Route::match(['PUT', 'POST'], '/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'update'])->name('marketplace-posts.update');
-        Route::match(['DELETE', 'POST'], '/marketplace-posts/{id}/delete', [\App\Http\Controllers\MarketplacePostController::class, 'destroy'])->name('marketplace-posts.destroy');
-        Route::get('/marketplace-posts/source-data', [\App\Http\Controllers\MarketplacePostController::class, 'getSourceData'])->name('marketplace-posts.source-data');
+        Route::match(['PUT', 'POST'], '/marketplace-posts/{id}', [\App\Http\Controllers\MarketplacePostController::class, 'update'])->middleware('throttle:30,1')->name('marketplace-posts.update');
+        Route::match(['DELETE', 'POST'], '/marketplace-posts/{id}/delete', [\App\Http\Controllers\MarketplacePostController::class, 'destroy'])->middleware('throttle:30,1')->name('marketplace-posts.destroy');
+        Route::get('/marketplace-posts/source-data', [\App\Http\Controllers\MarketplacePostController::class, 'getSourceData'])->middleware('throttle:60,1')->name('marketplace-posts.source-data');
         Route::post('/marketplace-posts/{id}/share', [\App\Http\Controllers\MarketplacePostController::class, 'shareToUsers'])->middleware('throttle:30,1')->name('marketplace-posts.share');
 
         // User search & suggestions (for sharing)
-        Route::get('/designers/search-users', [DesignerFollowController::class, 'searchUsers'])->name('designers.search-users');
-        Route::get('/designers/suggested-users', [DesignerFollowController::class, 'suggestedUsers'])->name('designers.suggested-users');
+        Route::get('/designers/search-users', [DesignerFollowController::class, 'searchUsers'])->middleware('throttle:60,1')->name('designers.search-users');
+        Route::get('/designers/suggested-users', [DesignerFollowController::class, 'suggestedUsers'])->middleware('throttle:60,1')->name('designers.suggested-users');
 
         // Marketplace comments routes (authenticated only, rate limited)
         Route::post('/marketplace/{postId}/comments', [\App\Http\Controllers\MarketplaceCommentController::class, 'store'])
@@ -372,10 +374,10 @@ Route::group(['prefix' => '{locale}'], function () {
 
         // Designer profile management routes
         Route::get('/profile/edit', [DesignerProfileController::class, 'editProfile'])->name('profile.edit');
-        Route::post('/profile/update', [DesignerProfileController::class, 'updateProfile'])->name('profile.update');
-        Route::post('/profile/update-certifications', [DesignerProfileController::class, 'updateCertifications'])->name('profile.update-certifications');
-        Route::post('/designer/update-bio', [DesignerProfileController::class, 'updateBio'])->name('designer.update-bio');
-        Route::post('/designer/update-skills', [DesignerProfileController::class, 'updateSkills'])->name('designer.update-skills');
+        Route::post('/profile/update', [DesignerProfileController::class, 'updateProfile'])->middleware('throttle:30,1')->name('profile.update');
+        Route::post('/profile/update-certifications', [DesignerProfileController::class, 'updateCertifications'])->middleware('throttle:30,1')->name('profile.update-certifications');
+        Route::post('/designer/update-bio', [DesignerProfileController::class, 'updateBio'])->middleware('throttle:30,1')->name('designer.update-bio');
+        Route::post('/designer/update-skills', [DesignerProfileController::class, 'updateSkills'])->middleware('throttle:30,1')->name('designer.update-skills');
 
         // Follow/Unfollow routes (authenticated only, rate limited)
         Route::post('/designer/{id}/follow', [DesignerFollowController::class, 'follow'])
