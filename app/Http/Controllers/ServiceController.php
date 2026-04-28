@@ -219,12 +219,21 @@ class ServiceController extends Controller
         $validated['description'] = strip_tags($validated['description']);
         $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'service_category');
 
-        // Update service details
-        $service->update([
+        // Reset approval to pending on edit so moderators re-review the
+        // changed content. Trusted users skip the reset. (bugs.md M-1)
+        $updateData = [
             'name' => $validated['name'],
             'description' => $validated['description'],
             'category' => $validated['category'],
-        ]);
+        ];
+        $currentDesigner = auth('designer')->user();
+        if (!($currentDesigner->is_trusted ?? false)) {
+            $updateData['approval_status'] = 'pending';
+            $updateData['rejection_reason'] = null;
+            $updateData['approved_at'] = null;
+            $updateData['approved_by'] = null;
+        }
+        $service->update($updateData);
 
         return response()->json([
             'success' => true,

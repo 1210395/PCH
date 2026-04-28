@@ -316,12 +316,25 @@ class ProductController extends Controller
         $validated['description'] = strip_tags($validated['description']);
         $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'product_category');
 
-        // Update product details
-        $product->update([
+        // Reset approval to pending on edit so moderators re-review the
+        // changed content. Trusted users skip the reset (their content is
+        // auto-approved). MarketplacePostController already does this; the
+        // sibling Product/Project/Service paths previously did not, which
+        // let an approved item be edited freely with new content remaining
+        // approved. (bugs.md M-1)
+        $updateData = [
             'title' => $validated['name'],
             'description' => $validated['description'],
             'category' => $validated['category'],
-        ]);
+        ];
+        $currentDesigner = auth('designer')->user();
+        if (!($currentDesigner->is_trusted ?? false)) {
+            $updateData['approval_status'] = 'pending';
+            $updateData['rejection_reason'] = null;
+            $updateData['approved_at'] = null;
+            $updateData['approved_by'] = null;
+        }
+        $product->update($updateData);
 
         // Handle image updates if provided
         if ($request->has('image_paths') && is_array($request->image_paths)) {

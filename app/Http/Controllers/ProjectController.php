@@ -336,13 +336,22 @@ class ProjectController extends Controller
             $validated['category'] = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'project_category');
         }
 
-        // Update project details
-        $project->update([
+        // Reset approval to pending on edit so moderators re-review the
+        // changed content. Trusted users skip the reset. (bugs.md M-1)
+        $updateData = [
             'title' => $validated['title'],
             'description' => $validated['description'],
             'category' => $validated['category'] ?? null,
             'role' => $validated['role'],
-        ]);
+        ];
+        $currentDesigner = auth('designer')->user();
+        if (!($currentDesigner->is_trusted ?? false)) {
+            $updateData['approval_status'] = 'pending';
+            $updateData['rejection_reason'] = null;
+            $updateData['approved_at'] = null;
+            $updateData['approved_by'] = null;
+        }
+        $project->update($updateData);
 
         // Handle image updates if provided
         if ($request->has('image_paths') && is_array($request->image_paths)) {
