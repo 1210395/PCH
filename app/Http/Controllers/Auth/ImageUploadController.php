@@ -416,7 +416,15 @@ class ImageUploadController extends Controller
      * @param  int|null     $imageNumber Sequential image index for multi-image entities
      * @return string                    Final permanent path relative to storage/app/public, or empty string on failure
      */
-    public function moveToPermStorage($tempPath, $type, $userId, $entityId = null, $imageNumber = null)
+    /**
+     * @param  bool  $skipImageProcessing  When true, skip the GD/WebP encode
+     *   step and just rename temp → permanent. The caller is then expected to
+     *   re-process the file later (e.g. via ImageService::processExisting in
+     *   a deferred afterResponse closure). Used by the registration controller
+     *   so the synchronous request finishes in milliseconds instead of
+     *   blocking on per-image GD encoding.
+     */
+    public function moveToPermStorage($tempPath, $type, $userId, $entityId = null, $imageNumber = null, $skipImageProcessing = false)
     {
         // Check if file doesn't exist in temp (already moved as duplicate)
         if (empty($tempPath)) {
@@ -557,6 +565,17 @@ class ImageUploadController extends Controller
             $fullPermanentPath = storage_path('app/public/' . $permanentDir);
             if (!file_exists($fullPermanentPath)) {
                 mkdir($fullPermanentPath, 0755, true);
+            }
+
+            // Fast path: rename only, skip GD encoding. Caller is responsible
+            // for upgrading the file to WebP later (e.g. registration's
+            // afterResponse closure calls ImageService::processExisting).
+            if ($skipImageProcessing) {
+                if (Storage::disk('public')->exists($permanentPath)) {
+                    Storage::disk('public')->delete($permanentPath);
+                }
+                Storage::disk('public')->move($tempPath, $permanentPath);
+                return $permanentPath;
             }
 
             // Determine the image ratio based on type

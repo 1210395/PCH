@@ -425,13 +425,25 @@ class AuthController extends Controller
 
             // Move profile + cover images to permanent storage WITHOUT
             // GD/WebP processing — that takes ~3s/image on shared cPanel and
-            // was the dominant cause of the 10+s "Publish" spinner. We do a
-            // plain Storage::move now (filesystem rename, ~ms) and defer the
-            // WebP conversion to an afterResponse closure below.
-            $avatarPath = $this->fastMovePerm($request->profile_image_path ?? null, 'profiles', "profile_{$designer->id}");
-            if (!$avatarPath && $request->hasFile('profile_image')) {
-                // Direct upload (no pre-upload session) — process inline because
-                // we don't have a temp path to defer.
+            // was the dominant cause of the 10+s "Publish" spinner. We pass
+            // skipImageProcessing=true to moveToPermStorage so it does only
+            // the filesystem rename (~ms); the WebP encode is deferred to
+            // the afterResponse closure below.
+            $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
+
+            $avatarPath = null;
+            if ($request->has('profile_image_path')) {
+                $avatarPath = $imageUploader->moveToPermStorage(
+                    $request->profile_image_path,
+                    'profile',
+                    $designer->id,
+                    $designer->id,
+                    null,
+                    true // skip image processing — handled in afterResponse
+                );
+            } elseif ($request->hasFile('profile_image')) {
+                // Direct upload (no pre-upload session) — process inline since
+                // there's no temp path to defer to.
                 $avatarPath = \App\Services\ImageService::process(
                     $request->file('profile_image'),
                     \App\Services\ImageService::SQUARE,
@@ -443,8 +455,17 @@ class AuthController extends Controller
                 $designer->update(['avatar' => $avatarPath]);
             }
 
-            $coverPath = $this->fastMovePerm($request->cover_image_path ?? null, 'covers', "hero_{$designer->id}");
-            if (!$coverPath && $request->hasFile('cover_image')) {
+            $coverPath = null;
+            if ($request->has('cover_image_path')) {
+                $coverPath = $imageUploader->moveToPermStorage(
+                    $request->cover_image_path,
+                    'cover',
+                    $designer->id,
+                    $designer->id,
+                    null,
+                    true // skip image processing — handled in afterResponse
+                );
+            } elseif ($request->hasFile('cover_image')) {
                 $coverPath = \App\Services\ImageService::process(
                     $request->file('cover_image'),
                     \App\Services\ImageService::BANNER,
@@ -455,9 +476,6 @@ class AuthController extends Controller
             if ($coverPath) {
                 $designer->update(['cover_image' => $coverPath]);
             }
-            // The ImageUploadController instance is still needed for cert PDFs +
-            // any product/project/service images below.
-            $imageUploader = new \App\Http\Controllers\Auth\ImageUploadController();
 
             // Attach skills efficiently using bulk operations
             if (!empty($skills)) {
@@ -893,62 +911,6 @@ class AuthController extends Controller
     /**
      * Cleanup temporary uploaded files after registration
      */
-    /**
-     * Fast move a temp upload to permanent storage WITHOUT GD/WebP processing.
-     *
-     * Used for registration profile + cover images so the request completes
-     * in milliseconds instead of waiting on per-image GD encode (~3s each).
-     * The deferred afterResponse closure later upgrades the file to WebP via
-     * ImageService::processExisting and updates the designer record.
-     *
-     * Includes a path-traversal check identical to ImageUploadController's
-     * full version. Returns the permanent path on success, null otherwise.
-     */
-    private function fastMovePerm(?string $tempPath, string $folder, string $filenameNoExt): ?string
-    {
-        if (empty($tempPath)) {
-            return null;
-        }
-
-        if (!\Storage::disk('public')->exists($tempPath)) {
-            return null;
-        }
-
-        // Path traversal guard — same check as ImageUploadController.
-        $realTempPath = realpath(storage_path('app/public/' . $tempPath));
-        $basePath = realpath(storage_path('app/public'));
-        if ($realTempPath === false || $basePath === false || strpos($realTempPath, $basePath) !== 0) {
-            \Log::error('Path traversal attempt blocked in fastMovePerm', [
-                'temp_path' => $tempPath,
-            ]);
-            return null;
-        }
-
-        $extension = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION) ?: 'jpg');
-        // Whitelist extensions to match the validator.
-        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)) {
-            $extension = 'jpg';
-        }
-
-        $permanentPath = trim($folder, '/') . '/' . $filenameNoExt . '.' . $extension;
-
-        try {
-            // If a previous registration left a file at the same name, remove it.
-            if (\Storage::disk('public')->exists($permanentPath)) {
-                \Storage::disk('public')->delete($permanentPath);
-            }
-            \Storage::disk('public')->move($tempPath, $permanentPath);
-            return $permanentPath;
-        } catch (\Throwable $e) {
-            \Log::error('fastMovePerm failed', [
-                'temp_path' => $tempPath,
-                'permanent_path' => $permanentPath,
-                'error' => $e->getMessage(),
-            ]);
-            return null;
-        }
-    }
-
     private function cleanupTempFiles($sessionId)
     {
         try {
