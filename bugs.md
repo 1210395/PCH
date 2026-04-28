@@ -369,7 +369,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `routes/web.php:181` — `throttle:10,5`
 - **Fix:** Custom limiter keyed on email field as well.
 
-### M-4. `uploading` flag is global across all parallel uploads
+### M-4. ✅ `uploading` flag is global across all parallel uploads
 - **Where:** `auth/register/alpine-data.blade.php:358, 493`
 - **Fix:** Use a counter (`activeUploads++` / `--`).
 

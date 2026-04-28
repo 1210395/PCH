@@ -56,7 +56,15 @@ function signupWizard() {
 
         // Progressive upload tracking
         uploadSession: null, // Unique session ID for this registration
-        uploading: false, // Global upload state
+        // Counter (not boolean) so parallel uploads don't clobber each
+        // other's "in-flight" state — second upload finishing was setting
+        // uploading=false while the first was still running. (bugs.md M-4)
+        activeUploads: 0,
+        get uploading() { return this.activeUploads > 0; },
+        set uploading(v) {
+            if (v) this.activeUploads++;
+            else this.activeUploads = Math.max(0, this.activeUploads - 1);
+        },
         uploadMutex: false, // Prevent concurrent uploads
         uploadProgress: {}, // Track upload progress per image
         uploadedPaths: {
@@ -2202,7 +2210,9 @@ function signupWizard() {
                 services: {}
             };
             this.uploadProgress = {};
-            this.uploading = false;
+            // Full reset, not a single decrement (the wizard reset path
+            // could be called while uploads are still in flight). (M-4)
+            this.activeUploads = 0;
 
             // Generate new upload session
             this.uploadSession = this.getOrCreateUploadSession();
