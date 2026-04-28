@@ -38,23 +38,38 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 | 6 | `089bef0a3` | Branded 403/404/419/429/500 error pages, JS modal copy localized, mobile nav aria-labels (verified hamburger exists) |
 | 7a | `60c166d9b` | CleanupOrphanedUploads static-call fix, hide deactivated-designer content from direct URLs, cache invalidation on bulk-notification insert |
 | 7b | `454149169` | Like/follow toggles wrapped in DB::transaction + lockForUpdate, scheduled cleanup tasks with onFailure logging |
+| 8 | `f2d5e51d7` | Login double-submit guard, compose-message stuck-state fix, modal escape stop, portfolio file validation |
+| 9 | `403d68bc2` | Marketplace source_id ownership rule, register form maxlength, admin password complexity, validate confirmDelete/sendDeleteCode, decouple delete-code email/cache |
+| 10 | `6a3b01f09` | Default mailer to gmail, webhook replay protection, strip PII from registration logs, remove deprecated X-XSS-Protection |
+| 11 | `fad4e0a63` | Content-Security-Policy in Report-Only mode, GDPR cookie consent banner |
+| Hotfix | `aac66a231` | Defer image WebP encoding off the registration request — Publish dropped from ~10s to ~ms |
+| Refactor | `2590c08e0` | Fold fastMovePerm into existing moveToPermStorage(..., $skipImageProcessing=true) |
+| 12 | `84cd777a9` | H-4 image rollback cleanup on registration failure |
+| 13 | `594ceb35e` | H-20 RTL shim in main layout + M-23 verify-email input label association |
+| 14 | `7c442a46f` | M-1 reset approval to pending on Product/Project/Service edit |
+| 15 | `47dc1cabc` | M-19 hard-coded placeholder localization + M-20 locale-aware dates |
+| 16 | `85f57749b` | M-22 alt text on 5 wrongly-empty content images |
+| 17 | `93e8ee49f` | M-24 search empty state + M-29 resend double-click race fix |
+| 18 | `261ff3db3` | M-7 stop surfacing server debug_info in registration error toast |
 
-**Remaining open items** (need user input or larger refactor):
+**Remaining open items** (need user input or external coordination):
 - B-10 (search throttle tightness — needs user policy decision)
-- H-4 (image rollback cleanup on registration failure — non-trivial refactor)
 - H-8 / H-9 / H-10 / H-25 (DB schema baselining + FK + likes uniqueness — needs migration strategy)
-- H-11 / H-12 / H-13 / H-14 (frontend double-submit + modal escape stop + portfolio file validation)
-- H-17 (register form `maxlength` attrs — quick task)
-- H-18 / H-19 / H-20 (i18n + RTL — bulk codemod, ~3 hrs)
-- H-21 (home TTFP — perf profiling)
-- H-22 / H-23 / H-24 (designer filter bookmarkability, register form labels, admin password complexity)
-- H-28 (trustProxies — needs Cloudflare CIDR list)
-- H-29 / H-30 (CSP + GDPR banner — design + copy work)
-- H-31 (sendmail fallback config — single env var change)
-- H-34 (webhook replay protection — non-trivial)
-- H-35 (PII in Log::debug — sensitive trim)
+- H-18 (136 missing ar.json keys — needs Arabic translator)
+- H-19 (RTL bulk codemod — touches 30 files)
+- H-21 (home TTFP — needs perf profiling)
+- H-23 (register form unlabeled inputs — would need per-input audit)
+- H-28 (trustProxies CIDRs — needs confirmation site is behind Cloudflare)
 - H-37 (real queue worker — needs cPanel cron setup)
-- All M-* and L-* items below
+- M-9 (counter recompute artisan command)
+- M-10 (avatar fallback — would break existing `if ($designer->avatar)` checks)
+- M-12 (tender description sanitiser — needs HTMLPurifier package)
+- M-30 (modal focus trap — needs focus-trap library)
+- M-31 (searchable dropdown keyboard nav — moderate effort)
+- M-32 (email unsubscribe — needs new route + signed token + template)
+- L-* items (polish, lower priority)
+
+False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes below.
 
 ---
 
@@ -156,7 +171,7 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 - **What:** Pattern is `where(...)->first()` then `Like::create()` + `increment(...)` outside a transaction. Two concurrent clicks create two Like rows + two increments; unlike only deletes one row + decrements once → permanent counter drift upward.
 - **Fix:** `DB::transaction` + `firstOrCreate`; only `increment` when `wasRecentlyCreated`.
 
-### H-4. ❌ Mid-registration image-move failures are NOT cleaned up
+### H-4. ✅ Mid-registration image-move failures are NOT cleaned up
 - **Where:** `app/Http/Controllers/Auth/AuthController.php` — `moveToPermStorage` calls at lines 424, 452, 524, 600, 718; rollback at line 845
 - **What:** `cleanupTempFiles` cleans only **temp** files. Permanent files already moved (avatar, cover, first product image) are orphaned: DB rolls back, files stay on disk forever.
 - **Fix:** Track created permanent paths in an array; on rollback delete each from `Storage::disk('public')`.
@@ -193,22 +208,22 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 - **What:** If prod table doesn't already have a unique key, two designers can register the same email.
 - **Fix:** `SHOW INDEXES FROM designers` to verify; add `ALTER TABLE designers ADD UNIQUE (email)` if missing. Add to baseline migration.
 
-### H-11. ❌ Login form has no double-submit lockout
+### H-11. ✅ Login form has no double-submit lockout
 - **Where:** `resources/views/auth/login.blade.php:58-121`
 - **What:** Plain form, no `@submit` guard, no `:disabled`. Double-clicking sends two POSTs.
 - **Fix:** `x-data="{busy:false}"`, `@submit="busy=true"`, `:disabled="busy"`.
 
-### H-12. ❌ Compose-message form gets stuck on "Sending..."
+### H-12. ✅ Compose-message form gets stuck on "Sending..."
 - **Where:** `resources/views/messages/compose.blade.php:135-176`
 - **What:** `data.success && !data.redirect` path leaves button disabled forever.
 - **Fix:** Always reset busy flag on response.
 
-### H-13. ❌ step-7-review: two stacked modals share `escape.window`
+### H-13. ✅ step-7-review: two stacked modals share `escape.window`
 - **Where:** `step-7-review.blade.php:297` (showPublishConfirmModal) + `:401` (showPoliciesModal)
 - **What:** Esc closes both modals at once.
 - **Fix:** `@keydown.escape.stop` on the inner modal.
 
-### H-14. ❌ Portfolio modals don't validate file size/mime client-side
+### H-14. ✅ Portfolio modals don't validate file size/mime client-side
 - **Where:** `components/portfolio/layout.blade.php:715-722` (`handleImageUpload`)
 - **What:** Only checks `file.type.startsWith('image/')`. No size cap, no extension cross-check. 50 MB file → server rejects after upload, wasted bandwidth.
 - **Fix:** Mirror `validateImageFile()` from registration alpine-data.
@@ -218,11 +233,11 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 - **What:** `'phone_country' => 'string|max:2'` no `in:` whitelist; bypasses the PS-only regex on line 324.
 - **Fix:** `'phone_country' => ['nullable','string','size:2','in:PS,IL,JO,US,...']`.
 
-### H-16. ❌ Marketplace `source_id` lacks `exists` rule and ownership check
+### H-16. ✅ Marketplace `source_id` lacks `exists` rule and ownership check
 - **Where:** `app/Http/Controllers/MarketplacePostController.php:46`
 - **Fix:** `Rule::exists($sourceTable,'id')->where('designer_id', $designer->id)`.
 
-### H-17. ❌ Register accepts 300-char names with no `maxLength`
+### H-17. ✅ Register accepts 300-char names with no `maxLength`
 - **Where:** `resources/views/auth/register/step-1-account.blade.php`
 - **Fix:** Add `maxlength="100"` to text inputs.
 
@@ -236,7 +251,7 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 - **What:** Hard-coded `mr-/ml-/pl-/pr-/left-/right-/text-left` instead of logical `ms-/me-/ps-/pe-/start-/end-/text-start/text-end`. Search-bar magnifier sits behind placeholder text in Arabic.
 - **Fix:** Codemod to logical-properties variants (Tailwind 3.3+).
 
-### H-20. ❌ RTL `text-left` shim missing from main layout
+### H-20. ✅ RTL `text-left` shim missing from main layout
 - **Where:** `resources/views/layout/main.blade.php`
 - **What:** Shim exists in `layout/auth.blade.php` and `layout/chat.blade.php` but not `main.blade.php`.
 - **Fix:** Move shim into `main.blade.php`, or convert to `text-start`/`text-end` everywhere.
@@ -246,7 +261,8 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 - **What:** Cold load 20.7s to networkidle; warm loads ~13s.
 - **Fix:** Profile homepage queries; cache via `CacheService`. Enable HTTP/2 + Brotli on cPanel.
 
-### H-22. ❌ Designer listing filters not bookmarkable
+### H-22. ⚠️ Designer listing filters not bookmarkable
+*False positive: filter tabs in designers.blade.php:109+ are plain `<a href="...?type=...&sort=...&search=...">` links with no JS preventDefault. URL is already bookmarkable.*
 - **Where:** `resources/views/designers.blade.php`
 - **Fix:** Use query params + `pushState`.
 
@@ -254,7 +270,7 @@ Fix work shipped in 7 batches against `main`. Pull each commit and deploy.
 - **Where:** `resources/views/auth/register/step-1/2/3-*.blade.php`
 - **Fix:** Add `<label for="...">` and `aria-label="..."` on icon-only buttons.
 
-### H-24. ❌ Admin password reset only requires `min:8`
+### H-24. ✅ Admin password reset only requires `min:8`
 - **Where:** `app/Http/Controllers/Admin/AdminDesignerController.php:248-256`
 - **Fix:** Use `Illuminate\Validation\Rules\Password` chain.
 
