@@ -713,12 +713,42 @@
         },
 
         handleImageUpload(event) {
+            // Client-side guards so users get feedback BEFORE uploading 50 MB
+            // of bandwidth that the server will reject. Mirrors the server
+            // rules: jpg/jpeg/png/webp, max 5 MB, max 6 images per item.
+            // (bugs.md H-14)
+            const ALLOWED_MIMES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            const MAX_BYTES = 5 * 1024 * 1024;
+            const MAX_IMAGES = 6;
             const files = Array.from(event.target.files);
+            const rejected = [];
+
             files.forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    this.uploadedImages.push(file);
+                if (!ALLOWED_MIMES.includes(file.type)) {
+                    rejected.push(`${file.name}: {{ __('only JPG, PNG, or WebP images are allowed') }}`);
+                    return;
                 }
+                if (file.size > MAX_BYTES) {
+                    rejected.push(`${file.name}: {{ __('larger than 5 MB') }}`);
+                    return;
+                }
+                if (this.uploadedImages.length >= MAX_IMAGES) {
+                    rejected.push(`${file.name}: {{ __('maximum 6 images per item') }}`);
+                    return;
+                }
+                this.uploadedImages.push(file);
             });
+
+            if (rejected.length > 0) {
+                if (typeof showToast === 'function') {
+                    showToast(rejected.join('\n'), 'warning');
+                } else {
+                    alert(rejected.join('\n'));
+                }
+            }
+
+            // Reset the input so re-selecting the same rejected file fires change again.
+            event.target.value = '';
         },
 
         removeImage(index) {

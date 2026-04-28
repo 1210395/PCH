@@ -161,6 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     if (data.redirect) {
                         window.location.href = data.redirect;
+                    } else {
+                        // Success without redirect — re-enable the button so
+                        // the user isn't stuck staring at a permanent
+                        // "Sending..." state. (bugs.md H-12)
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>{{ __("Send Message Request") }}</span>';
                     }
                 } else {
                     alert(data.message || '{{ __("An error occurred") }}');

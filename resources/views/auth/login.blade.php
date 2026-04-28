@@ -55,7 +55,14 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('login.post', ['locale' => app()->getLocale()]) }}" class="space-y-5">
+            {{-- x-data busy guard prevents a double-click from POSTing twice
+                 (which would otherwise trigger the per-account login limiter
+                 and lock the user out for 1 minute on a benign double-click). --}}
+            <form method="POST"
+                  action="{{ route('login.post', ['locale' => app()->getLocale()]) }}"
+                  class="space-y-5"
+                  x-data="{ busy: false }"
+                  @submit="busy = true">
                 @csrf
 
                 <!-- Email -->
@@ -114,9 +121,12 @@
                 <!-- Submit Button -->
                 <button
                     type="submit"
+                    :disabled="busy"
+                    :class="busy ? 'opacity-60 cursor-not-allowed' : ''"
                     class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
                 >
-                    {{ __('Log In') }}
+                    <span x-show="!busy">{{ __('Log In') }}</span>
+                    <span x-show="busy" x-cloak>{{ __('Logging in...') }}</span>
                 </button>
             </form>
         </div>

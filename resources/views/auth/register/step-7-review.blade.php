@@ -294,7 +294,10 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
                  class="fixed inset-0 z-50 overflow-y-auto"
-                 @keydown.escape.window="showPublishConfirmModal = false">
+                 {{-- Only close if the topmost (policies) modal isn't open.
+                      Otherwise both modals would collapse from one Esc press.
+                      (bugs.md H-13) --}}
+                 @keydown.escape.window="if (!showPoliciesModal) showPublishConfirmModal = false">
                 <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                     {{-- Backdrop --}}
                     <div class="fixed inset-0 transition-opacity bg-gray-900/75" @click="showPublishConfirmModal = false"></div>
@@ -398,7 +401,9 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
                  class="fixed inset-0 z-[60] overflow-y-auto"
-                 @keydown.escape.window="showPoliciesModal = false">
+                 {{-- Stop propagation so the publish-confirm listener below
+                      doesn't ALSO close on the same Esc press. (bugs.md H-13) --}}
+                 @keydown.escape.window="if (showPoliciesModal) { showPoliciesModal = false; $event.stopPropagation(); }">
                 <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                     {{-- Backdrop --}}
                     <div class="fixed inset-0 transition-opacity bg-gray-900/75" @click="showPoliciesModal = false"></div>
