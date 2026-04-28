@@ -48,20 +48,20 @@
                 </div>
 
                 <!-- Profile Info -->
-                <div class="flex-1 text-center md:text-left">
+                <div class="flex-1 text-center md:text-start">
                     <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div>
                             <div class="flex items-center justify-center md:justify-start gap-2 mb-1 sm:mb-2">
                                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{{ $designer->name }}</h1>
                                 @if($designer->is_trusted)
                                     <span class="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold bg-blue-100 text-blue-700 border border-blue-200" title="{{ __('Trusted member — verified by admin') }}">
-                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 me-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                                     {{ __('Trusted') }}
                                 </span>
                                 @endif
                                 @if($designer->is_tevet && in_array($designer->sector, ['manufacturer', 'showroom']))
                                     <span class="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold bg-purple-100 text-purple-700 border border-purple-200">
-                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 me-1" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                         </svg>
                                         {{ __('Workplace Learning Center') }}
@@ -135,14 +135,14 @@
                         <div class="flex flex-wrap gap-2 justify-center md:justify-start flex-shrink-0">
                             @if($designer->sector === 'guest')
                             <a href="{{ route('account.upgrade', ['locale' => app()->getLocale()]) }}" class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all text-xs sm:text-sm md:text-base animate-pulse">
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
                                 </svg>
                                 {{ __('Upgrade to Full Account') }}
                             </a>
                             @else
                             <a href="{{ route('profile.edit', ['locale' => app()->getLocale()]) }}" class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-xs sm:text-sm md:text-base">
-                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                                 {{ __('Edit Profile') }}
@@ -166,7 +166,7 @@
                                     onclick="sendMessageRequest({{ $designer->id }})"
                                     class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-xs sm:text-sm md:text-base"
                                 >
-                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                                     </svg>
                                     <span class="hidden sm:inline">{{ __('Send Message') }}</span>
@@ -178,7 +178,7 @@
                                     href="{{ route('login', ['locale' => app()->getLocale(), 'redirect' => url()->current()]) }}"
                                     class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-xs sm:text-sm md:text-base"
                                 >
-                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                                     </svg>
                                     <span class="hidden sm:inline">{{ __('Send Message') }}</span>
@@ -192,7 +192,7 @@
                                 <a href="{{ route('email.compose', ['locale' => app()->getLocale(), 'designerId' => $designer->id]) }}"
                                    class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 hover:shadow-lg transition-all text-xs sm:text-sm md:text-base"
                                 >
-                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                     </svg>
                                     <span class="hidden sm:inline">{{ __('Send Email') }}</span>
@@ -204,7 +204,7 @@
                                    class="inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gray-100 border border-gray-200 text-gray-400 rounded-lg font-semibold cursor-not-allowed text-xs sm:text-sm md:text-base"
                                    title="{{ __('This designer has disabled email contact') }}"
                                 >
-                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                     </svg>
                                     <span class="hidden sm:inline">{{ __('Email Disabled') }}</span>
@@ -232,20 +232,20 @@
 
                     <!-- Stats -->
                     <div class="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 py-3 sm:py-4 border-t border-gray-200 max-w-md">
-                        <div class="text-center sm:text-left">
+                        <div class="text-center sm:text-start">
                             <div class="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
                                 {{ $designer->projects->count() ?? 0 }}
                             </div>
                             <div class="text-[10px] sm:text-xs md:text-sm text-gray-600">{{ __('Projects') }}</div>
                         </div>
-                        <div class="text-center sm:text-left">
+                        <div class="text-center sm:text-start">
                             <div class="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
                                 {{ $designer->products->count() ?? 0 }}
                             </div>
                             <div class="text-[10px] sm:text-xs md:text-sm text-gray-600">{{ __('Products') }}</div>
                         </div>
                         <!-- Rating Display -->
-                        <div class="text-center sm:text-left cursor-pointer group" onclick="scrollToRatings()">
+                        <div class="text-center sm:text-start cursor-pointer group" onclick="scrollToRatings()">
                             <div class="flex items-center justify-center sm:justify-start gap-1">
                                 <span class="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                                     {{ number_format($averageRating, 1) }}
@@ -268,7 +268,7 @@
                             onclick="showRatingModal(true)"
                             class="inline-flex items-center px-3 sm:px-4 py-2 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg text-xs sm:text-sm font-medium hover:bg-yellow-100 transition-all"
                         >
-                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 me-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
                             {{ __('Update Your Rating') }}
@@ -278,7 +278,7 @@
                             onclick="showRatingModal(false)"
                             class="inline-flex items-center px-3 sm:px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg text-xs sm:text-sm font-semibold hover:shadow-lg hover:shadow-yellow-500/30 transition-all"
                         >
-                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 me-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
                             {{ __('Rate this Profile') }}
@@ -291,7 +291,7 @@
                             href="{{ route('login', ['locale' => app()->getLocale(), 'redirect' => url()->current()]) }}"
                             class="inline-flex items-center px-3 sm:px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg text-xs sm:text-sm font-semibold hover:shadow-lg hover:shadow-yellow-500/30 transition-all"
                         >
-                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 me-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
                             {{ __('Rate this Profile') }}
@@ -343,7 +343,7 @@ function updateMessageButtonToOpenChat(chatUrl) {
     link.href = chatUrl;
     link.className = 'inline-flex items-center px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-xs sm:text-sm md:text-base';
     link.innerHTML = `
-        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 me-1.5 sm:me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
         </svg>
         <span class="hidden sm:inline">{{ __("Open Chat") }}</span>
@@ -400,7 +400,7 @@ function showModal(title, message, type = 'success') {
                     </div>
                     <h3 class="text-xl font-bold text-gray-900">${title}</h3>
                 </div>
-                <p class="text-gray-600 mb-6 ml-16">${message}</p>
+                <p class="text-gray-600 mb-6 ms-16">${message}</p>
                 <div class="flex justify-end">
                     <button onclick="this.closest('.fixed').remove()"
                             class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
@@ -733,7 +733,7 @@ async function submitRating(designerId, isUpdate) {
 
     const submitBtn = document.getElementById('submitRatingBtn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ __("Submitting...") }}';
+    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white inline me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ __("Submitting...") }}';
 
     // Collect checked criteria IDs
     const criteriaIds = Array.from(
