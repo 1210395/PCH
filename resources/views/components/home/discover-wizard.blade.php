@@ -235,10 +235,13 @@ function discoverWizard() {
         step2Options: [],
 
         init() {
+            // Cooldown bumped from 30 min to 7 days so a once-dismissed
+            // wizard doesn't reappear on every visit. Frequent visitors
+            // were seeing it constantly. (bugs.md M-27)
             const lastDismissed = localStorage.getItem('discoverWizardDismissed');
             if (lastDismissed) {
-                const minutesAgo = (Date.now() - parseInt(lastDismissed)) / 1000 / 60;
-                if (minutesAgo < 30) return;
+                const daysAgo = (Date.now() - parseInt(lastDismissed)) / 1000 / 60 / 60 / 24;
+                if (daysAgo < 7) return;
             }
             setTimeout(() => { this.show = true; }, 800);
         },
