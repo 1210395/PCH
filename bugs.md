@@ -444,11 +444,11 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `admin/dashboard.blade.php:177`, `admin/fablabs/index.blade.php:77`, `admin/marketplace/edit.blade.php:120, /index.blade.php:96`, `admin/products/index.blade.php:147`
 - **Fix:** Provide meaningful alt.
 
-### M-23. `verify-email.blade.php` email input has no `<label>`
+### M-23. ✅ `verify-email.blade.php` email input has no `<label>`
 - **Where:** `resources/views/auth/verify-email.blade.php:75`
 - **Fix:** Add `<label for="email">`.
 
-### M-24. Empty `/en/search` silently redirects to `/en`
+### M-24. ✅ Empty `/en/search` silently redirects to `/en`
 - **Fix:** Render a search-landing view with hint.
 
 ### M-25. ✅ Register email validation falls back to native HTML5; password-confirm mismatch shows no inline error
