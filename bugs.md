@@ -381,7 +381,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `form-errors.blade.php:1-2`
 - **Fix:** Refresh token via heartbeat fetch.
 
-### M-7. Console errors leak `debug_info` to user
+### M-7. ✅ Console errors leak `debug_info` to user
 - **Where:** `auth/register/alpine-data.blade.php:414-416`
 - **Fix:** Strip `debug_info` from JSON responses entirely.
 
@@ -467,7 +467,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `auth/forgot-password.blade.php:25`, `account/settings.blade.php:73, 113, 180`
 - **Fix:** Wrap in `x-data="{busy:false}" @submit="busy=true"` + `:disabled="busy"`.
 
-### M-29. Verify-email + login resend-verification: 100ms race
+### M-29. ✅ Verify-email + login resend-verification: 100ms race
 - **Where:** `auth/verify-email.blade.php:62, 82`; `auth/login.blade.php:38-52`
 - **Fix:** Move state to `@submit`; clear only on actual response.
 
@@ -525,12 +525,12 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Predictable Laravel naming aids fingerprinting.
 - **Fix:** Set `SESSION_COOKIE=pch_sid`.
 
-### M-43. `X-XSS-Protection` deprecated header still emitted
+### M-43. ✅ `X-XSS-Protection` deprecated header still emitted
 - **Where:** `app/Http/Middleware/SecurityHeaders.php:33`
 - **What:** `X-XSS-Protection: 1; mode=block` is deprecated; can introduce vulns in legacy IE/Edge.
 - **Fix:** Remove or set to `0`; rely on CSP.
 
-### M-44. `RESET_THROTTLED` response leaks email existence
+### M-44. ✅ `RESET_THROTTLED` response leaks email existence
 - **Where:** `PasswordResetController::sendResetLink:51-57`
 - **What:** Generic message for unknown email but throttle response only happens after a real send → confirms account exists.
 - **Fix:** Collapse throttle response into the generic "if an account exists" message.
