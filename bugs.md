@@ -361,7 +361,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `MarketplacePostController::update:196` resets to pending; `ProductController::update:270-`, `ProjectController::update:290-` do NOT.
 - **Fix:** Reset to pending on edit for products/projects/services (unless `is_trusted`).
 
-### M-2. Verification email failure invisible to user
+### M-2. ✅ Verification email failure invisible to user
 - **Where:** `AuthController::register:820-832`
 - **Fix:** Persist a flash flag and check on next visit, or use a queued mailable with retry.
 
@@ -377,7 +377,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `auth/register/alpine-data.blade.php:2018`
 - **Fix:** Bump to 24h, or surface "your saved progress expired" toast.
 
-### M-6. Long-lived registration page CSRF token expiry
+### M-6. ⚠️ Long-lived registration page CSRF token expiry
+*Deferred — needs a new heartbeat endpoint (`/csrf-refresh`), Alpine timer in the wizard to call it every ~5min, and end-to-end testing on slow connections. Not a single-line fix; risk of breaking the working registration flow if the heartbeat misbehaves. The 419 retry path already exists via `loadFromLocalStorage()` recovery.*
 - **Where:** `form-errors.blade.php:1-2`
 - **Fix:** Refresh token via heartbeat fetch.
 
@@ -392,13 +393,13 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 ### M-9. ✅ No counter recompute job exists
 - **Fix:** Add `php artisan pch:recompute-counters` weekly.
 
-### M-10. No avatar fallback URL
+### M-10. ⚠️ No avatar fallback URL
+*Existing pattern across views is `@if($designer->avatar) <img …> @else <icon-fallback> @endif`. Adding an accessor that returns a default URL would silently flip every `if($designer->avatar)` branch to truthy, replacing the icon fallback with a default-image render — a behavior change at scores of call sites. Needs a coordinated decision on the default asset + a single sweep across all callers; not a one-line fix.*
 - **Where:** `DesignerController::show:142`, `DesignerFollowController:290`
-- **Fix:** Default in accessor: `return $this->avatar ?? '/img/default-avatar.png';`.
 
-### M-11. `Designer` model has both `$fillable` AND `$guarded`
+### M-11. ⚠️ `Designer` model has both `$fillable` AND `$guarded`
+*Not a bug: when `$fillable` is non-empty Laravel uses ONLY the fillable allowlist and ignores `$guarded`. Both being present is harmless redundancy / defense-in-depth and reads as documentation of intent. Picking one convention is a style choice; restructuring to `$guarded`-only would silently turn every newly-added column into mass-assignable.*
 - **Where:** `app/Models/Designer.php:56-106`
-- **Fix:** Pick one convention; recommend `$guarded = ['id','is_admin','is_trusted','verified','*_count']`.
 
 ### M-12. ✅ Tender description rendered with `{!! !!}` after permissive `strip_tags`
 - **Where:** `resources/views/tender-detail.blade.php:79-86`
@@ -416,19 +417,21 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `app/Http/Controllers/ServiceController.php:21-76`
 - **Fix:** Add the matching `$request->validate([...])` block.
 
-### M-16. Categories on product/project/service/marketplace are freeform
+### M-16. ⚠️ Categories on product/project/service/marketplace are freeform
+*Categories arrive in the user's locale (Arabic or English label), then `DropdownOption::toEnglish()` maps them to canonical English values. A naive `Rule::in()` against one locale's label list would reject the other. A correct fix needs to validate against a locale-merged list, or move the conversion before validation. Postponing — current behavior is "unknowns silently fall through and don't match," which is acceptable for the filter use case but should be tightened on store paths in a follow-up.*
 - **Where:** Four controllers
-- **Fix:** `Rule::in(DropdownHelper::productCategories()->pluck('value'))`.
 
-### M-17. Marketplace `store` vs `update` rules asymmetric
+### M-17. ⚠️ Marketplace `store` vs `update` rules asymmetric
+*Verified intentional: `update` doesn't write `source_type`/`source_id` (post-creation source-linking is disabled by design), so the missing rules can't be exploited — the fields are silently ignored. Adding rules without persisting the fields would be confusing.*
 - **Where:** `MarketplacePostController.php:46` vs `:159-167`
-- **Fix:** Symmetric rule sets.
 
-### M-18. `MarketplacePost::scopeSearch` and academic scopes use `LIKE '%term%'` without FULLTEXT
+### M-18. ⚠️ `MarketplacePost::scopeSearch` and academic scopes use `LIKE '%term%'` without FULLTEXT
+*Deferred — requires schema migration to add FULLTEXT indexes (`marketplace_posts`, `academic_trainings`, `academic_workshops`, `academic_announcements`, `tenders`, `academic_accounts`) and rewriting the scope queries. M-59/M-60 already hardened the existing search path. Performance won't degrade until table sizes grow into the tens of thousands.*
 - **Where:** `MarketplacePost.php:122-128`; `AcademicTraining`, `AcademicWorkshop`, `AcademicAnnouncement`, `Tender`, `AcademicAccount`
 - **Fix:** Add FULLTEXT indexes; switch to `MATCH AGAINST`.
 
-### M-19. Hard-coded English placeholders / Alpine bindings
+### M-19. ⚠️ Hard-coded English placeholders / Alpine bindings
+*Deferred — touches 10+ admin and portfolio Blade files. Mostly admin-only screens (admin/academic-content, admin/products/edit, admin/projects/edit, admin/services/edit, admin/settings, admin/image-migration) plus 4 portfolio modal partials. Best handled in one focused i18n pass with both `en.json` and `ar.json` updated together; otherwise half-translated UI is a worse experience than fully-English admin. Keep open until a translator can review the new strings.*
 - **Where:** `admin/academic-content/training-create.blade.php:89,93`, `workshop-create.blade.php:95`, `admin/image-migration.blade.php:211`, `admin/settings/index.blade.php:68`; `admin/products/edit.blade.php:93`, `admin/projects/edit.blade.php:92,132`, `admin/services/edit.blade.php:92`, `components/portfolio/modal/add-project.blade.php:59,98`, `edit-project.blade.php:39,78`
 - **Fix:** Wrap in `{{ __('...') }}`.
 
@@ -436,7 +439,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `admin/analytics/index.blade.php:49,690`; `messages/chat.blade.php:98`
 - **Fix:** `Carbon::parse(...)->locale(app()->getLocale())->isoFormat('LL')`.
 
-### M-21. 46 `<img>` tags missing `alt`
+### M-21. ⚠️ 46 `<img>` tags missing `alt`
+*Deferred — most are admin-only listings where the `alt` should come from an associated model (e.g., `$product->title`, `$designer->name`). M-22's 5 content imgs are already done. Remaining 41 are mechanical but spread across `admin/*`, `academic/*`, and `components/portfolio/*`; needs a one-pass sweep with care to use the right adjacent model field for each. No security impact, only a11y and SEO.*
 - **Where:** Across `admin/*`, `academic/*`, `components/portfolio/*`
 - **Fix:** Add `alt="..."` from related model.
 
@@ -471,23 +475,26 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `auth/verify-email.blade.php:62, 82`; `auth/login.blade.php:38-52`
 - **Fix:** Move state to `@submit`; clear only on actual response.
 
-### M-30. Modal focus return + focus trap missing
+### M-30. ⚠️ Modal focus return + focus trap missing
+*Deferred — requires bringing in `@alpinejs/focus` plugin or hand-rolling focus-trap logic in 9 modal partials (add-product, add-project, add-service, edit-product, edit-project, edit-service, edit-bio, edit-skills, delete). a11y improvement, no security or correctness impact.*
 - **Where:** All `components/portfolio/modal/*.blade.php`
 - **Fix:** Add focus-trap directive and restore focus on close.
 
-### M-31. Searchable dropdowns lack keyboard arrow/Enter bindings
+### M-31. ⚠️ Searchable dropdowns lack keyboard arrow/Enter bindings
+*Deferred — needs `@keydown.arrow-down`/`@keydown.arrow-up`/`@keydown.enter.prevent` handlers across the 4+ searchable dropdown components in `components/portfolio/layout.blade.php`. Mouse navigation works fine. a11y improvement, low priority.*
 - **Where:** `components/portfolio/layout.blade.php:9-240`
 - **Fix:** Add `@keydown.arrow-down`/`@keydown.enter.prevent` on the input.
 
-### M-32. No email unsubscribe links anywhere
+### M-32. ⚠️ No email unsubscribe links anywhere
+*Deferred — needs new signed-URL helper, new public unsubscribe route (no auth, validates signed token), DB column or cache flag per recipient, footer block in every email template, and List-Unsubscribe header (M-46). End-to-end change with abuse-prevention concerns; ship as one focused unsubscribe feature, not piecemeal.*
 - **Where:** No unsubscribe route in `routes/web.php`; emails contain no footer.
 - **Fix:** Add signed unsubscribe URLs with per-user token.
 
-### M-33. Filename collision risk on `moveToPermStorage`
+### M-33. ⚠️ Filename collision risk on `moveToPermStorage`
+*Mostly theoretical: the structured filename is `{type}_{entityId}_{imageNumber}.{ext}`, which is per-user/per-entity. Two simultaneous uploads from different designers always produce different filenames. The fallback (when `entityId` is null) uses the temp-folder basename which is per-session-id and per-hash — collision would require two parallel uploads from the same session sharing a file hash.*
 - **Where:** `ImageUploadController::moveToPermStorage`
-- **Fix:** Append random suffix or hash.
 
-### M-34. Verification resend cache write decoupled from email failure
+### M-34. ✅ Verification resend cache write decoupled from email failure
 - **Where:** `DesignerProfileController::sendDeleteCode:896-902`
 - **Fix:** Set cache only after `Mail::send` succeeds.
 
@@ -495,28 +502,30 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `auth/register/alpine-data.blade.php:1922-1929`
 - **Fix:** Listen to `storage` event or disable cross-tab edits.
 
-### M-36. `currentItem` shared across add/edit modals causes flicker
+### M-36. ⚠️ `currentItem` shared across add/edit modals causes flicker
+*Not reproduced: each `openAdd*Modal` and `open-edit-*` event handler already overwrites `currentItem` before showing the modal. Closed modals (`x-show=false`) stay in the DOM but `display:none`, so stale data isn't visible. The successful-submit paths reload the page, fully resetting state.*
 - **Where:** `components/portfolio/layout.blade.php:259, 418-434`
-- **Fix:** Reset `currentItem={}` on modal close.
 
 ### M-37. ✅ `services` model not in `HasApprovalStatus::$typeMap`
 - **Where:** `app/Models/Traits/HasApprovalStatus.php:48`
 - **Fix:** Add Service to `$typeMap`; verify Service uses the trait.
 
-### M-38. `marketplace_posts.category` / `products.category` plain `string` — no FK
+### M-38. ⚠️ `marketplace_posts.category` / `products.category` plain `string` — no FK
+*Deferred — schema migration. The `dropdown_options` table uses a string `value` (not a stable PK), and admins can rename values from the CMS. A FK would force every existing category rename to ripple through dependent tables or fail. M-16 documents the application-layer mitigation; FK is a longer-term refactor.*
 - **Where:** Migrations
 - **Fix:** Add FK to `dropdown_options.value` or document constraint.
 
-### M-39. `page_visits.designer_id`, `search_logs.designer_id` unconstrained
+### M-39. ⚠️ `page_visits.designer_id`, `search_logs.designer_id` unconstrained
+*Deferred — adds two FK constraints via migration. Both tables are append-only telemetry; orphan rows from deleted designers are harmless and the `nullOnDelete` semantics are already approximated in queries (we LEFT JOIN with no FK). Migration cost on existing data isn't worth the marginal correctness gain.*
 - **Where:** `2026_03_18_000001_*`, `:000002_*`
 - **Fix:** Add `->constrained('designers')->nullOnDelete()`.
 
-### M-40. File session driver on cPanel
+### M-40. ✅ File session driver on cPanel
 - **Where:** `.env.example:30` (`SESSION_DRIVER=file`)
 - **What:** Slower, deploy-fragile, litters `storage/framework/sessions`. Same for `CACHE_STORE=file`.
 - **Fix:** Move to `database` (cheap) or Redis if available.
 
-### M-41. `expire_on_close=false` + 120-min lifetime on shared computers
+### M-41. ✅ `expire_on_close=false` + 120-min lifetime on shared computers
 - **Where:** `config/session.php:35-37`
 - **Fix:** Consider `SESSION_EXPIRE_ON_CLOSE=true` for admins, or shorter admin lifetime.
 
@@ -540,18 +549,19 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Raw `Notification::insert($chunk)` skips the 5-min dedupe, so re-approving content twice within 5 min duplicates every subscriber's notification.
 - **Fix:** Idempotency key column or pre-filter recipients.
 
-### M-46. Email templates lack unsubscribe link / `List-Unsubscribe` header
+### M-46. ⚠️ Email templates lack unsubscribe link / `List-Unsubscribe` header
+*Deferred — pairs with M-32 (unsubscribe end-to-end). Adding a List-Unsubscribe header to GmailApiTransport without an actual unsubscribe URL would be worse than nothing (Gmail would render a button that 404s). Ship as part of the M-32 unsubscribe feature.*
 - **Where:** `resources/views/emails/*.blade.php`; `app/Mail/GmailApiTransport.php:182`
 - **What:** Gmail/Outlook will spam-flag bulk sends.
 - **Fix:** Add signed unsubscribe URL helper; emit `List-Unsubscribe` and `List-Unsubscribe-Post` headers.
 
-### M-47. ⚠️ `EmailController` doesn't enforce sender's `email_verified_at`
+### M-47. ✅ `EmailController` doesn't enforce sender's `email_verified_at`
 *Verified non-issue: route is inside the `auth:designer + verified + active` middleware group at `routes/web.php:253`, so `verified` is already enforced. Audit missed the group middleware.*
 - **Where:** `app/Http/Controllers/EmailController.php:49-82`
 - **What:** Auth check exists but no `verified` middleware. Unverified designer can email any opted-in designer.
 - **Fix:** Add `'verified'` middleware or check `hasVerifiedEmail()` early.
 
-### M-48. Mail send is synchronous everywhere
+### M-48. ✅ Mail send is synchronous everywhere
 - **Where:** `EmailController::send`, `DesignerProfileController::sendDeleteCode`, all `notify()` calls
 - **What:** No queue worker configured (`sync` default), request blocks on Gmail API (~1-3s); failure cascades into 500.
 - **Fix:** Configure `QUEUE_CONNECTION=database`, ship a worker, `ShouldQueue` on the mail closures.
@@ -592,7 +602,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `CleanupOrphanedUploads.php:29` ("12 hours") vs `ImageUploadController.php:883` (`subHours(24)`)
 - **Fix:** Pick one; align both.
 
-### M-57. `CleanupOrphanedImages` ignores cover/marketplace/fablabs/trainings folders
+### M-57. ✅ `CleanupOrphanedImages` ignores cover/marketplace/fablabs/trainings folders
 - **Where:** `CleanupOrphanedImages.php:106-280`
 - **What:** Only `profiles/`, `products/`, `projects/`, `services/` scanned. Covers, marketplace, fablabs, trainings, academic-* are never cleaned.
 - **Fix:** Add handlers for the missing folders.

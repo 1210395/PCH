@@ -80,6 +80,24 @@ class CleanupOrphanedImages extends Command
         $totalDeleted += $result['count'];
         $totalSize += $result['size'];
 
+        // 5–N. Cleanup additional folders that the original audit missed.
+        // Each entry: [folder, callable returning array of in-use paths, label].
+        // (bugs.md M-57)
+        $extraFolders = [
+            ['covers',                 fn() => Designer::whereNotNull('cover_image')->where('cover_image', '!=', '')->pluck('cover_image')->all(),                                                          'cover'],
+            ['marketplace',            fn() => \App\Models\MarketplacePost::whereNotNull('image')->where('image', '!=', '')->pluck('image')->all(),                                                          'marketplace'],
+            ['fablabs',                fn() => \App\Models\FabLab::whereNotNull('image')->where('image', '!=', '')->pluck('image')->all(),                                                                   'fablab'],
+            ['fablabs/covers',         fn() => \App\Models\FabLab::whereNotNull('cover_image')->where('cover_image', '!=', '')->pluck('cover_image')->all(),                                                'fablab cover'],
+            ['trainings',              fn() => \App\Models\Training::whereNotNull('image')->where('image', '!=', '')->pluck('image')->all(),                                                                'training'],
+            ['trainings/instructors',  fn() => \App\Models\Training::whereNotNull('instructor_image')->where('instructor_image', '!=', '')->pluck('instructor_image')->all(),                              'training instructor'],
+        ];
+        foreach ($extraFolders as [$folder, $refsFn, $label]) {
+            $this->info("Checking {$label} images...");
+            $result = $this->cleanupGenericFolder($folder, $refsFn, $dryRun);
+            $totalDeleted += $result['count'];
+            $totalSize += $result['size'];
+        }
+
         $this->newLine();
 
         if ($totalDeleted > 0) {
@@ -277,6 +295,54 @@ class CleanupOrphanedImages extends Command
 
         } catch (\Exception $e) {
             $this->error("Error cleaning service images: {$e->getMessage()}");
+        }
+
+        return ['count' => $deleted, 'size' => $size];
+    }
+
+    /**
+     * Generic per-folder cleanup. Used for the folders the original
+     * implementation missed (covers, marketplace, fablabs, trainings).
+     *
+     * @param  string    $folder         Storage folder relative to disk('public').
+     * @param  callable  $referencedFn   Returns an array of paths still referenced in the DB.
+     * @param  bool      $dryRun
+     * @return array{count: int, size: int}
+     */
+    private function cleanupGenericFolder(string $folder, callable $referencedFn, bool $dryRun): array
+    {
+        $deleted = 0;
+        $size = 0;
+
+        try {
+            if (!Storage::disk('public')->exists($folder)) {
+                return ['count' => 0, 'size' => 0];
+            }
+
+            // Use files() (non-recursive) to avoid descending into nested
+            // folders that have their own dedicated cleanup pass — e.g.,
+            // fablabs/ has fablabs/covers/ as a sibling cleanup.
+            $files = Storage::disk('public')->files($folder);
+            $referenced = array_flip((array) $referencedFn());
+
+            foreach ($files as $file) {
+                if (isset($referenced[$file])) {
+                    continue;
+                }
+
+                $fileSize = Storage::disk('public')->size($file);
+                $size += $fileSize;
+
+                if ($dryRun) {
+                    $this->line("  Would delete: {$file}");
+                } else {
+                    Storage::disk('public')->delete($file);
+                    $this->line("  Deleted: {$file}");
+                }
+                $deleted++;
+            }
+        } catch (\Exception $e) {
+            $this->error("Error cleaning {$folder} images: {$e->getMessage()}");
         }
 
         return ['count' => $deleted, 'size' => $size];

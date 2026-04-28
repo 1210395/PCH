@@ -878,12 +878,20 @@ class AuthController extends Controller
                     $d = $d ?? \App\Models\Designer::find($designerId);
                     if ($d) {
                         $d->sendEmailVerificationNotification();
+                        // Clear any stale failure flag from a prior attempt.
+                        \Cache::forget('verification_email_failed_' . $designerId);
                     }
                 } catch (\Throwable $e) {
                     \Log::error('Failed to send verification email (after-response)', [
                         'designer_id' => $designerId,
                         'error' => $e->getMessage(),
                     ]);
+                    // Persist a flag the verify-email page can check on the
+                    // user's next visit so the failure isn't completely
+                    // invisible (the request itself already responded with
+                    // 200). 24h TTL — long enough for the user to come back
+                    // and see the warning. (bugs.md M-2)
+                    \Cache::put('verification_email_failed_' . $designerId, true, 86400);
                 }
             })->afterResponse();
 

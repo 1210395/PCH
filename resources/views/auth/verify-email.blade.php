@@ -33,6 +33,23 @@
             </div>
             @endif
 
+            {{-- The verification email is sent in the afterResponse phase
+                 of registration, so a Gmail failure can't be surfaced as a
+                 flash on the same request. AuthController writes a Cache
+                 flag on failure; check it here so the user knows to use
+                 the resend button. (bugs.md M-2) --}}
+            @php
+                $verifyDesigner = \Auth::guard('designer')->user();
+                $verifySendFailed = $verifyDesigner
+                    ? \Cache::has('verification_email_failed_' . $verifyDesigner->id)
+                    : false;
+            @endphp
+            @if($verifySendFailed)
+            <div class="mb-4 p-3 bg-amber-50 border border-amber-300 text-amber-800 rounded-lg text-sm">
+                {{ __('We weren\'t able to send your verification email automatically. Please click "Resend Verification Email" below.') }}
+            </div>
+            @endif
+
             <p class="text-gray-600 mb-6">
                 {{ __('Please click the verification link in the email we sent you. If you didn\'t receive the email, you can request a new one.') }}
             </p>
