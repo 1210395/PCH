@@ -491,7 +491,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `DesignerProfileController::sendDeleteCode:896-902`
 - **Fix:** Set cache only after `Mail::send` succeeds.
 
-### M-35. localStorage cross-tab not coordinated
+### M-35. ✅ localStorage cross-tab not coordinated
 - **Where:** `auth/register/alpine-data.blade.php:1922-1929`
 - **Fix:** Listen to `storage` event or disable cross-tab edits.
 

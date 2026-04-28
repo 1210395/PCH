@@ -118,6 +118,17 @@ function signupWizard() {
                 }
             });
 
+            // Cross-tab coordination: if another tab writes to the wizard
+            // localStorage key while this tab is open, warn the user once so
+            // they don't unknowingly clobber the other tab's progress on the
+            // next auto-save. (bugs.md M-35)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'signupWizardData' && e.newValue && !this._crossTabWarned) {
+                    this._crossTabWarned = true;
+                    showToast('{{ __("Heads up: this form is open in another tab. Use only one tab to avoid losing progress.") }}', 'warning');
+                }
+            });
+
             // Handle page unload — distinguish real tab close from in-flight
             // form submits and language-switch refreshes. The pageIsRefreshing
             // flag only lives for the first 100ms after init, so on its own it
