@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'academic' => \App\Http\Middleware\AcademicMiddleware::class,
             'verified'    => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'active'      => \App\Http\Middleware\EnsureDesignerActive::class,
             'signed'      => \Illuminate\Routing\Middleware\ValidateSignature::class,
             'track.page'  => \App\Http\Middleware\TrackPageVisit::class,
         ]);

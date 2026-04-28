@@ -48,10 +48,18 @@ class WebhookSignatureService
      */
     public function verify(string $payload, string $signature): bool
     {
-        // Skip verification if enabled (for development/testing only)
+        // Skip verification if enabled — but ONLY in the local environment.
+        // Outside local, we fail closed so a single misconfigured env var
+        // doesn't leave the prod webhook open. (bugs.md H-27)
         if (config('webhooks.jobs_ps.skip_verification', false)) {
-            Log::warning('Skipping webhook signature verification (skip_verification enabled)');
-            return true;
+            if (app()->environment('local')) {
+                Log::warning('Skipping webhook signature verification (local env, skip_verification enabled)');
+                return true;
+            }
+            Log::error('skip_verification flag is set outside local environment — refusing to bypass signature check', [
+                'env' => app()->environment(),
+            ]);
+            return false;
         }
 
         if (empty($this->publicKey)) {

@@ -167,8 +167,12 @@ Route::group(['prefix' => '{locale}'], function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])
         ->middleware('throttle:120,1')
         ->name('login');
+    // throttle:login is the named limiter defined in AppServiceProvider —
+    // 5 attempts per minute keyed by (email + IP) so one email can't be
+    // probed from many IPs and one IP can't drown the limiter for unrelated
+    // accounts on the same NAT.
     Route::post('/login', [AuthController::class, 'login'])
-        ->middleware('throttle:60,1')
+        ->middleware('throttle:login')
         ->name('login.post');
 
     // ============================================================
@@ -227,7 +231,7 @@ Route::group(['prefix' => '{locale}'], function () {
         ->name('designer.ratings');
 
     // Subscription routes (auth required - controller handles multi-guard logic)
-    Route::middleware(['auth:designer', 'verified'])->group(function () {
+    Route::middleware(['auth:designer', 'verified', 'active'])->group(function () {
         Route::post('/subscriptions/profile/toggle', [SubscriptionController::class, 'toggleProfileSubscription'])
             ->middleware('throttle:60,1')
             ->name('subscriptions.profile.toggle');
@@ -246,7 +250,7 @@ Route::group(['prefix' => '{locale}'], function () {
     });
 
     // Authenticated + verified routes
-    Route::middleware(['auth:designer', 'verified'])->group(function () {
+    Route::middleware(['auth:designer', 'verified', 'active'])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/profile', [DesignerProfileController::class, 'showProfile'])->name('profile');
         Route::get('/account/settings', [DesignerProfileController::class, 'accountSettings'])->name('account.settings');

@@ -1,9 +1,12 @@
 <?php
 
 namespace App\Providers;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use App\Mail\GmailApiTransport;
 use App\Services\GmailOAuthService;
@@ -40,6 +43,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         URL::forceScheme('https');
+
+        // Login rate limit keyed by (email + IP).
+        // Per-IP-only throttling lets a single email be probed from many IPs;
+        // keying by both blocks targeted credential stuffing while still
+        // letting a shared NAT submit logins for different accounts.
+        RateLimiter::for('login', function (Request $request) {
+            $email = strtolower((string) $request->input('email', ''));
+            return Limit::perMinute(5)->by($email . '|' . $request->ip());
+        });
 
         // Register custom Gmail API mail transport
         Mail::extend('gmail', function () {

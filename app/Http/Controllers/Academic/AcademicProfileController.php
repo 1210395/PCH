@@ -142,7 +142,10 @@ class AcademicProfileController extends AcademicBaseController
             return back()->withErrors(['current_password' => 'Current password is incorrect']);
         }
 
+        // Rotate remember_token so any "remember me" cookies issued before
+        // this password change are invalidated. (bugs.md H-26)
         $account->password = Hash::make($request->password);
+        $account->remember_token = \Illuminate\Support\Str::random(60);
         $account->save();
 
         if ($request->expectsJson()) {

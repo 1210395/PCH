@@ -690,8 +690,10 @@ class DesignerProfileController extends Controller
                     ->withInput();
             }
 
-            // Update password
+            // Update password and rotate remember_token so any "remember me"
+            // cookies issued before this change are invalidated. (bugs.md H-26)
             $designer->password = \Hash::make($validated['new_password']);
+            $designer->remember_token = \Illuminate\Support\Str::random(60);
             $designer->save();
 
             return redirect()->route('account.settings', ['locale' => app()->getLocale()])
