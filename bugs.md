@@ -580,7 +580,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** `CONCAT(SUBSTRING_INDEX(\`{$col}\`, '.', 1), '.webp')` corrupts paths like `products/v1.2/img.jpg` → `products/v1.webp`. Mass-update runs unconditionally.
 - **Fix:** Build per-row mapping from successful conversion results; only update rows whose old path was actually converted.
 
-### M-54. `getCreatorName` N+1 in batch approvals
+### M-54. ✅ `getCreatorName` N+1 in batch approvals
 - **Where:** `NotificationSubscriptionService.php:50, 308`
 - **Fix:** Pass creator name in or cache the lookup.
 

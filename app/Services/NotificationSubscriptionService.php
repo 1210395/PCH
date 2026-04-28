@@ -389,17 +389,32 @@ class NotificationSubscriptionService
     }
 
     /**
-     * Get creator name for notification message
+     * Per-request cache for creator names so batch approvals from the same
+     * creator don't fire one Designer::find() per item. (bugs.md M-54)
+     *
+     * @var array<string, string>
+     */
+    private static array $creatorNameCache = [];
+
+    /**
+     * Get creator name for notification message.
      */
     private static function getCreatorName(string $creatorType, int $creatorId): string
     {
+        $key = $creatorType . ':' . $creatorId;
+        if (isset(self::$creatorNameCache[$key])) {
+            return self::$creatorNameCache[$key];
+        }
+
         if ($creatorType === 'designer') {
             $designer = Designer::find($creatorId);
-            return $designer ? $designer->name : 'A designer';
+            $name = $designer ? $designer->name : 'A designer';
         } else {
             $academic = AcademicAccount::find($creatorId);
-            return $academic ? $academic->name : 'An institution';
+            $name = $academic ? $academic->name : 'An institution';
         }
+
+        return self::$creatorNameCache[$key] = $name;
     }
 
     /**
