@@ -696,7 +696,7 @@ function showModal(title, message, type = 'success') {
                 <div class="flex justify-end">
                     <button onclick="this.closest('.fixed').remove()"
                             class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
-                        OK
+                        {{ __('OK') }}
                     </button>
                 </div>
             </div>
@@ -743,10 +743,10 @@ function showConfirm(title, message, onConfirm) {
                 <p class="text-gray-600 mb-6 ml-16">${message}</p>
                 <div class="flex gap-3 justify-end">
                     <button class="cancel-btn px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all">
-                        Cancel
+                        {{ __('Cancel') }}
                     </button>
                     <button class="confirm-btn px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
-                        Send Request
+                        {{ __('Send Request') }}
                     </button>
                 </div>
             </div>
