@@ -296,15 +296,17 @@ class DesignerFollowController extends Controller
             return response()->json(['success' => true, 'users' => []]);
         }
 
+        $term = addcslashes($query, '%_\\');
+
         $users = Designer::where('is_active', true)
             ->where('sector', '!=', 'guest')
             ->where('id', '!=', $currentDesigner->id)
-            ->where(function ($q) use ($query) {
-                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $query . '%'])
-                  ->orWhere('city', 'like', '%' . $query . '%')
-                  ->orWhere('sector', 'like', '%' . $query . '%')
-                  ->orWhere('title', 'like', '%' . $query . '%')
-                  ->orWhere('company_name', 'like', '%' . $query . '%');
+            ->where(function ($q) use ($term) {
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $term . '%'])
+                  ->orWhere('city', 'like', '%' . $term . '%')
+                  ->orWhere('sector', 'like', '%' . $term . '%')
+                  ->orWhere('title', 'like', '%' . $term . '%')
+                  ->orWhere('company_name', 'like', '%' . $term . '%');
             })
             ->limit(15)
             ->get(['id', 'first_name', 'last_name', 'avatar', 'city', 'sector', 'title']);

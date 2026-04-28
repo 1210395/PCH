@@ -38,7 +38,7 @@ class MessagesController extends Controller
 
         // Search filter
         if ($request->has('search') && !empty($request->search)) {
-            $searchTerm = strip_tags($request->search);
+            $searchTerm = addcslashes(strip_tags($request->search), '%_\\');
 
             $query->where(function ($q) use ($searchTerm, $currentDesigner) {
                 $q->whereHas('designer1', function ($designerQuery) use ($searchTerm, $currentDesigner) {
