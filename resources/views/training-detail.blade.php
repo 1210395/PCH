@@ -454,8 +454,9 @@
                         {{ __('Call') }} {{ $training->academicAccount->phone }}
                     </a>
                     @endif
-                    @if($training->academicAccount->website)
-                    <a href="{{ $training->academicAccount->website }}" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                    @php $trainingAccountWebsite = \App\Helpers\UrlHelper::safe($training->academicAccount->website ?? null); @endphp
+                    @if($trainingAccountWebsite)
+                    <a href="{{ $trainingAccountWebsite }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
                         </svg>

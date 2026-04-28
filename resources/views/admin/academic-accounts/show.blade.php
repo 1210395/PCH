@@ -113,10 +113,11 @@
                         <p class="text-gray-800">{{ $account->description }}</p>
                     </div>
                 @endif
-                @if($account->website)
+                @php $accountWebsite = \App\Helpers\UrlHelper::safe($account->website ?? null); @endphp
+                @if($accountWebsite)
                     <div>
                         <p class="text-sm text-gray-500">{{ __('Website') }}</p>
-                        <a href="{{ $account->website }}" target="_blank" class="text-blue-600 hover:underline">{{ $account->website }}</a>
+                        <a href="{{ $accountWebsite }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">{{ $account->website }}</a>
                     </div>
                 @endif
                 @if($account->phone)

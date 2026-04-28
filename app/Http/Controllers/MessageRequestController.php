@@ -114,7 +114,16 @@ class MessageRequestController extends Controller
                 ], 400);
             }
 
-            $customMessage = $request->input('message', "Hi {$recipient->name}, I'd like to connect with you!");
+            // Validate, length-cap, and strip HTML from the user-supplied
+            // message before persisting. Without this, a crafted body could
+            // store XSS or oversized text shown later in notifications/UI.
+            // (bugs.md B-6)
+            $request->validate([
+                'message' => 'nullable|string|max:2000',
+            ]);
+            $customMessage = trim(strip_tags(
+                $request->input('message') ?: "Hi {$recipient->name}, I'd like to connect with you!"
+            ));
 
             MessageRequest::create([
                 'from_designer_id' => $currentDesigner->id,

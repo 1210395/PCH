@@ -1931,13 +1931,14 @@ function signupWizard() {
 
         saveToLocalStorage() {
             try {
-                // Create a clean copy of formData without image previews (they're too large for localStorage)
+                // Create a clean copy of formData WITHOUT password fields or
+                // image previews. Persisting passwords to localStorage is a
+                // privacy risk on shared computers — the user re-enters
+                // password at step 1 if the page reloads. (bugs.md B-4)
                 const cleanFormData = {
                     firstName: this.formData.firstName,
                     lastName: this.formData.lastName,
                     email: this.formData.email,
-                    password: this.formData.password,
-                    confirmPassword: this.formData.confirmPassword,
                     sector: this.formData.sector,
                     subSector: this.formData.subSector,
                     hasShowroom: this.formData.hasShowroom,
@@ -2034,8 +2035,8 @@ function signupWizard() {
                                 this.formData.firstName = data.formData.firstName || '';
                                 this.formData.lastName = data.formData.lastName || '';
                                 this.formData.email = data.formData.email || '';
-                                this.formData.password = data.formData.password || '';
-                                this.formData.confirmPassword = data.formData.confirmPassword || '';
+                                // Password fields are intentionally NOT restored from
+                                // localStorage — see saveToLocalStorage() above.
                                 this.formData.sector = data.formData.sector || '';
                                 this.formData.subSector = data.formData.subSector || '';
                                 this.formData.hasShowroom = data.formData.hasShowroom || '';
