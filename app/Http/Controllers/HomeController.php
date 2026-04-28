@@ -481,16 +481,29 @@ class HomeController extends Controller
             'جامعة' => 'university', 'كلية' => 'college',
         ];
 
-        $searchTerms = $query . '*';
-        $lowerQuery = mb_strtolower($query);
+        // Strip MySQL FULLTEXT boolean-mode operators from the user's
+        // query so things like `+-(foo)`, bare `*`, or `"@` don't bubble
+        // up as a MySQL syntax error. We append our own `*` after the
+        // sanitised term for prefix-match. (bugs.md M-59)
+        $clean = trim(preg_replace('/[+\-*~<>()"@]/u', ' ', $query));
+        if ($clean === '') {
+            // Nothing left to match — the upstream caller already guards
+            // empty queries, so this only fires if the user typed only
+            // operator characters. Return a value that matches nothing
+            // rather than failing the SQL.
+            return '__no_match__';
+        }
+        $lowerQuery = mb_strtolower($clean);
+
+        $searchTerms = $clean . '*';
 
         foreach ($arEnMap as $ar => $en) {
             if (mb_strpos($lowerQuery, $ar) !== false) {
-                $searchTerms = $query . '* ' . $en . '*';
+                $searchTerms = $clean . '* ' . $en . '*';
                 break;
             }
             if (stripos($lowerQuery, $en) !== false) {
-                $searchTerms = $query . '* ' . $ar . '*';
+                $searchTerms = $clean . '* ' . $ar . '*';
                 break;
             }
         }
