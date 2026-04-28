@@ -597,7 +597,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Only `profiles/`, `products/`, `projects/`, `services/` scanned. Covers, marketplace, fablabs, trainings, academic-* are never cleaned.
 - **Fix:** Add handlers for the missing folders.
 
-### M-58. `ImageUploadController` debug-logs every upload with full headers
+### M-58. ✅ `ImageUploadController` debug-logs every upload with full headers
 - **Where:** `ImageUploadController.php:38`
 - **Fix:** Gate behind `config('app.debug')` or remove.
 

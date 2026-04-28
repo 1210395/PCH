@@ -26,37 +26,37 @@ class ImageUploadController extends Controller
      */
     public function uploadRegistrationImage(Request $request)
     {
-        // Step 1: Log incoming request and PHP upload settings
         $phpUploadMaxSize = ini_get('upload_max_filesize');
         $phpPostMaxSize = ini_get('post_max_size');
         $phpMaxFileUploads = ini_get('max_file_uploads');
-
-        // Get ALL request data for debugging
-        $allInput = $request->all();
         $allFiles = $request->allFiles();
 
-        Log::debug('Image upload request received - FULL DEBUG', [
-            'method' => $request->method(),
-            'url' => $request->url(),
-            'type' => $request->input('type'),
-            'session_id' => $request->input('session_id'),
-            'file_hash' => $request->input('file_hash'),
-            'has_file_image' => $request->hasFile('image'),
-            'all_input_keys' => array_keys($allInput),
-            'all_files_keys' => array_keys($allFiles),
-            'content_type' => $request->header('Content-Type'),
-            'content_length' => $request->header('Content-Length'),
-            'file_size' => $request->hasFile('image') ? $request->file('image')->getSize() : 0,
-            'file_mime' => $request->hasFile('image') ? $request->file('image')->getMimeType() : null,
-            'file_client_name' => $request->hasFile('image') ? $request->file('image')->getClientOriginalName() : null,
-            'file_error' => $request->hasFile('image') ? $request->file('image')->getError() : null,
-            'file_error_message' => $request->hasFile('image') ? $this->getUploadErrorMessage($request->file('image')->getError()) : 'No file',
-            'php_upload_max_filesize' => $phpUploadMaxSize,
-            'php_post_max_size' => $phpPostMaxSize,
-            'php_max_file_uploads' => $phpMaxFileUploads,
-            'max_upload_bytes' => $this->parseSize($phpUploadMaxSize),
-            'max_post_bytes' => $this->parseSize($phpPostMaxSize),
-        ]);
+        if (config('app.debug')) {
+            $allInput = $request->all();
+
+            Log::debug('Image upload request received - FULL DEBUG', [
+                'method' => $request->method(),
+                'url' => $request->url(),
+                'type' => $request->input('type'),
+                'session_id' => $request->input('session_id'),
+                'file_hash' => $request->input('file_hash'),
+                'has_file_image' => $request->hasFile('image'),
+                'all_input_keys' => array_keys($allInput),
+                'all_files_keys' => array_keys($allFiles),
+                'content_type' => $request->header('Content-Type'),
+                'content_length' => $request->header('Content-Length'),
+                'file_size' => $request->hasFile('image') ? $request->file('image')->getSize() : 0,
+                'file_mime' => $request->hasFile('image') ? $request->file('image')->getMimeType() : null,
+                'file_client_name' => $request->hasFile('image') ? $request->file('image')->getClientOriginalName() : null,
+                'file_error' => $request->hasFile('image') ? $request->file('image')->getError() : null,
+                'file_error_message' => $request->hasFile('image') ? $this->getUploadErrorMessage($request->file('image')->getError()) : 'No file',
+                'php_upload_max_filesize' => $phpUploadMaxSize,
+                'php_post_max_size' => $phpPostMaxSize,
+                'php_max_file_uploads' => $phpMaxFileUploads,
+                'max_upload_bytes' => $this->parseSize($phpUploadMaxSize),
+                'max_post_bytes' => $this->parseSize($phpPostMaxSize),
+            ]);
+        }
 
         // Check if NO file was received at all
         if (!$request->hasFile('image')) {
