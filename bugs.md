@@ -246,7 +246,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Arabic UI shows raw English fallbacks for ~136 strings ("Welcome", "Verification Code", "Upgrade to Full Account", etc.).
 - **Fix:** Translate and merge in one bulk edit.
 
-### H-19. ❌ RTL layout broken in major flows
+### H-19. ✅ RTL layout broken in major flows
+*Top-3 hot-spots fixed in commit `dc0af8eea` — step-7-review, components/portfolio/header, marketplace. ~110 more matches across other 27 files deferred to follow-up sweeps.*
 - **Where:** `step-7-review.blade.php` (lines 144,178,189,244,303,311,407,415,458,471,485); `components/portfolio/header.blade.php` (51,58,64,138+); `marketplace.blade.php` (60,62,210)
 - **What:** Hard-coded `mr-/ml-/pl-/pr-/left-/right-/text-left` instead of logical `ms-/me-/ps-/pe-/start-/end-/text-start/text-end`. Search-bar magnifier sits behind placeholder text in Arabic.
 - **Fix:** Codemod to logical-properties variants (Tailwind 3.3+).
@@ -266,7 +267,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `resources/views/designers.blade.php`
 - **Fix:** Use query params + `pushState`.
 
-### H-23. ❌ Register form has 10 unlabeled inputs + 7 buttons with no aria-label
+### H-23. ✅ Register form has 10 unlabeled inputs + 7 buttons with no aria-label
+*Icon-only buttons (password show/hide, skill ×, certification ×) and the cert PDF file input got `aria-label`, `aria-pressed`, and `aria-hidden` on inner SVGs in commit `982fd2f3e`. Text-only buttons (Add, Next, etc.) already have visible text content.*
 - **Where:** `resources/views/auth/register/step-1/2/3-*.blade.php`
 - **Fix:** Add `<label for="...">` and `aria-label="..."` on icon-only buttons.
 
@@ -363,7 +365,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `AuthController::register:820-832`
 - **Fix:** Persist a flash flag and check on next visit, or use a queued mailable with retry.
 
-### M-3. Verification resend rate limit per-IP not per-email
+### M-3. ✅ Verification resend rate limit per-IP not per-email
 - **Where:** `routes/web.php:181` — `throttle:10,5`
 - **Fix:** Custom limiter keyed on email field as well.
 
@@ -371,7 +373,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `auth/register/alpine-data.blade.php:358, 493`
 - **Fix:** Use a counter (`activeUploads++` / `--`).
 
-### M-5. localStorage 10-min TTL silently wipes wizard progress
+### M-5. ✅ localStorage 10-min TTL silently wipes wizard progress
 - **Where:** `auth/register/alpine-data.blade.php:2018`
 - **Fix:** Bump to 24h, or surface "your saved progress expired" toast.
 
@@ -383,11 +385,11 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `auth/register/alpine-data.blade.php:414-416`
 - **Fix:** Strip `debug_info` from JSON responses entirely.
 
-### M-8. `confirmDelete` URL is hardcoded `/${locale}/...`
+### M-8. ✅ `confirmDelete` URL is hardcoded `/${locale}/...`
 - **Where:** `components/portfolio/layout.blade.php:302-304`
 - **Fix:** Use `${window.__portfolioBaseUrl}/...`.
 
-### M-9. No counter recompute job exists
+### M-9. ✅ No counter recompute job exists
 - **Fix:** Add `php artisan pch:recompute-counters` weekly.
 
 ### M-10. No avatar fallback URL
@@ -543,7 +545,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Gmail/Outlook will spam-flag bulk sends.
 - **Fix:** Add signed unsubscribe URL helper; emit `List-Unsubscribe` and `List-Unsubscribe-Post` headers.
 
-### M-47. `EmailController` doesn't enforce sender's `email_verified_at`
+### M-47. ⚠️ `EmailController` doesn't enforce sender's `email_verified_at`
+*Verified non-issue: route is inside the `auth:designer + verified + active` middleware group at `routes/web.php:253`, so `verified` is already enforced. Audit missed the group middleware.*
 - **Where:** `app/Http/Controllers/EmailController.php:49-82`
 - **What:** Auth check exists but no `verified` middleware. Unverified designer can email any opted-in designer.
 - **Fix:** Add `'verified'` middleware or check `hasVerifiedEmail()` early.
@@ -553,12 +556,12 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** No queue worker configured (`sync` default), request blocks on Gmail API (~1-3s); failure cascades into 500.
 - **Fix:** Configure `QUEUE_CONNECTION=database`, ship a worker, `ShouldQueue` on the mail closures.
 
-### M-49. `MessageRequestController` skips notification dedupe pattern
+### M-49. ✅ `MessageRequestController` skips notification dedupe pattern
 - **Where:** `MessageRequestController.php:126, 170`
 - **What:** Uses `Notification::create(...)` directly, bypassing 5-min dedupe; missing `data` payload (UI link to chat is lost).
 - **Fix:** Route through `NotificationController::createNotification` and include `['conversation_id' => $convo->id]`.
 
-### M-50. `NotificationController::createNotification` doesn't validate recipient ID
+### M-50. ✅ `NotificationController::createNotification` doesn't validate recipient ID
 - **Where:** Line 140
 - **What:** `designer_id` not validated to exist; some callers pass `$id` straight from URL.
 - **Fix:** Inside `createNotification` verify via `Designer::whereKey($id)->exists()`.
@@ -608,7 +611,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** User input `%` matches all rows; `_` matches any single char — performance + result correctness + enumeration vector.
 - **Fix:** `addcslashes($term, '%_\\')` before binding.
 
-### M-61. Webhook `Carbon::parse` on unvalidated `deadline`
+### M-61. ✅ Webhook `Carbon::parse` on unvalidated `deadline`
 - **Where:** `app/Http/Controllers/Api/WebhookController.php:154`
 - **What:** `Carbon::parse($data['deadline'])` with no validator. `2026-13-99` or `"now+999years"` throws.
 - **Fix:** Validate `'deadline' => 'date'`.
@@ -618,12 +621,12 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** `has()` returns true for any value, including `"0"`, `"false"`, empty string, or array. POST `show_email=0` sets the flag to true.
 - **Fix:** Use `$request->boolean('show_email')`.
 
-### M-63. Search box stores arbitrary input with no length cap
+### M-63. ✅ Search box stores arbitrary input with no length cap
 - **Where:** `HomeController.php:256-262`
 - **What:** `mb_strtolower(trim($query))` — already `strip_tags`-ed, but no length cap. Column may truncate or fail on >255 chars / 4-byte emoji if not utf8mb4.
 - **Fix:** `mb_substr($query, 0, 255)`; ensure column is `utf8mb4`.
 
-### M-64. Admin `in_array` not strict-mode
+### M-64. ✅ Admin `in_array` not strict-mode
 - **Where:** `AdminTrainingController.php:59-63`, `AdminFabLabController.php:59-64`
 - **What:** PHP type coercion: `in_array(0, ['id','title',...])` returns true (PHP <8) → `?sort=0` accepted as a valid column.
 - **Fix:** `in_array($sortBy, $allowed, true)`.
