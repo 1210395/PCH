@@ -451,19 +451,19 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 ### M-24. Empty `/en/search` silently redirects to `/en`
 - **Fix:** Render a search-landing view with hint.
 
-### M-25. Register email validation falls back to native HTML5; password-confirm mismatch shows no inline error
+### M-25. ✅ Register email validation falls back to native HTML5; password-confirm mismatch shows no inline error
 - **Where:** `auth/register/step-1-account.blade.php`
 - **Fix:** Add Alpine-driven inline errors.
 
-### M-26. OAuth2 callback unthrottled
+### M-26. ✅ OAuth2 callback unthrottled
 - **Where:** `routes/web.php:77-80`
 - **Fix:** `'throttle:30,1'`.
 
-### M-27. Modal popup blocks first paint on home
+### M-27. ✅ Modal popup blocks first paint on home
 - **Where:** `/en` and `/ar` home (sector quiz modal)
 - **Fix:** Persist `signupQuiz_dismissed=true` in localStorage.
 
-### M-28. Forgot/change-password and privacy/email-prefs forms have no busy guard
+### M-28. ✅ Forgot/change-password and privacy/email-prefs forms have no busy guard
 - **Where:** `auth/forgot-password.blade.php:25`, `account/settings.blade.php:73, 113, 180`
 - **Fix:** Wrap in `x-data="{busy:false}" @submit="busy=true"` + `:disabled="busy"`.
 
@@ -535,7 +535,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Generic message for unknown email but throttle response only happens after a real send → confirms account exists.
 - **Fix:** Collapse throttle response into the generic "if an account exists" message.
 
-### M-45. Bulk notification path bypasses 5-minute dedupe
+### M-45. ✅ Bulk notification path bypasses 5-minute dedupe
 - **Where:** `NotificationSubscriptionService.php:88-97, 171-181`
 - **What:** Raw `Notification::insert($chunk)` skips the 5-min dedupe, so re-approving content twice within 5 min duplicates every subscriber's notification.
 - **Fix:** Idempotency key column or pre-filter recipients.
@@ -601,12 +601,12 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `ImageUploadController.php:38`
 - **Fix:** Gate behind `config('app.debug')` or remove.
 
-### M-59. FULLTEXT search passes raw boolean operators
+### M-59. ✅ FULLTEXT search passes raw boolean operators
 - **Where:** `DesignerController.php:226`, `ProductController.php:63`, `ProjectController.php:66`, `MarketplacePost.php:125`, `HomeController.php:146,179,201,241,297,322,348,397`
 - **What:** `MATCH(...) AGAINST(? IN BOOLEAN MODE)` is bound, but term is `$searchTerm . '*'`. Searching `+-(foo)` or bare `*` produces MySQL syntax error.
 - **Fix:** Strip ops: `preg_replace('/[+\-*~<>()"@]/u','',$term)` before binding.
 
-### M-60. LIKE wildcards `%` and `_` not escaped
+### M-60. ✅ LIKE wildcards `%` and `_` not escaped
 - **Where:** `HomeController.php:150-423`, `DesignerFollowController.php:275-279`, `ServiceController.php:54`, `MessagesController.php:45-49`, `TrainingController.php:68-135`
 - **What:** User input `%` matches all rows; `_` matches any single char — performance + result correctness + enumeration vector.
 - **Fix:** `addcslashes($term, '%_\\')` before binding.
