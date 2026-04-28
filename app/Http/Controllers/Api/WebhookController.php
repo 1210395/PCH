@@ -168,7 +168,21 @@ class WebhookController extends Controller
         $deadline = null;
         $status = 'open';
         if (!empty($data['deadline'])) {
-            $deadline = \Carbon\Carbon::parse($data['deadline']);
+            // Carbon::parse on garbage like "now+999years" or "2026-13-99"
+            // throws and bubbles up as a 500. Validate as date first; fall
+            // through to status='open' / null deadline if it doesn't parse.
+            // (bugs.md M-61)
+            try {
+                $deadline = \Carbon\Carbon::parse($data['deadline']);
+            } catch (\Throwable $e) {
+                Log::warning('Webhook tender deadline failed to parse', [
+                    'raw' => $data['deadline'],
+                    'error' => $e->getMessage(),
+                ]);
+                $deadline = null;
+            }
+        }
+        if ($deadline) {
             $daysUntilDeadline = now()->diffInDays($deadline, false);
 
             if ($daysUntilDeadline < 0) {

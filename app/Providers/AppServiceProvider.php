@@ -53,6 +53,16 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($email . '|' . $request->ip());
         });
 
+        // Verification-resend limit keyed by (email + IP).
+        // Per-IP-only at 10/5min lets an attacker spam verification emails
+        // to many addresses by varying the form field while sharing the IP.
+        // Keying on email caps anyone from blasting any single inbox.
+        // (bugs.md M-3)
+        RateLimiter::for('verification-send', function (Request $request) {
+            $email = strtolower((string) $request->input('email', ''));
+            return Limit::perMinutes(5, 3)->by($email . '|' . $request->ip());
+        });
+
         // Register custom Gmail API mail transport
         Mail::extend('gmail', function () {
             return new GmailApiTransport(app(GmailOAuthService::class));

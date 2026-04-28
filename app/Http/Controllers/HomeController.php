@@ -262,10 +262,12 @@ class HomeController extends Controller
         // Total results count
         $totalResults = $designers->count() + $projects->count() + $products->count() + $services->count() + $marketplace->count();
 
-        // Log the search query for analytics (never let this break the page)
+        // Log the search query for analytics (never let this break the page).
+        // Cap to 255 chars so a long paste doesn't blow the column or
+        // 4-byte-utf8 char doesn't get silently truncated. (bugs.md M-63)
         try {
             \App\Models\SearchLog::create([
-                'query'         => mb_strtolower(trim($query)),
+                'query'         => mb_substr(mb_strtolower(trim($query)), 0, 255),
                 'results_count' => $totalResults,
                 'ip_address'    => $request->ip(),
                 'designer_id'   => auth('designer')->id(),

@@ -184,7 +184,7 @@ Route::group(['prefix' => '{locale}'], function () {
         ->middleware(['signed', 'throttle:20,1'])
         ->name('verification.verify');
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
-        ->middleware('throttle:10,5')
+        ->middleware('throttle:verification-send')
         ->name('verification.send');
 
     // ============================================================

@@ -139,6 +139,15 @@ class NotificationController extends Controller
      */
     public static function createNotification($designerId, $type, $title, $message, $data = null)
     {
+        // Validate the recipient exists and is a positive integer. Without
+        // this guard, callers that pass a URL parameter straight in could
+        // create orphan notification rows pointing at non-existent designers.
+        // (bugs.md M-50)
+        $designerId = (int) $designerId;
+        if ($designerId <= 0 || !\App\Models\Designer::whereKey($designerId)->exists()) {
+            return null;
+        }
+
         // Don't create duplicate notifications within 5 minutes
         $recent = Notification::where('designer_id', $designerId)
             ->where('type', $type)

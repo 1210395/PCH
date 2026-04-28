@@ -68,7 +68,7 @@ class AdminDesignerController extends AdminBaseController
         $sortBy = $request->get('sort', 'created_at');
         $sortDir = $request->get('dir', 'desc');
         $allowedSorts = ['id', 'name', 'email', 'created_at', 'sector'];
-        if (in_array($sortBy, $allowedSorts)) {
+        if (in_array($sortBy, $allowedSorts, true)) {
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
         } else {
             $query->orderBy('created_at', 'desc');
