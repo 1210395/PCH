@@ -20,6 +20,13 @@ class ServiceController extends Controller
      */
     public function index(Request $request)
     {
+        // Validate and sanitize input (matches sibling Product/Project controllers)
+        $validated = $request->validate([
+            'category' => 'nullable|string|max:100',
+            'search' => 'nullable|string|max:255',
+            'sort' => 'nullable|string|in:latest,popular,most_requested',
+        ]);
+
         $query = Service::with('designer');
 
         // No language filter — user-generated content should be visible in both locales
@@ -44,18 +51,19 @@ class ServiceController extends Controller
         }
 
         // Filter by category (Arabic→English conversion for DB query)
-        if ($request->has('category') && $request->category !== 'all') {
-            $category = \App\Models\DropdownOption::toEnglish(strip_tags($request->category), 'service_category');
+        if (!empty($validated['category']) && $validated['category'] !== 'all') {
+            $category = \App\Models\DropdownOption::toEnglish(strip_tags($validated['category']), 'service_category');
             $query->where('category', $category);
         }
 
-        // Search
-        if ($request->has('search') && !empty($request->search)) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+        // Search — escape LIKE wildcards so user input '%' doesn't match every row
+        if (!empty($validated['search'])) {
+            $term = addcslashes($validated['search'], '%_\\');
+            $query->where('name', 'like', '%' . $term . '%');
         }
 
         // Sort
-        $sort = $request->get('sort', 'latest');
+        $sort = $validated['sort'] ?? 'latest';
         switch ($sort) {
             case 'popular':
                 $query->orderBy('views_count', 'desc');

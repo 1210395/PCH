@@ -108,8 +108,8 @@ class AdminFabLabController extends AdminBaseController
             'city' => 'required|string',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string',
-            'image' => 'nullable',
-            'cover_image' => 'nullable',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'rating' => 'nullable',
             'reviews_count' => 'nullable',
             'members' => 'nullable',
@@ -121,7 +121,7 @@ class AdminFabLabController extends AdminBaseController
             'verified' => 'nullable',
             'phone' => 'nullable|string',
             'email' => 'nullable|string',
-            'website' => 'nullable|string',
+            'website' => 'nullable|url|max:255',
         ]);
 
         // Handle image uploads
@@ -234,8 +234,8 @@ class AdminFabLabController extends AdminBaseController
             'city' => 'required|string',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string',
-            'image' => 'nullable',
-            'cover_image' => 'nullable',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'rating' => 'nullable',
             'reviews_count' => 'nullable',
             'members' => 'nullable',
@@ -247,7 +247,7 @@ class AdminFabLabController extends AdminBaseController
             'verified' => 'nullable',
             'phone' => 'nullable|string',
             'email' => 'nullable|string',
-            'website' => 'nullable|string',
+            'website' => 'nullable|url|max:255',
         ]);
 
         // Handle image uploads

@@ -43,20 +43,10 @@ class PasswordResetController extends Controller
             $request->only('email')
         );
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('status', __('If an account exists with that email, a password reset link has been sent.'));
-        }
-
-        // For throttle, show specific message
-        if ($status === Password::RESET_THROTTLED) {
-            $locale = app()->getLocale();
-            $message = $locale === 'ar'
-                ? 'الرجاء الانتظار قبل إعادة المحاولة.'
-                : 'Please wait before trying again.';
-            return back()->withErrors(['email' => $message]);
-        }
-
-        // For all other cases (user not found), don't reveal info
+        // Always return the same generic message regardless of whether the email
+        // exists, was sent, or hit the throttle. The throttle response is only
+        // possible AFTER a real send for that email — distinguishing it would
+        // confirm the account exists. (anti-enumeration)
         return back()->with('status', __('If an account exists with that email, a password reset link has been sent.'));
     }
 

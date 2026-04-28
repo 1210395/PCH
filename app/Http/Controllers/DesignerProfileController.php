@@ -729,11 +729,13 @@ class DesignerProfileController extends Controller
             // Retrieve fresh model from database and update
             $designer = Designer::findOrFail($designerId);
 
-            // Update privacy settings (checkboxes that aren't checked won't be in request)
-            $designer->show_email = $request->has('show_email');
-            $designer->show_phone = $request->has('show_phone');
-            $designer->show_location = $request->has('show_location');
-            $designer->allow_messages = $request->has('allow_messages');
+            // Update privacy settings.
+            // boolean() coerces "0"/"false"/empty/missing to false (unlike has(), which
+            // returns true for any present value including the literal string "0").
+            $designer->show_email = $request->boolean('show_email');
+            $designer->show_phone = $request->boolean('show_phone');
+            $designer->show_location = $request->boolean('show_location');
+            $designer->allow_messages = $request->boolean('allow_messages');
             $designer->save();
 
             return redirect()->route('account.settings', ['locale' => app()->getLocale()])
@@ -764,8 +766,9 @@ class DesignerProfileController extends Controller
                     ->with('error', 'Please login to update email preferences');
             }
 
-            // Update email preferences (checkboxes that aren't checked won't be in request)
-            $designer->email_marketing = $request->has('email_marketing');
+            // Update email preferences. boolean() coerces "0"/"false"/empty/missing to
+            // false (unlike has(), which would return true for the literal string "0").
+            $designer->email_marketing = $request->boolean('email_marketing');
             // email_notifications is always true for security, but we'll set it anyway
             $designer->email_notifications = true;
             $designer->save();

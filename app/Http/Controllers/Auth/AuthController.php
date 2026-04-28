@@ -259,13 +259,13 @@ class AuthController extends Controller
                 'sub_sector' => ['required', 'string', 'max:255'],
 
                 // Step 3: Profile Details (optional for guests)
-                'profile_image' => ['nullable', 'image', 'max:5120'], // Optional if path provided
+                'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // Optional if path provided
                 'profile_image_path' => ['nullable', 'string'], // Pre-uploaded image path
-                'cover_image' => ['nullable', 'image', 'max:5120'], // Optional if path provided
+                'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // Optional if path provided
                 'cover_image_path' => ['nullable', 'string'], // Pre-uploaded cover image path
                 'company_name' => [$isGuest ? 'nullable' : 'required', 'string', 'max:255'],
                 'position' => [$isGuest ? 'nullable' : 'required', 'string', 'max:255'],
-                'phone_country' => ['nullable', 'string', 'max:2'], // Country code for phone
+                'phone_country' => ['nullable', 'string', 'size:2', 'regex:/^[A-Z]{2}$/'], // ISO-3166 alpha-2
                 'phone_number' => [$isGuest ? 'nullable' : 'required', 'string', 'min:7', 'max:12'],
                 'city' => [$isGuest ? 'nullable' : 'required', 'string', 'max:100'],
                 'address' => [$isGuest ? 'nullable' : 'required', 'string', 'min:10', 'max:200'],
@@ -278,7 +278,7 @@ class AuthController extends Controller
                 'products.*.name' => ['nullable', 'string', 'max:255'],
                 'products.*.description' => ['nullable', 'string', 'max:500'],
                 'products.*.category' => ['nullable', 'string', 'max:255'],
-                'products.*.image' => ['nullable', 'image', 'max:5120'],
+                'products.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
                 'products.*.image_path' => ['nullable', 'string'], // Deprecated - single image
                 'products.*.image_paths' => ['nullable', 'array', 'max:6'], // Multiple images support
                 'products.*.image_paths.*' => ['nullable', 'string'],
@@ -288,7 +288,7 @@ class AuthController extends Controller
                 'projects.*.description' => ['nullable', 'string', 'max:500'],
                 'projects.*.role' => ['nullable', 'string', 'max:255'],
                 'projects.*.category' => ['nullable', 'string', 'max:255'],
-                'projects.*.image' => ['nullable', 'image', 'max:5120'],
+                'projects.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
                 'projects.*.image_path' => ['nullable', 'string'], // Deprecated - single image
                 'projects.*.image_paths' => ['nullable', 'array', 'max:6'], // Multiple images support
                 'projects.*.image_paths.*' => ['nullable', 'string'],
@@ -297,7 +297,7 @@ class AuthController extends Controller
                 'services.*.name' => ['nullable', 'string', 'max:255'],
                 'services.*.description' => ['nullable', 'string', 'max:500'],
                 'services.*.category' => ['nullable', 'string', 'max:255'],
-                'services.*.image' => ['nullable', 'image', 'max:5120'],
+                'services.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
                 'services.*.image_path' => ['nullable', 'string'],
 
                 // Education & Certifications (PDFs)

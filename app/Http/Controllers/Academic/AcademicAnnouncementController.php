@@ -102,6 +102,7 @@ class AcademicAnnouncementController extends AcademicBaseController
             'publish_date' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:publish_date',
             'external_link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['academic_account_id'] = $this->getAccountId();
@@ -195,6 +196,7 @@ class AcademicAnnouncementController extends AcademicBaseController
             'publish_date' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:publish_date',
             'external_link' => 'nullable|url|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         // Handle image upload

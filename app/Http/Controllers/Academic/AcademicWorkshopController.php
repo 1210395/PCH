@@ -107,6 +107,7 @@ class AcademicWorkshopController extends AcademicBaseController
             'tools_provided' => 'nullable|array',
             'has_certificate' => 'boolean',
             'registration_link' => 'nullable|url|max:500',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['academic_account_id'] = $this->getAccountId();
@@ -222,6 +223,7 @@ class AcademicWorkshopController extends AcademicBaseController
             'tools_provided' => 'nullable|array',
             'has_certificate' => 'boolean',
             'registration_link' => 'nullable|url|max:500',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['has_certificate'] = $request->boolean('has_certificate');
