@@ -420,7 +420,7 @@
                                 <template x-for="(skill, index) in formData.skills" :key="'skill-' + index">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 border border-blue-200 text-blue-700">
                                         <span x-text="skill"></span>
-                                        <button type="button" @click="removeSkill(skill)" class="ml-2 text-blue-600 hover:text-blue-800 font-bold">&times;</button>
+                                        <button type="button" @click="removeSkill(skill)" :aria-label="'{{ __('Remove skill') }}: ' + skill" class="ml-2 text-blue-600 hover:text-blue-800 font-bold">&times;</button>
                                     </span>
                                 </template>
                             </div>
@@ -445,6 +445,7 @@
                                         <p class="text-xs text-gray-400">{{ __('PDF only, max 10MB each') }}</p>
                                     </div>
                                     <input type="file" accept=".pdf,application/pdf" multiple
+                                           aria-label="{{ __('Upload certification PDF files') }}"
                                            @change="handleCertificationUpload($event)" class="hidden">
                                 </label>
                             </div>
@@ -476,8 +477,9 @@
                                             <span x-show="!cert.uploading && cert.path" class="text-xs text-green-600 flex-shrink-0">{{ __('Uploaded') }}</span>
                                         </div>
                                         <button type="button" @click="removeCertification(cert.id)"
+                                                :aria-label="'{{ __('Remove certification') }}: ' + (cert.name || '')"
                                                 class="text-red-500 hover:text-red-700 flex-shrink-0 p-1">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                             </svg>
                                         </button>

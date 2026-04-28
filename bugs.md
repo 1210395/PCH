@@ -294,17 +294,17 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Trusts every upstream — any client can spoof `X-Forwarded-For`, defeating per-IP rate limits and falsifying `$request->ip()` in logs.
 - **Fix:** Replace `'*'` with explicit Cloudflare CIDRs (`https://www.cloudflare.com/ips-v4/`).
 
-### H-29. ❌ No `Content-Security-Policy` header
+### H-29. ✅ No `Content-Security-Policy` header
 - **Where:** `app/Http/Middleware/SecurityHeaders.php`
 - **What:** No CSP / `frame-ancestors` header. Combined with user-generated bios/profiles, any XSS amplifies to full account takeover.
 - **Fix:** Add a starter CSP (`default-src 'self'; img-src 'self' data: https:; script-src 'self' 'nonce-...';`) — start in Report-Only.
 
-### H-30. ❌ No GDPR cookie-consent banner
+### H-30. ✅ No GDPR cookie-consent banner
 - **Where:** `resources/views/**` (missing entirely)
 - **What:** Site sets analytics + `track.page` middleware cookies; non-compliant under GDPR/ePrivacy.
 - **Fix:** Add a minimal consent banner gating non-essential cookies; link to `/privacy`.
 
-### H-31. ❌ Default mailer falls back to `sendmail`
+### H-31. ✅ Default mailer falls back to `sendmail`
 - **Where:** `config/mail.php:17`
 - **What:** `'default' => env('MAIL_MAILER', 'sendmail')`. If `MAIL_MAILER` is unset on cPanel, the app falls back to `/usr/sbin/sendmail`, which is disabled on most shared hosts → silent failure.
 - **Fix:** Default to `gmail` (or `smtp`); assert env in a boot check.
@@ -320,12 +320,12 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Authenticated designers can spam any other opted-in designer's inbox; no per-user/per-recipient throttle, no daily cap, no audit row.
 - **Fix:** `throttle:5,60` (5/hr) plus a per-(sender,recipient) DB rate guard.
 
-### H-34. ❌ Webhook signature has no replay-attack protection
+### H-34. ✅ Webhook signature has no replay-attack protection
 - **Where:** `app/Services/WebhookSignatureService.php:49`; `app/Http/Controllers/Api/WebhookController.php:61`
 - **What:** No timestamp header required, no nonce store. A captured `(payload, X-Signature)` pair can be replayed forever.
 - **Fix:** Require `X-Timestamp`, reject if `abs(now - ts) > 300s`, include timestamp in signed payload, persist nonces in cache.
 
-### H-35. ❌ Email + full request data logged at `Log::debug` in registration
+### H-35. ✅ Email + full request data logged at `Log::debug` in registration
 - **Where:** `app/Http/Controllers/Auth/AuthController.php:801-808` and `:313`
 - **What:** `Log::debug('Registration completed', ['designer_email' => …])` and `'request_data' => $request->except(['password','password_confirmation'])` log PII (email, phone, name, address, bio).
 - **Fix:** Drop email/PII from logs; log only `designer_id` and counts.
