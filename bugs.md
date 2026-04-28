@@ -432,7 +432,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `admin/academic-content/training-create.blade.php:89,93`, `workshop-create.blade.php:95`, `admin/image-migration.blade.php:211`, `admin/settings/index.blade.php:68`; `admin/products/edit.blade.php:93`, `admin/projects/edit.blade.php:92,132`, `admin/services/edit.blade.php:92`, `components/portfolio/modal/add-project.blade.php:59,98`, `edit-project.blade.php:39,78`
 - **Fix:** Wrap in `{{ __('...') }}`.
 
-### M-20. User-visible dates rendered raw `Y-m-d` or English month names
+### M-20. ✅ User-visible dates rendered raw `Y-m-d` or English month names
 - **Where:** `admin/analytics/index.blade.php:49,690`; `messages/chat.blade.php:98`
 - **Fix:** `Carbon::parse(...)->locale(app()->getLocale())->isoFormat('LL')`.
 

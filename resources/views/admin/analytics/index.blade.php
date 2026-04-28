@@ -46,7 +46,7 @@
             {{ __('Data is cached for 5 minutes.') }}
             {{ __('Last updated:') }}
             <strong>{{ $cachedAt->diffForHumans() }}</strong>
-            <span class="text-amber-600">({{ $cachedAt->format('Y-m-d H:i:s') }})</span>
+            <span class="text-amber-600">({{ $cachedAt->locale(app()->getLocale())->isoFormat('LL HH:mm:ss') }})</span>
         </span>
         <span class="ml-auto text-amber-600 text-xs hidden sm:block">
             {{ __('Use the Refresh button to force a reload.') }}
@@ -687,7 +687,7 @@
                             </td>
                             <td class="px-4 py-2.5 text-gray-600">{{ $d->city ?? '—' }}</td>
                             <td class="px-4 py-2.5 text-gray-600">{{ ucwords(str_replace(['_', '-'], ' ', $d->sector ?? '')) }}</td>
-                            <td class="px-4 py-2.5 text-center text-gray-500">{{ $d->created_at->format('Y-m-d') }}</td>
+                            <td class="px-4 py-2.5 text-center text-gray-500">{{ $d->created_at->locale(app()->getLocale())->isoFormat('LL') }}</td>
                         </tr>
                         @endforeach
                     </tbody>
