@@ -26,7 +26,7 @@ class CleanupOrphanedUploads extends Command
      *
      * @var string
      */
-    protected $description = 'Cleanup orphaned temporary upload files older than 12 hours';
+    protected $description = 'Cleanup orphaned temporary upload files older than 24 hours';
 
     /**
      * Execute the console command.

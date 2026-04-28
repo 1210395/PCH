@@ -588,7 +588,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `GmailOAuthService.php:144-149`
 - **Fix:** Pass `$retried=false` flag, log retry result, cap to one retry.
 
-### M-56. Upload-cleanup cutoff disagreement (12h vs 24h)
+### M-56. ✅ Upload-cleanup cutoff disagreement (12h vs 24h)
 - **Where:** `CleanupOrphanedUploads.php:29` ("12 hours") vs `ImageUploadController.php:883` (`subHours(24)`)
 - **Fix:** Pick one; align both.
 
