@@ -71,8 +71,10 @@
                 <form method="POST" action="{{ route('verification.send', ['locale' => app()->getLocale()]) }}" x-data="{ sending: false, cooldown: 0 }">
                     @csrf
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2 text-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}">{{ __('Email Address') }}</label>
-                        <input type="email" name="email" required placeholder="you@example.com"
+                        <label for="resend_email" class="block text-sm font-medium text-gray-700 mb-2 text-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}">{{ __('Email Address') }}</label>
+                        <input id="resend_email" type="email" name="email" value="{{ old('email') }}" required maxlength="255"
+                               aria-label="{{ __('Email Address') }}"
+                               placeholder="you@example.com"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                     </div>
                     <button
