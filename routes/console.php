@@ -39,3 +39,15 @@ Schedule::command('images:cleanup-orphaned --no-interaction')
     ->onFailure(function () {
         Log::error('schedule: images:cleanup-orphaned failed');
     });
+
+// Weekly counter rebuild — repairs any drift in followers_count /
+// following_count / likes_count / comments_count / projects_count caused
+// by partial failures or legacy races. (bugs.md M-9)
+Schedule::command('pch:recompute-counters')
+    ->weekly()
+    ->mondays()
+    ->at('05:00')
+    ->withoutOverlapping(30)
+    ->onFailure(function () {
+        Log::error('schedule: pch:recompute-counters failed');
+    });
