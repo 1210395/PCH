@@ -194,9 +194,20 @@ class GmailOAuthService
     {
         $boundary = md5(uniqid());
 
-        $headers = "From: {$name} <{$from}>\r\n";
-        $headers .= "To: {$to}\r\n";
-        $headers .= "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n";
+        // Strip CR/LF from any header-injected user input. A designer with
+        // a name like "Foo\r\nBcc: attacker@..." would otherwise inject an
+        // arbitrary header into every outgoing email. Same for `from` and
+        // `to`. Encode the display name as a quoted RFC 2047 phrase so
+        // non-ASCII names render correctly in clients. (bugs.md L-29)
+        $cleanName = preg_replace('/[\r\n]+/', ' ', (string) $name);
+        $cleanFrom = preg_replace('/[\r\n]+/', '',  (string) $from);
+        $cleanTo   = preg_replace('/[\r\n]+/', '',  (string) $to);
+        $cleanSubj = preg_replace('/[\r\n]+/', ' ', (string) $subject);
+        $encodedName = '=?UTF-8?B?' . base64_encode($cleanName) . '?=';
+
+        $headers = "From: {$encodedName} <{$cleanFrom}>\r\n";
+        $headers .= "To: {$cleanTo}\r\n";
+        $headers .= "Subject: =?UTF-8?B?" . base64_encode($cleanSubj) . "?=\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n";
         $headers .= "\r\n";

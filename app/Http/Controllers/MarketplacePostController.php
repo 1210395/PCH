@@ -461,9 +461,21 @@ class MarketplacePostController extends Controller
         $sharerName = $currentDesigner->first_name . ' ' . $currentDesigner->last_name;
         $postTitle = \Illuminate\Support\Str::limit($post->title, 100);
         $sharedCount = 0;
+        $skippedCount = 0;
 
         foreach ($validated['user_ids'] as $userId) {
             if ($userId == $currentDesigner->id) continue;
+
+            // Per-recipient daily cap: a sharer can deliver at most 5
+            // share-notifications to the same recipient in a 24h window.
+            // Without this, a malicious sharer could spam one target by
+            // re-submitting the share form. (bugs.md L-30)
+            $cacheKey = "share_throttle_{$currentDesigner->id}_{$userId}";
+            $recentShares = (int) \Cache::get($cacheKey, 0);
+            if ($recentShares >= 5) {
+                $skippedCount++;
+                continue;
+            }
 
             NotificationController::createNotification(
                 $userId,
@@ -476,6 +488,7 @@ class MarketplacePostController extends Controller
                     'sharer_id' => $currentDesigner->id,
                 ]
             );
+            \Cache::put($cacheKey, $recentShares + 1, 86400);
             $sharedCount++;
         }
 

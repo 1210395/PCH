@@ -1,12 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\WebhookController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 /*
 |--------------------------------------------------------------------------
@@ -18,10 +13,15 @@ Route::get('/user', function (Request $request) {
 |
 */
 
+// L-38: removed dead `Route::get('/user')` Sanctum scaffold —
+// no Sanctum guard configured and no UI references it.
+
 Route::prefix('v1')->group(function () {
     // Jobs.ps Tender Webhook
-    // Endpoint: POST /api/v1/tenders/receive
-    // Also handles GET for status check and other methods gracefully
-    Route::any('/tenders/receive', [WebhookController::class, 'handleTender'])
+    // L-37: scope to GET (status check) + POST (ingest) only.
+    // The previous Route::any accepted PUT/DELETE/PATCH/HEAD/OPTIONS,
+    // which gave attackers free hits on the controller dispatcher
+    // even though handleTender immediately returns on non-POST.
+    Route::match(['GET', 'POST'], '/tenders/receive', [WebhookController::class, 'handleTender'])
         ->name('api.webhooks.tenders.receive');
 });

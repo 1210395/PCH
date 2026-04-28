@@ -443,6 +443,11 @@ class MessagesController extends Controller
         }
         $conversation->save();
 
+        // Bust the recipient's unread-count cache so the navbar badge
+        // updates immediately instead of waiting for the 30s TTL.
+        // (bugs.md L-31)
+        \Cache::forget("unread_messages_{$receiverId}");
+
         // Throttled notification - max 1 per 5 min per conversation
         $recentNotification = Notification::where('designer_id', $receiverId)
             ->where('type', 'new_message')

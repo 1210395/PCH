@@ -284,19 +284,26 @@ class MarketplaceCommentController extends Controller
      */
     private function formatComment($comment)
     {
+        // Defensive: a comment whose author was soft-deleted will return
+        // null for ->designer and crash $comment->designer->id. Show
+        // "[deleted]" rather than 500. (bugs.md L-26)
+        $designerData = $comment->designer
+            ? [
+                'id' => $comment->designer->id,
+                'name' => $comment->designer->name,
+                'avatar' => $comment->designer->avatar
+                    ? url('media/' . $comment->designer->avatar)
+                    : null,
+            ]
+            : ['id' => 0, 'name' => __('[deleted]'), 'avatar' => null];
+
         $formatted = [
             'id' => $comment->id,
             'content' => $comment->content,
             'is_edited' => $comment->is_edited,
             'created_at' => $comment->created_at->toISOString(),
             'created_at_human' => $comment->created_at->diffForHumans(),
-            'designer' => [
-                'id' => $comment->designer->id,
-                'name' => $comment->designer->name,
-                'avatar' => $comment->designer->avatar
-                    ? url('media/' . $comment->designer->avatar)
-                    : null,
-            ],
+            'designer' => $designerData,
             'is_owner' => auth('designer')->check() && auth('designer')->id() === $comment->designer_id,
             'replies' => [],
         ];
@@ -304,19 +311,22 @@ class MarketplaceCommentController extends Controller
         // Format replies if loaded
         if ($comment->relationLoaded('replies') && $comment->replies->count() > 0) {
             $formatted['replies'] = $comment->replies->map(function ($reply) {
+                $replyDesigner = $reply->designer
+                    ? [
+                        'id' => $reply->designer->id,
+                        'name' => $reply->designer->name,
+                        'avatar' => $reply->designer->avatar
+                            ? url('media/' . $reply->designer->avatar)
+                            : null,
+                    ]
+                    : ['id' => 0, 'name' => __('[deleted]'), 'avatar' => null];
                 return [
                     'id' => $reply->id,
                     'content' => $reply->content,
                     'is_edited' => $reply->is_edited,
                     'created_at' => $reply->created_at->toISOString(),
                     'created_at_human' => $reply->created_at->diffForHumans(),
-                    'designer' => [
-                        'id' => $reply->designer->id,
-                        'name' => $reply->designer->name,
-                        'avatar' => $reply->designer->avatar
-                            ? url('media/' . $reply->designer->avatar)
-                            : null,
-                    ],
+                    'designer' => $replyDesigner,
                     'is_owner' => auth('designer')->check() && auth('designer')->id() === $reply->designer_id,
                 ];
             });

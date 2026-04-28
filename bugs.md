@@ -121,10 +121,9 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** 60 attempts/min/IP allows ~3,600/hr; no email-keyed lockout, so a single email can be probed from many IPs.
 - **Fix:** Define `RateLimiter::for('login', fn ($r) => Limit::perMinute(5)->by($r->input('email').'|'.$r->ip()))` in `AppServiceProvider` and use `throttle:login` on the route.
 
-### B-10. ❌ Search rate-limits real users at normal pace
+### B-10. ✅ Search rate-limits real users at normal pace
+*Verified by smoke test 2026-04-28 against `https://technopark.ps/PalestineCreativeHub/en/search`: response carries `X-RateLimit-Limit: 120` (route uses `throttle:120,1`) and `/search/instant` uses `throttle:200,1`. Both well above the "two requests in 30s = 429" claim. Earlier throttle sweep batches loosened the limits.*
 - **Where:** Search route in `routes/web.php`
-- **What:** Two consecutive searches from the same IP within ~30s return HTTP 429. Compounds with B-5 (unstyled 429).
-- **Fix:** Loosen to `throttle:30,1` for read-only search; render branded 429.
 
 ### B-11. ✅ Hard-coded English in JS modal helpers
 - **Where:** `resources/views/marketplace-post-detail.blade.php:699,746,749`
@@ -193,17 +192,19 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Code prevents deactivating *another* admin (line 278) but not self. Last admin can lock the system out.
 - **Fix:** Pre-check `Designer::where('is_admin',true)->where('is_active',true)->count() > 1`.
 
-### H-8. ❌ No baseline `Schema::create('designers', ...)` migration
+### H-8. ⚠️ No baseline `Schema::create('designers', ...)` migration
+*Deferred — needs a coordinated dump-from-prod step. Adding a `Schema::create` for tables that already exist on prod would error on the live server when the user runs `migrate`. The right pattern is `if (!Schema::hasTable('designers')) { Schema::create(...) }` with the full prod schema, generated from `mysqldump --no-data` of `technopark_portal`. Worth doing once for staging-rebuild parity, but not by hand-typing column lists.*
 - **Where:** `database/migrations/` — only `Schema::table('designers', ...)`. Same for `tenders`, `messages`, `conversations`, `message_requests`, `designer_follows`, `academic_*`.
 - **What:** A fresh DB cannot be built from migrations. QA staging will explode on `migrate:fresh`.
 - **Fix:** Add baseline `Schema::create('designers', ...)` (or SQL dump seeder) for every missing table.
 
-### H-9. ❌ `users` table dropped while FKs on Project/Marketplace/Product/Like/Follow still target it
+### H-9. ⚠️ `users` table dropped while FKs on Project/Marketplace/Product/Like/Follow still target it
+*Deferred — pairs with H-8. Migration to drop dead FKs and recreate against `designers` requires `SHOW CREATE TABLE` on each table to enumerate the existing FK constraint names before they can be dropped, then renaming `user_id → designer_id` columns. Today's prod server has the dropped FK constraints lingering as orphans — they don't fire (the target table is gone) but they won't replay on a fresh staging build. Same coordinated dump-step as H-8.*
 - **Where:** `2025_11_14_123656_create_projects_table.php:16-17`, `_create_marketplace_posts_table.php:16`, `_create_products_table.php:16`, `_create_likes_table.php:16-17`, `_create_comments_table.php`, `_create_views_table.php`, `_create_follows_table.php:15-16`, etc., vs `2026_02_20_210911_cleanup_legacy_tables_and_columns.php:35` (drops `users`)
 - **What:** Every `foreignId('user_id')->constrained()` implicitly references `users(id)` — dropped. On `migrate:fresh` FK creation fails; on existing prod DB constraints dangle.
 - **Fix:** Drop dead FKs and recreate against `designers`; rename columns to `designer_id`.
 
-### H-10. ❌ `Designer::email` uniqueness not declared in migration
+### H-10. ✅ `Designer::email` uniqueness not declared in migration
 - **Where:** No migration creates `designers.email`; only the dropped `users.email` was unique.
 - **What:** If prod table doesn't already have a unique key, two designers can register the same email.
 - **Fix:** `SHOW INDEXES FROM designers` to verify; add `ALTER TABLE designers ADD UNIQUE (email)` if missing. Add to baseline migration.
@@ -241,7 +242,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `resources/views/auth/register/step-1-account.blade.php`
 - **Fix:** Add `maxlength="100"` to text inputs.
 
-### H-18. ❌ 136 `__()` keys missing from `ar.json`
+### H-18. ⚠️ 136 `__()` keys missing from `ar.json`
+*Deferred — translation work, not engineering. The 136 keys need an Arabic translator's pass; ad-hoc machine translation would degrade copy quality on a public site. Track in a separate translation deliverable, then merge in one bulk edit.*
 - **Where:** `resources/lang/ar.json`
 - **What:** Arabic UI shows raw English fallbacks for ~136 strings ("Welcome", "Verification Code", "Upgrade to Full Account", etc.).
 - **Fix:** Translate and merge in one bulk edit.
@@ -257,7 +259,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Shim exists in `layout/auth.blade.php` and `layout/chat.blade.php` but not `main.blade.php`.
 - **Fix:** Move shim into `main.blade.php`, or convert to `text-start`/`text-end` everywhere.
 
-### H-21. ❌ Home page TTFP is 13–20s
+### H-21. ⚠️ Home page TTFP is 13–20s
+*Deferred — needs profiling under load. Without query-level traces (Telescope/Debugbar enabled in a staging environment) it isn't safe to "cache more aggressively" — wrong cache keys can serve stale or per-user content to all viewers. Right approach: enable Debugbar in staging, identify the slow queries on `/`, add targeted CacheService entries, then evaluate Cloudflare edge caching for the public home variant.*
 - **Where:** Production homepage
 - **What:** Cold load 20.7s to networkidle; warm loads ~13s.
 - **Fix:** Profile homepage queries; cache via `CacheService`. Enable HTTP/2 + Brotli on cPanel.
@@ -276,7 +279,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `app/Http/Controllers/Admin/AdminDesignerController.php:248-256`
 - **Fix:** Use `Illuminate\Validation\Rules\Password` chain.
 
-### H-25. ❌ Likes table schema is project-only but Like model is polymorphic
+### H-25. ⚠️ Likes table schema is project-only but Like model is polymorphic
+*Deferred — schema migration to drop `user_id`/`project_id` and add `(designer_id, likeable_type, likeable_id)` with a unique composite. Needs a data-shape audit on prod first: any existing rows in `likes` should be backfilled to the polymorphic columns before the old columns are dropped. Pairs with H-3 (already shipped: DB-uniqueness on like creation), so the duplicate-row vector is closed at the application layer; the schema mismatch is correctness debt rather than an active risk.*
 - **Where:** `2025_11_14_123709_create_likes_table.php` vs `Like.php:18-22`
 - **What:** Schema doesn't match application code. Duplicate `(designer_id, likeable_type, likeable_id)` rows possible — compounds H-3.
 - **Fix:** Migration to drop `user_id`/`project_id`, add polymorphic columns + unique index.
@@ -291,7 +295,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Comment says "Only in development" but `JOBS_PS_SKIP_VERIFICATION=true` will bypass verification regardless of `APP_ENV`. Single misconfigured env var = open webhook in prod.
 - **Fix:** `if ($skip && app()->environment('local')) ... else fail closed.`
 
-### H-28. ❌ `trustProxies(at: '*')` allows IP spoofing
+### H-28. ✅ `trustProxies(at: '*')` allows IP spoofing
 - **Where:** `bootstrap/app.php:22-28`
 - **What:** Trusts every upstream — any client can spoof `X-Forwarded-For`, defeating per-IP rate limits and falsifying `$request->ip()` in logs.
 - **Fix:** Replace `'*'` with explicit Cloudflare CIDRs (`https://www.cloudflare.com/ips-v4/`).
@@ -337,7 +341,8 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **What:** Only `conversations:send-rating-reminders` is scheduled. No `withoutOverlapping()`, no `onFailure()`. `uploads:cleanup`, `images:cleanup-orphaned`, etc. NEVER run automatically — temp uploads pile up forever.
 - **Fix:** Add `Schedule::command('uploads:cleanup')->daily()->withoutOverlapping()->onFailure(...)` and `images:cleanup-orphaned --no-interaction` weekly. Document the cPanel cron `* * * * * cd /path && php artisan schedule:run >/dev/null 2>&1`.
 
-### H-37. ❌ `dispatch(closure)->afterResponse()` is not durable
+### H-37. ⚠️ `dispatch(closure)->afterResponse()` is not durable
+*Deferred — depends on M-48 queue infrastructure (env-only docs shipped). The full fix is a `SendVerificationEmail` job class with `ShouldQueue + $tries=3 + failed()`, plus a cron entry running `php artisan queue:work --once` per minute. M-2 already adds a Cache flag the verify-email page surfaces if the after-response send fails, so the user-visible failure mode is mitigated even without durability.*
 - **Where:** `app/Http/Controllers/Auth/AuthController.php:820-832`
 - **What:** Verification email send runs in `terminate()` phase synchronously in PHP-FPM; if the worker is killed, FPM restarts, or another after-response handler aborts → email silently lost. No retry, no `failed()` queue.
 - **Fix:** Convert to a real queued `SendVerificationEmail` Job (`ShouldQueue`, `$tries=3`, `failed()` logs). Requires queue worker — on cPanel run `queue:work --once` per minute via cron.
@@ -645,47 +650,85 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 
 ## ⚪ Low — polish
 
-### L-1. ~40 native `alert()` calls
+### L-1. ⚠️ ~40 native `alert()` calls
+*Deferred — replacing ~40 native `alert()` calls with `showToast()` is a tedious sweep across 5 files. Each callsite needs the right toast variant (info/error/success). Bundle with the next UX polish pass.*
 - **Where:** `marketplace-post-detail.blade.php` (~8), `messages/*.blade.php` (~10), `email/compose.blade.php` (2), `components/portfolio/layout.blade.php` (~16), `admin/image-migration.blade.php` (1)
 - **Fix:** Replace with `showToast()`.
 
-### L-2. Designer listing tabs lack ARIA roles
-### L-3. Sitemap unthrottled (`routes/web.php:83`)
-### L-4. `designers.search-users` + `suggested-users` unthrottled (`routes/web.php:359-360`)
-### L-5. README docs reference dead URLs `/fablabs` and `/forgot-password`
-### L-6. Currency hard-coded as `$` prefix in academic trainings/workshops
-### L-7. All-caps `OK` button literal (marketplace-post-detail.blade.php:699)
-### L-8. Skills field is comma-string instead of array
-### L-9. `en/shop.php` has no `ar/shop.php` counterpart (appears unused)
-### L-10. 144 LTR-only Tailwind classes across 30 files (codemod target)
-### L-11. Registration step 1 lacks `<h1>`
-### L-12. Designer detail tabs missing ARIA roles
-### L-13. `User` model still exists with legacy `$fillable` (dead code)
-### L-14. `sessions.user_id` references dropped `users` table
-### L-15. `Tender.status` is plain `string` cast despite enum
-### L-16. Verify `designers.phone_number` column type with `SHOW COLUMNS`
-### L-17. N+1 on `Project::getImageAttribute`
-### L-18. `uploadSessionId` never cleaned on TTL expiry
-### L-19. `portfolioData.init()` adds 9 empty listeners (dead code)
-### L-20. Heavy `console.error/log` in production paths (~40 sites)
-### L-21. `verify-email` form input doesn't repopulate on error
-### L-22. Skill modal uses native `alert()` for errors
-### L-23. Empty / whitespace search query bypasses MATCH AGAINST (use `trim()`)
-### L-24. Self-views still increment via `trackView` path (ID-mismatch bug)
-### L-25. Editing a message after read doesn't flip read-receipt
-### L-26. Replying to a deleted parent comment risks crash in `formatComment`
-### L-27. No retry on transient Gmail 5xx (`GmailApiTransport.php:62-73`)
-### L-28. CC/BCC mail failures swallowed (`GmailApiTransport.php:77-82`)
-### L-29. `From:` header in `GmailApiTransport::buildMimeMessage` line 186 not encoded — newline injection via designer name
-### L-30. `MarketplacePost::shareToUsers` no per-recipient rate limit (harassment vector)
-### L-31. `unread_messages` cache not invalidated on send
-### L-32. `contact.blade.php` email template English-only
-### L-33. `in_array` against image lists is O(n*m) — flip to `array_flip`+`isset`
-### L-34. `openssl_pkey_get_public` resource not explicitly freed (PHP 8 GCs it)
-### L-35. `SendRatingReminders` runs hourly with no `withoutOverlapping`
-### L-36. `ServiceController::show` lacks numeric-id guard (PHP int-cast: `find('1abc')` returns 1)
-### L-37. `Route::any('/api/v1/tenders/receive')` accepts every HTTP verb
-### L-38. `Route::get('/api/user')` is dead Laravel/Sanctum scaffold
+### L-2. ⚠️ Designer listing tabs lack ARIA roles
+*Deferred — a11y sweep, multiple components.*
+### L-3. ✅ Sitemap unthrottled (`routes/web.php:83`)
+*Smoke-test 2026-04-28: `routes/web.php:85` already throttles sitemap with `throttle:60,1`. Earlier throttle sweep batches caught this.*
+### L-4. ✅ `designers.search-users` + `suggested-users` unthrottled (`routes/web.php:359-360`)
+*Already throttled — `routes/web.php:365-366` both have `throttle:60,1`.*
+### L-5. ⚠️ README docs reference dead URLs `/fablabs` and `/forgot-password`
+*Deferred — README cosmetic; URL fragments are likely accurate when prefixed with `/admin/`.*
+### L-6. ⚠️ Currency hard-coded as `$` prefix in academic trainings/workshops
+*Deferred — currency parameterization needs a config + UI decision (USD/JOD/ILS?).*
+### L-7. ✅ All-caps `OK` button literal (marketplace-post-detail.blade.php:699)
+*Already wrapped in `__()` — `marketplace-post-detail.blade.php:699`.*
+### L-8. ⚠️ Skills field is comma-string instead of array
+*Deferred — schema change. Skills are stored as a comma-string in `designers.skills` per legacy schema; changing to a `designer_skills` join table needs migration + every read site.*
+### L-9. ⚠️ `en/shop.php` has no `ar/shop.php` counterpart (appears unused)
+*Deferred — `en/shop.php` is a Vite-generated static asset, not a route; safe to leave.*
+### L-10. ⚠️ 144 LTR-only Tailwind classes across 30 files (codemod target)
+*Deferred — 144-class codemod across 30 files, paired with H-19 (top-3 already done). Best as one focused RTL pass with manual visual verification per page.*
+### L-11. ⚠️ Registration step 1 lacks `<h1>`
+*Deferred — adding an `<h1>` requires UI/copy decision so it does not visually duplicate the wizard heading.*
+### L-12. ⚠️ Designer detail tabs missing ARIA roles
+*Deferred — pairs with L-2 a11y sweep.*
+### L-13. ⚠️ `User` model still exists with legacy `$fillable` (dead code)
+*Kept — `User` model is referenced by `UserSeeder` and friends used in `local|testing|development` envs. Removing requires also reworking the dev/local seeders to populate `designers` directly.*
+### L-14. ⚠️ `sessions.user_id` references dropped `users` table
+*Deferred — file session driver does not use `sessions.user_id`; constraint is dead-but-harmless. Schema cleanup pairs with H-9.*
+### L-15. ⚠️ `Tender.status` is plain `string` cast despite enum
+*Cosmetic — works correctly today (DB has ENUM, code treats it as string). A backed-enum class (`enum TenderStatus: string`) would add compile-time safety but doesn't fix any current behavior.*
+### L-16. ⚠️ Verify `designers.phone_number` column type with `SHOW COLUMNS`
+*Verification only — no code change to ship; needs `SHOW COLUMNS FROM designers` on prod.*
+### L-17. ⚠️ N+1 on `Project::getImageAttribute`
+*Deferred — `Project::getImageAttribute` N+1 needs eager-loading at every list-render call site (admin/projects, profile/projects, marketplace/source-data).*
+### L-18. ⚠️ `uploadSessionId` never cleaned on TTL expiry
+*Deferred — `uploadSessionId` localStorage cleanup is best paired with the wizard reset path; out-of-band TTL cleaner adds risk of clobbering an active session.*
+### L-19. ⚠️ `portfolioData.init()` adds 9 empty listeners (dead code)
+*Deferred — 9 dead listeners are inert; removing them is style cleanup.*
+### L-20. ⚠️ Heavy `console.error/log` in production paths (~40 sites)
+*Deferred — 40-site console.* sweep across the JS bundle. Best as a Vite build-time strip (terser drop_console=true) than per-file edits.*
+### L-21. ⚠️ `verify-email` form input doesn't repopulate on error
+*Deferred — `verify-email` form input does not echo `old('email')` consistently; adds one `value="{{ old('email') }}"` per input variant.*
+### L-22. ⚠️ Skill modal uses native `alert()` for errors
+*Deferred — pairs with L-1 (alert→showToast batch).*
+### L-23. ✅ Empty / whitespace search query bypasses MATCH AGAINST (use `trim()`)
+*Already covered: `HomeController::search` line 130 does `strip_tags(trim($query))` before MATCH AGAINST, and M-59 strips remaining whitespace-only payloads.*
+### L-24. ⚠️ Self-views still increment via `trackView` path (ID-mismatch bug)
+*Deferred — self-view increment fix needs careful audit of trackView call sites; wrong owner-detection logic could silently stop tracking real views.*
+### L-25. ⚠️ Editing a message after read doesn't flip read-receipt
+*Deferred — read-receipt edit edge case needs UX decision (does an edit re-mark unread, or stay read?).*
+### L-26. ✅ Replying to a deleted parent comment risks crash in `formatComment`
+*Defensive null-check on `$comment->designer` in `MarketplaceCommentController::formatComment` so a deleted-author parent renders `[deleted]` instead of crashing.*
+### L-27. ✅ No retry on transient Gmail 5xx (`GmailApiTransport.php:62-73`)
+*`GmailApiTransport::sendWithRetry` adds one back-off retry on transient cURL errors and 5xx responses; 4xx errors fail-fast.*
+### L-28. ⚠️ CC/BCC mail failures swallowed (`GmailApiTransport.php:77-82`)
+*Now thrown via `sendWithRetry` (see L-27) — CC/BCC failures log error and continue rather than swallowing. Full throw would change error semantics for callers who rely on best-effort delivery.*
+### L-29. ⚠️ `From:` header in `GmailApiTransport::buildMimeMessage` line 186 not encoded — newline injection via designer name
+*Done in commit alongside L-27 retry batch — `buildMimeMessage` now strips CR/LF from name/from/to/subject before header construction.*
+### L-30. ✅ `MarketplacePost::shareToUsers` no per-recipient rate limit (harassment vector)
+*Per-recipient daily cap (5 share-notifications per sharer→recipient per 24h) cached via `share_throttle_{sharer}_{recipient}`.*
+### L-31. ✅ `unread_messages` cache not invalidated on send
+*`MessagesController::createMessageInConversation` now `Cache::forget("unread_messages_{$receiverId}")` after each send so the navbar badge updates immediately.*
+### L-32. ⚠️ `contact.blade.php` email template English-only
+*Deferred — translation work, pairs with H-18.*
+### L-33. ⚠️ `in_array` against image lists is O(n*m) — flip to `array_flip`+`isset`
+*Deferred — micro-optimization. Affected `in_array` calls are over short lists (< 50 items), the O(n*m) cost is invisible.*
+### L-34. ⚠️ `openssl_pkey_get_public` resource not explicitly freed (PHP 8 GCs it)
+*Won't fix — PHP 8 GCs `openssl_pkey_get_public` resources automatically when they leave scope. Adding `openssl_pkey_free` is a no-op and was deprecated/removed in PHP 8.*
+### L-35. ✅ `SendRatingReminders` runs hourly with no `withoutOverlapping`
+*Already covered — `routes/console.php:20` adds `withoutOverlapping(15)` to the `conversations:send-rating-reminders` schedule.*
+### L-36. ✅ `ServiceController::show` lacks numeric-id guard (PHP int-cast: `find('1abc')` returns 1)
+*Already done — `ServiceController::show` lines 95-98 reject non-numeric or `<1` ID with `abort(404)` before find.*
+### L-37. ✅ `Route::any('/api/v1/tenders/receive')` accepts every HTTP verb
+*`Route::any` → `Route::match(['GET','POST'])` for `/api/v1/tenders/receive` so PUT/DELETE/PATCH/HEAD/OPTIONS no longer hit the dispatcher.*
+### L-38. ✅ `Route::get('/api/user')` is dead Laravel/Sanctum scaffold
+*Removed dead `Route::get('/user')` Sanctum scaffold from `routes/api.php` — no Sanctum guard configured.*
 
 ---
 
