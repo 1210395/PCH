@@ -140,13 +140,24 @@ class GmailOAuthService
                 'response' => $response,
             ]);
 
-            // If token expired, clear cache and retry once
+            // If token expired, clear cache and retry once.
+            // sendEmailWithToken() does NOT itself 401-retry, so this is
+            // capped at exactly one retry — no recursion possible. Logging
+            // both outcomes so failed retries surface in the log file.
+            // (bugs.md M-55)
             if ($httpCode === 401) {
                 Cache::forget('gmail_oauth_access_token');
                 $newToken = $this->getAccessToken();
                 if ($newToken) {
-                    return $this->sendEmailWithToken($newToken, $from, $name, $to, $subject, $htmlBody);
+                    $retryOk = $this->sendEmailWithToken($newToken, $from, $name, $to, $subject, $htmlBody);
+                    if ($retryOk) {
+                        Log::info('Gmail API: 401 retry succeeded after token refresh', ['to' => $to]);
+                        return true;
+                    }
+                    Log::error('Gmail API: 401 retry also failed', ['to' => $to]);
+                    throw new \RuntimeException('Gmail API Error: 401 retry failed after token refresh');
                 }
+                Log::error('Gmail API: 401 received but token refresh returned no token', ['to' => $to]);
             }
 
             throw new \RuntimeException("Gmail API Error (HTTP $httpCode): $errorMsg");

@@ -80,6 +80,17 @@
                         // Description is stored as HTML from Quill editor — sanitize with allowed tags
                         $allowedTags = '<p><br><strong><b><em><i><u><s><ul><ol><li><a><h1><h2><h3><h4><h5><h6><blockquote><pre><code><table><thead><tbody><tr><th><td><div><span>';
                         $cleanDescription = strip_tags($tender->description ?? '', $allowedTags);
+
+                        // strip_tags keeps tag attributes intact, including
+                        // dangerous ones like onclick=, onerror=, and
+                        // href="javascript:...". Tenders are admin-managed,
+                        // but a compromised admin (or insider) could XSS the
+                        // public viewer through this field. Strip event
+                        // handlers and javascript:/data: URI hrefs.
+                        // (bugs.md M-12)
+                        $cleanDescription = preg_replace('/\s+on[a-z]+\s*=\s*"[^"]*"/i', '', $cleanDescription);
+                        $cleanDescription = preg_replace("/\s+on[a-z]+\s*=\s*'[^']*'/i", '', $cleanDescription);
+                        $cleanDescription = preg_replace('/\s+href\s*=\s*["\']?\s*(?:javascript|data|vbscript):[^"\'>]*["\']?/i', ' href="#"', $cleanDescription);
                     @endphp
                     <div class="prose prose-sm max-w-none text-gray-600" dir="{{ $descDir }}" style="text-align: {{ $descDir == 'rtl' ? 'right' : 'left' }};">
                         {!! $cleanDescription !!}

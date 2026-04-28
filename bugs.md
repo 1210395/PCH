@@ -400,7 +400,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `app/Models/Designer.php:56-106`
 - **Fix:** Pick one convention; recommend `$guarded = ['id','is_admin','is_trusted','verified','*_count']`.
 
-### M-12. Tender description rendered with `{!! !!}` after permissive `strip_tags`
+### M-12. ✅ Tender description rendered with `{!! !!}` after permissive `strip_tags`
 - **Where:** `resources/views/tender-detail.blade.php:79-86`
 - **Fix:** Use `mews/purifier` or drop `<a>` from allow-list.
 
@@ -499,7 +499,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `components/portfolio/layout.blade.php:259, 418-434`
 - **Fix:** Reset `currentItem={}` on modal close.
 
-### M-37. `services` model not in `HasApprovalStatus::$typeMap`
+### M-37. ✅ `services` model not in `HasApprovalStatus::$typeMap`
 - **Where:** `app/Models/Traits/HasApprovalStatus.php:48`
 - **Fix:** Add Service to `$typeMap`; verify Service uses the trait.
 
@@ -584,7 +584,7 @@ False positives confirmed: B-2, B-13, H-7, H-22, H-33, M-37 — see inline notes
 - **Where:** `NotificationSubscriptionService.php:50, 308`
 - **Fix:** Pass creator name in or cache the lookup.
 
-### M-55. `GmailOAuthService` 401 retry recursion possible
+### M-55. ✅ `GmailOAuthService` 401 retry recursion possible
 - **Where:** `GmailOAuthService.php:144-149`
 - **Fix:** Pass `$retried=false` flag, log retry result, cap to one retry.
 
